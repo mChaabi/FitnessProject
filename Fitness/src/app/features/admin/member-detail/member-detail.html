@@ -1,0 +1,76 @@
+@if (member(); as m) {
+  <div class="head">
+    <div><h1>{{ m.firstName }} {{ m.lastName }}</h1><span class="badge badge-info">{{ m.status }}</span></div>
+    <div class="actions">
+      @if (auth.role() === 'ADMIN') { 
+        <a class="btn btn-ghost" [routerLink]="['/admin/members', m.id, 'progress']">Progression</a>
+      }
+      <a [routerLink]="['/admin/members', m.id, 'edit']" class="btn btn-ghost">Modifier</a>
+      @if (auth.role() === 'ADMIN') { <button class="btn btn-ghost" (click)="deactivate()">Désactiver</button> }
+      <button class="btn btn-primary" onclick="window.print()">Imprimer la carte</button>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <div class="card">
+      <h3>Informations</h3>
+      <p><strong>Email :</strong> {{ m.email }}</p>
+      <p><strong>Téléphone :</strong> {{ m.phone || '-' }}</p>
+      <p><strong>Âge :</strong> {{ m.age ?? '-' }}</p>
+      <p><strong>Objectif :</strong> {{ m.goal || '-' }}</p>
+      <p><strong>Inscrit le :</strong> {{ m.joinedAt | date:'dd/MM/yyyy' }}</p>
+      <p><strong>Compte :</strong> {{ m.hasAccount ? 'Oui' : 'Non' }}</p>
+    </div>
+    <div class="card qr">
+      <h3>Carte d'accès</h3>
+      @if (qrUrl()) { <img [src]="qrUrl()" alt="QR code du membre" width="220" height="220"> }
+      <small class="muted">À scanner à l'entrée</small>
+    </div>
+    <div class="card" style="margin-top:1rem">
+  <h3>Vendre un abonnement</h3>
+  @if (saleError()) { <div class="alert-error">{{ saleError() }}</div> }
+  <div class="sell">
+    <select (change)="planId.set(+$any($event.target).value || null)">
+      <option value="">Choisir un plan...</option>
+      @for (p of plans(); track p.id) { <option [value]="p.id">{{ p.name }} - {{ p.price }} MAD ({{ p.durationDays }} j)</option> }
+    </select>
+    <select (change)="method.set($any($event.target).value)">
+      <option value="CASH">Espèces</option><option value="CARD">Carte</option><option value="TRANSFER">Virement</option>
+    </select>
+    <button class="btn btn-primary" [disabled]="!planId() || selling()" (click)="sell()">
+      {{ selling() ? 'Traitement...' : 'Encaisser' }}</button>
+  </div>
+</div>
+
+<div class="card" style="margin-top:1rem"><h3>Historique</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Plan</th><th>Du</th><th>Au</th><th>Statut</th><th>Montant</th><th></th></tr></thead>
+    <tbody>
+      @for (h of history(); track h.subscriptionId) {
+        <tr><td>{{ h.planName }}</td><td>{{ h.startDate | date:'dd/MM/yyyy' }}</td><td>{{ h.endDate | date:'dd/MM/yyyy' }}</td>
+          <td><span class="badge" [class]="h.status === 'ACTIVE' ? 'badge-success' : 'badge-danger'">{{ h.status }}</span></td>
+          <td>{{ h.amount | currency:'MAD ':'symbol':'1.2-2' }}</td>
+          <td><button class="btn btn-ghost" (click)="download(h)">Reçu</button></td></tr>
+      } @empty { <tr><td colspan="6" class="empty">Aucun abonnement.</td></tr> }
+    </tbody></table></div>
+</div>
+@if (auth.role() === 'ADMIN') {
+  <div class="card" style="margin-top:1rem">
+    <h3>Coaching et compte</h3>
+    @if (msg()) { <p class="muted">{{ msg() }}</p> }
+    <div class="sell">
+      <select (change)="assignCoach($any($event.target).value)">
+        <option value="">Aucun coach</option>
+        @for (c of coaches(); track c.id) { <option [value]="c.id">{{ c.prenom }} {{ c.nom }}</option> }
+      </select>
+    </div>
+    @if (!m.hasAccount) {
+      <div class="sell" style="margin-top:.75rem">
+        <input type="email" placeholder="Email du compte membre à lier" (input)="linkEmail.set($any($event.target).value)">
+        <button class="btn btn-ghost" (click)="link()">Lier le compte</button>
+      </div>
+    }
+  </div>
+}
+  </div>
+}

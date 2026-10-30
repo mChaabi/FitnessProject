@@ -1,0 +1,12 @@
+<h1>Mes clients</h1>
+<div class="grid-cards">
+  @for (c of clients(); track c.id) {
+    <article class="card">
+      <h3>{{ c.firstName }} {{ c.lastName }}</h3>
+      <span class="badge badge-info">{{ c.status }}</span>
+      <p class="muted">Objectif : {{ c.goal || '-' }}</p>
+      <a class="btn btn-ghost" [routerLink]="['/coach/clients', c.id, 'progress']">Progression</a>
+<a class="btn btn-ghost" routerLink="/coach/programs/new" [queryParams]="{ memberId: c.id }">Nouveau programme</a>
+    </article>
+  } @empty { <p class="muted">{{ loading() ? 'Chargement...' : "Aucun client assigné pour l'instant." }}</p> }
+</div>

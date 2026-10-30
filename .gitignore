@@ -1,0 +1,8 @@
+
+
+.env
+fitnessBackEnd/src/main/resources/application-dev.properties
+target/
+node_modules/
+dist/
+backups/

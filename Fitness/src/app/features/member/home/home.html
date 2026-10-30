@@ -1,0 +1,20 @@
+<h1>Mon programme</h1>
+@for (p of programs(); track p.id) {
+  <div class="card" style="margin-bottom:1rem">
+    <h2>{{ p.name }}</h2>
+    <p class="muted">Coach : {{ p.coachName }} · depuis le {{ p.startDate }}@if (p.goal) { · {{ p.goal }} }</p>
+    @for (g of byDay(p); track g.label) {
+      <h3>{{ g.label }}</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Exercice</th><th>Séries × Reps</th><th>Repos</th><th>Notes</th></tr></thead>
+        <tbody>
+          @for (i of g.items; track i.id) {
+            <tr><td><strong>{{ i.exerciceName }}</strong></td><td>{{ i.sets }} × {{ i.reps }}</td>
+              <td>{{ i.restSeconds }} s</td><td>{{ i.notes || '-' }}</td></tr>
+          }
+        </tbody></table></div>
+    }
+  </div>
+} @empty {
+  <p class="muted">{{ loading() ? 'Chargement...' : "Aucun programme actif pour l'instant. Demandez à votre coach." }}</p>
+}

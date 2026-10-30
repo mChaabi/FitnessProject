@@ -1,0 +1,23 @@
+<h1>Emails</h1>
+<div class="chips" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+  <button class="chip" [class.active]="status() === ''" (click)="filter('')">Tous</button>
+  @for (s of statuses; track s) {
+    <button class="chip" [class.active]="status() === s" (click)="filter(s)">{{ s }} ({{ stats()[s] ?? 0 }})</button>
+  }
+</div>
+<div class="card"><div class="table-wrap"><table>
+  <thead><tr><th>Date</th><th>Type</th><th>Destinataire</th><th>Statut</th><th>IA</th><th>Détail</th><th></th></tr></thead>
+  <tbody>
+    @for (r of data()?.content; track r.id) {
+      <tr><td>{{ r.createdAt | date:'dd/MM HH:mm' }}</td><td>{{ r.type }}</td><td>{{ r.recipient }}</td>
+        <td><span class="badge" [class]="badge(r.status)">{{ r.status }}</span> @if (r.attempts > 1) { <small>×{{ r.attempts }}</small> }</td>
+        <td>{{ r.aiGenerated == null ? '-' : r.aiGenerated ? '🤖' : '📝' }}</td>
+        <td><small class="muted">{{ r.lastError || '' }}</small></td>
+        <td>@if (r.status === 'FAILED') { <button class="btn btn-ghost" (click)="retry(r)">Relancer</button> }</td></tr>
+    } @empty { <tr><td colspan="7" class="empty">Aucun email.</td></tr> }
+  </tbody></table></div>
+  @if (data(); as d) { @if (d.totalPages > 1) {
+    <div class="pager"><button class="btn btn-ghost" [disabled]="d.number===0" (click)="go(d.number-1)">←</button>
+      <span>Page {{ d.number+1 }} / {{ d.totalPages }}</span>
+      <button class="btn btn-ghost" [disabled]="d.number+1>=d.totalPages" (click)="go(d.number+1)">→</button></div> } }
+</div>

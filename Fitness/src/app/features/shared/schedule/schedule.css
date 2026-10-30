@@ -1,0 +1,30 @@
+.head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+.muted { color: var(--text-muted); margin: 0; }
+.nav { display: flex; gap: .5rem; }
+.alert-ok { background: var(--success-soft); color: var(--success); padding: .75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; }
+
+.week { display: grid; grid-template-columns: repeat(7, minmax(150px, 1fr)); gap: .75rem; overflow-x: auto; padding-bottom: .5rem; }
+.day { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem; min-height: 200px; }
+.day.today { border-color: var(--primary); }
+.day h3 { font: 700 .8rem var(--font-body); text-transform: capitalize; color: var(--text-muted); margin-bottom: .6rem; }
+.empty { color: var(--text-muted); font-size: .8rem; text-align: center; margin-top: 1rem; }
+
+.session { display: grid; gap: .3rem; background: var(--surface-2); border-left: 4px solid var(--primary);
+           border-radius: var(--radius-sm); padding: .6rem; margin-bottom: .6rem; }
+.session.cancelled { opacity: .55; border-left-color: var(--danger); }
+.time { font-weight: 700; font-size: .8rem; color: var(--primary); }
+.spots { font-size: .78rem; color: var(--success); font-weight: 600; }
+.spots.full { color: var(--danger); }
+.session .btn { padding: .4rem .7rem; font-size: .8rem; }
+.row { display: flex; gap: .4rem; }
+
+.panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 100%); z-index: 80; background: var(--surface);
+         border-left: 1px solid var(--border); box-shadow: var(--shadow-lg); padding: 1.25rem; overflow-y: auto; display: grid; align-content: start; gap: .75rem; }
+.panel-head { display: flex; justify-content: space-between; align-items: start; }
+.hit { display: grid; text-align: left; padding: .6rem; background: var(--surface-2); border: 1px solid var(--border);
+       border-radius: var(--radius-sm); cursor: pointer; color: var(--text); }
+.hit:hover { border-color: var(--primary); }
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+.list li { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .5rem 0; border-bottom: 1px solid var(--border); }
+
+@media (max-width: 900px) { .week { grid-template-columns: 1fr; overflow: visible; } }

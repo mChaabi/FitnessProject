@@ -1,0 +1,6 @@
+/* S'assure que le contenu prend toute la place entre la navbar et le footer */
+.content-container {
+  min-height: calc(100vh - 150px); /* Ajustez selon la hauteur de votre navbar/footer */
+  padding: 20px;
+  display: block;
+}

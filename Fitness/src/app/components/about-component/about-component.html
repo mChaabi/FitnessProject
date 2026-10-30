@@ -1,0 +1,32 @@
+<section class="page container">
+  <header class="head">
+    <h1>À propos de <span>FitForge</span></h1>
+    <p class="lead">Plus qu'une salle de sport, un accompagnement complet.</p>
+  </header>
+
+  <div class="story">
+    <div>
+      <h2>Notre histoire</h2>
+      <p>FitForge est née de la volonté de rendre le sport accessible à tous. Notre plateforme combine
+         technologie et expertise humaine pour vous offrir un suivi réel de vos progrès.</p>
+      <p>Que vous soyez débutant ou athlète confirmé, nos programmes s'adaptent à vos objectifs :
+         perte de poids, prise de masse ou simple remise en forme.</p>
+      <a routerLink="/contact" class="btn btn-primary">Nous contacter</a>
+    </div>
+    <div class="panel"><strong>Cabo Negro</strong><span>Maroc</span></div>
+  </div>
+
+  <h2 class="title">Nos valeurs</h2>
+  <div class="grid">
+    @for (v of values; track v.title) {
+      <article class="card center"><span class="ico">{{ v.icon }}</span><h3>{{ v.title }}</h3><p>{{ v.text }}</p></article>
+    }
+  </div>
+
+  <h2 class="title">Rencontrez nos experts</h2>
+  <div class="grid">
+    @for (m of team; track m.name) {
+      <article class="card center"><span class="ico">{{ m.icon }}</span><h3>{{ m.name }}</h3><p>{{ m.role }}</p></article>
+    }
+  </div>
+</section>

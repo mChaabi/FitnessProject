@@ -1,0 +1,14 @@
+<section class="container" style="max-width:520px;padding:4rem 0">
+  <div class="card" style="text-align:center">
+    @switch (state()) {
+      @case ('idle') {
+        <h2>Se désabonner</h2>
+        <p>Vous ne recevrez plus de rappels ni de messages de suivi. Vous continuerez à recevoir les emails importants sur vos réservations.</p>
+        <button class="btn btn-primary" (click)="confirm()">Confirmer</button>
+      }
+      @case ('loading') { <p>Un instant...</p> }
+      @case ('done') { <h2>C'est fait ✓</h2><p>Vous ne recevrez plus ces emails.</p> }
+      @case ('error') { <h2>Lien invalide</h2><p>Ce lien est incorrect ou incomplet.</p> }
+    }
+  </div>
+</section>

@@ -1,0 +1,36 @@
+.head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem; }
+.muted { color: var(--text-muted); margin: 0; }
+.spin { display: inline-block; animation: turn 1s linear infinite; }
+@keyframes turn { to { transform: rotate(360deg); } }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.kpi { display: grid; gap: .35rem; align-content: start; }
+.kpi small { color: var(--text-muted); font-weight: 600; }
+.kpi strong { font: 800 2.2rem/1 var(--font-display); }
+.kpi .badge { justify-self: start; }
+
+.alerts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.alert-card { display: flex; align-items: center; gap: .9rem; padding: .9rem 1.2rem; border-radius: var(--radius); border: 1px solid; }
+.alert-card strong { font: 800 1.8rem var(--font-display); }
+.alert-card.warn { background: var(--warning-soft); color: var(--warning); border-color: var(--warning); }
+.alert-card.danger { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); }
+
+.charts { display: grid; grid-template-columns: 1.4fr 1.4fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.box { position: relative; height: 240px; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.empty { text-align: center; color: var(--success); padding: 1.5rem; }
+
+.sessions { display: grid; gap: .6rem; margin: .5rem 0 1rem; }
+.srow { display: grid; grid-template-columns: 1.2fr 2fr auto; align-items: center; gap: 1rem; }
+.bar { height: 10px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--success); border-radius: 99px; }
+.bar span.full { background: var(--danger); }
+
+.skeleton { height: 120px; background: linear-gradient(90deg, var(--surface-2), var(--border), var(--surface-2));
+            background-size: 200% 100%; animation: shine 1.2s infinite; }
+@keyframes shine { to { background-position: -200% 0; } }
+.state { text-align: center; padding: 3rem; }
+
+@media (max-width: 1100px) { .charts { grid-template-columns: 1fr; } }
+@media (max-width: 800px) { .cols { grid-template-columns: 1fr; } .srow { grid-template-columns: 1fr; gap: .3rem; } }
+@media (prefers-reduced-motion: reduce) { .skeleton, .spin { animation: none; } }

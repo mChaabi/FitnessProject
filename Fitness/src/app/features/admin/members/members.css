@@ -1,0 +1,6 @@
+.head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem; }
+.muted { color: var(--text-muted); margin: 0; }
+.filters { display: flex; gap: .75rem; margin-bottom: 1rem; flex-wrap: wrap;
+  input { flex: 1; min-width: 220px; } select { width: auto; } }
+.empty { text-align: center; color: var(--text-muted); padding: 2rem; }
+.pager { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1rem; }

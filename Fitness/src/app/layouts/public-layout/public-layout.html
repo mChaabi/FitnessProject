@@ -1,0 +1,48 @@
+<header class="nav" [class.scrolled]="scrolled()">
+  <div class="container nav-inner">
+    <a routerLink="/" class="logo">FIT<span>FORGE</span></a>
+
+    <nav class="links" [class.open]="menuOpen()">
+      <a routerLink="/home" routerLinkActive="active" (click)="closeAll()">Accueil</a>
+      <a routerLink="/about" routerLinkActive="active" (click)="closeAll()">À propos</a>
+      <a routerLink="/exercices" routerLinkActive="active" (click)="closeAll()">Exercices</a>
+      <a routerLink="/coachs" routerLinkActive="active" (click)="closeAll()">Coachs</a>
+      <a routerLink="/tarifs" routerLinkActive="active" (click)="closeAll()">Abonnements</a>
+      <a routerLink="/contact" routerLinkActive="active" (click)="closeAll()">Contact</a>
+    </nav>
+
+    <div class="actions">
+      @if (auth.isLoggedIn()) {
+        <a [routerLink]="auth.homeFor(auth.role())" class="btn btn-primary">
+          <span class="avatar-sm">{{ auth.user()?.prenom?.charAt(0) }}</span> Mon espace
+        </a>
+      } @else {
+        <a routerLink="/login" class="btn btn-primary">Connexion</a>
+      }
+      <button class="burger" (click)="menuOpen.set(!menuOpen())" aria-label="Menu">☰</button>
+    </div>
+  </div>
+</header>
+
+<main><router-outlet /></main>
+
+<footer class="footer">
+  <div class="container foot-grid">
+    <div>
+      <a routerLink="/" class="logo">FIT<span>FORGE</span></a>
+      <p>Votre salle de sport, votre coach, vos résultats.</p>
+    </div>
+    <div>
+      <h3>Navigation</h3>
+      <a routerLink="/home">Accueil</a>
+      <a routerLink="/about">À propos</a>
+      <a routerLink="/exercices">Exercices</a>
+    </div>
+    <div>
+      <h3>Contact</h3>
+      <p>Cabo Negro, Maroc</p>
+      <p>contact&#64;fitforge.com</p>
+    </div>
+  </div>
+  <div class="copy">© 2026 FitForge. Tous droits réservés.</div>
+</footer>

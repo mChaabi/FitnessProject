@@ -1,0 +1,30 @@
+.head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; }
+.muted { color: var(--text-muted); margin: 0; }
+.kpis { display: flex; gap: .75rem; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: .6rem 1.2rem; text-align: center; }
+.kpi strong { display: block; font: 800 1.8rem var(--font-display); }
+.kpi.ok strong { color: var(--success); } .kpi.ko strong { color: var(--danger); }
+.kpi span { font-size: .75rem; color: var(--text-muted); }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+.lbl { display: block; font-size: .8rem; font-weight: 700; margin-bottom: .4rem; }
+.scan { font-size: 1.1rem; padding: 1rem; border: 2px dashed var(--primary); }
+.row { margin: .75rem 0; }
+#reader { width: 100%; max-width: 360px; margin-top: .5rem; }
+.err { color: var(--danger); font-size: .85rem; }
+.hit { display: grid; width: 100%; text-align: left; gap: .1rem; padding: .7rem; margin-top: .4rem;
+       background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--text); }
+.hit:hover { border-color: var(--primary); }
+.hit small { color: var(--text-muted); }
+
+.verdict { border-radius: var(--radius-lg); padding: 2rem 1.5rem; text-align: center; color: #fff;
+           display: grid; gap: .4rem; place-items: center; min-height: 260px; align-content: center; }
+.verdict .icon { font-size: 4rem; line-height: 1; }
+.verdict h2 { margin: 0; } .verdict p { margin: 0; }
+.verdict .big { font-size: 1.3rem; font-weight: 700; }
+.verdict.ok { background: var(--success); } .verdict.ko { background: var(--danger); }
+.verdict.dup { background: var(--info); }
+.verdict.idle { background: var(--surface); color: var(--text-muted); border: 2px dashed var(--border); }
+.verdict .warn { background: rgba(0,0,0,.2); padding: .4rem .8rem; border-radius: 99px; margin-top: .5rem; }
+
+@media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }

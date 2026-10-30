@@ -1,0 +1,67 @@
+<section class="hero">
+  <div class="container hero-inner">
+    <span class="eyebrow">Salle de sport premium</span>
+    <h1>Forgez le corps<br>que vous <em>voulez</em></h1>
+    <p>Coachs certifiés, programmes personnalisés et suivi de vos progrès, au même endroit.</p>
+    <div class="cta">
+      <a routerLink="/contact" class="btn btn-primary btn-lg">Essai gratuit</a>
+      <a routerLink="/exercices" class="btn btn-outline-light btn-lg">Voir les exercices</a>
+    </div>
+  </div>
+</section>
+
+<section class="section container">
+  <h2 class="title">Pourquoi nous choisir</h2>
+  <div class="features">
+    @for (f of features; track f.title) {
+      <article class="card feature">
+        <span class="ico">{{ f.icon }}</span>
+        <h3>{{ f.title }}</h3>
+        <p>{{ f.text }}</p>
+      </article>
+    }
+  </div>
+</section>
+
+@if (featured().length) {
+  <section class="section alt">
+    <div class="container">
+      <h2 class="title">Exercices à découvrir</h2>
+      <div class="features three">
+        @for (e of featured(); track e.id) {
+          <article class="card">
+            <span class="badge badge-info">{{ e.categorie }}</span>
+            <h3>{{ e.nom }}</h3>
+            <p>{{ e.description }}</p>
+          </article>
+        }
+      </div>
+      <p class="center"><a routerLink="/exercices" class="btn btn-ghost">Tous les exercices →</a></p>
+    </div>
+  </section>
+}
+
+@if (plans().length) {
+  <section class="section container">
+    <h2 class="title">Nos abonnements</h2>
+    <div class="features three">
+      @for (p of plans(); track p.id) {
+        <article class="card plan">
+          <h3>{{ p.name }}</h3>
+          <p class="price">{{ p.price | currency:'MAD ':'symbol':'1.0-2' }}</p>
+          <small>{{ p.durationDays }} jours</small>
+          <p>{{ p.description }}</p>
+          <a routerLink="/contact" class="btn btn-primary">Je m'inscris</a>
+        </article>
+      }
+    </div>
+  </section>
+}
+
+<section class="cta-band">
+  <div class="container">
+    <h2>Prêt à commencer ?</h2>
+    <p>Venez essayer gratuitement une séance.</p>
+    <a routerLink="/contact" class="btn btn-primary btn-lg">Réserver mon essai</a>
+  </div>
+</section>

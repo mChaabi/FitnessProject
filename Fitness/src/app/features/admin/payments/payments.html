@@ -1,0 +1,24 @@
+<h1>Paiements</h1>
+@if (revenue(); as r) {
+  <div class="stats">
+    <div class="card"><small class="muted">Revenus ce mois</small>
+      <h2>{{ r.thisMonth | currency:'MAD ':'symbol':'1.2-2' }}</h2>
+      @if (growth() !== null) { <span class="badge" [class]="growth()! >= 0 ? 'badge-success' : 'badge-danger'">{{ growth() }}% vs mois dernier</span> }</div>
+    <div class="card"><small class="muted">Mois dernier</small><h2>{{ r.lastMonth | currency:'MAD ':'symbol':'1.2-2' }}</h2></div>
+  </div>
+}
+<div class="card"><div class="table-wrap"><table>
+  <thead><tr><th>Reçu</th><th>Membre</th><th>Plan</th><th>Montant</th><th>Mode</th><th>Date</th><th></th></tr></thead>
+  <tbody>
+    @for (p of data()?.content; track p.id) {
+      <tr><td>{{ p.receiptNumber }}</td><td>{{ p.memberName }}</td><td>{{ p.planName }}</td>
+        <td><strong>{{ p.amount | currency:'MAD ':'symbol':'1.2-2' }}</strong></td><td>{{ p.method }}</td>
+        <td>{{ p.paidAt | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td><button class="btn btn-ghost" (click)="receipt(p)">PDF</button></td></tr>
+    } @empty { <tr><td colspan="7" class="empty">Aucun paiement.</td></tr> }
+  </tbody></table></div>
+  @if (data(); as d) { @if (d.totalPages > 1) {
+    <div class="pager"><button class="btn btn-ghost" [disabled]="d.number===0" (click)="go(d.number-1)">←</button>
+      <span>Page {{ d.number+1 }} / {{ d.totalPages }}</span>
+      <button class="btn btn-ghost" [disabled]="d.number+1>=d.totalPages" (click)="go(d.number+1)">→</button></div> } }
+</div>

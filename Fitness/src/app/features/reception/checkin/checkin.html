@@ -1,0 +1,66 @@
+<div class="head">
+  <div><h1>Check-in</h1><p class="muted">Scannez le QR du membre à l'entrée</p></div>
+  <div class="kpis">
+    <div class="kpi ok"><strong>{{ stats().entered }}</strong><span>Entrées</span></div>
+    <div class="kpi ko"><strong>{{ stats().denied }}</strong><span>Refusées</span></div>
+  </div>
+</div>
+
+<div class="cols">
+  <div>
+    <div class="card">
+      <label class="lbl">Lecteur QR / saisie du code</label>
+      <input #scan autofocus class="scan" placeholder="Scannez ici..." autocomplete="off"
+             (keydown.enter)="onScanEnter(scan)">
+
+      <div class="row">
+        @if (!cameraOn()) { <button class="btn btn-ghost" (click)="startCamera()">📷 Activer la caméra</button> }
+        @else { <button class="btn btn-ghost" (click)="stopCamera()">Arrêter la caméra</button> }
+      </div>
+      @if (cameraError()) { <p class="err">{{ cameraError() }}</p> }
+      <div id="reader" [hidden]="!cameraOn()"></div>
+    </div>
+
+    <div class="card" style="margin-top:1rem">
+      <label class="lbl">Recherche manuelle</label>
+      <input type="search" [formControl]="search" placeholder="Nom ou email du membre...">
+      @for (m of found(); track m.id) {
+        <button class="hit" (click)="checkMember(m)">
+          <strong>{{ m.lastName }} {{ m.firstName }}</strong>
+          <small>{{ m.email }} · {{ m.status }}</small>
+        </button>
+      }
+    </div>
+  </div>
+
+  <div>
+    @if (result(); as r) {
+      <div class="verdict" [class.ok]="r.outcome === 'ALLOWED'" [class.dup]="r.outcome === 'DUPLICATE'"
+           [class.ko]="r.outcome === 'DENIED'" role="status" aria-live="assertive">
+        <div class="icon">{{ r.outcome === 'ALLOWED' ? '✓' : r.outcome === 'DUPLICATE' ? '↺' : '✕' }}</div>
+        <h2>{{ r.memberName ?? 'Inconnu' }}</h2>
+        <p class="big">{{ r.message }}</p>
+        @if (r.planName) { <p>{{ r.planName }} · jusqu'au {{ r.endDate | date:'dd/MM/yyyy' }}</p> }
+        @if (r.expiringSoon && r.outcome !== 'DENIED') {
+          <p class="warn">⚠ Expire dans {{ r.daysLeft }} jour(s). Proposer le renouvellement.</p>
+        }
+      </div>
+    } @else {
+      <div class="verdict idle"><div class="icon">▦</div><p>En attente d'un scan...</p></div>
+    }
+
+    <div class="card" style="margin-top:1rem">
+      <h3>Entrées du jour</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Heure</th><th>Membre</th><th>Résultat</th></tr></thead>
+        <tbody>
+          @for (c of today(); track c.id) {
+            <tr><td>{{ c.checkedAt | date:'HH:mm' }}</td><td>{{ c.memberName }}</td>
+              <td><span class="badge" [class]="c.outcome === 'ALLOWED' ? 'badge-success' : 'badge-danger'">
+                {{ c.outcome === 'ALLOWED' ? 'Autorisé' : 'Refusé' }}</span></td></tr>
+          } @empty { <tr><td colspan="3" class="empty">Aucune entrée aujourd'hui.</td></tr> }
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>

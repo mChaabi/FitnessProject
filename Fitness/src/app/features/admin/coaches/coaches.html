@@ -1,0 +1,27 @@
+<h1>Coachs</h1>
+<div class="card" style="margin-bottom:1rem">
+  <h3>Nouveau coach</h3>
+  @if (error()) { <div class="alert-error">{{ error() }}</div> }
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="grid2">
+      <div class="form-group"><label>Prénom *</label><input formControlName="prenom"></div>
+      <div class="form-group"><label>Nom *</label><input formControlName="nom"></div>
+      <div class="form-group"><label>Email *</label><input type="email" formControlName="email"></div>
+      <div class="form-group"><label>Mot de passe initial * (8+)</label><input type="password" formControlName="motDePasse" autocomplete="new-password"></div>
+      <div class="form-group"><label>Spécialités</label><input formControlName="specialties" placeholder="Musculation, Cardio"></div>
+      <div class="form-group"><label>Bio</label><input formControlName="bio"></div>
+    </div>
+    <div class="actions"><button class="btn btn-primary">Créer</button></div>
+  </form>
+</div>
+
+<div class="card"><div class="table-wrap"><table>
+  <thead><tr><th>Coach</th><th>Spécialités</th><th>Clients</th><th>Statut</th><th></th></tr></thead>
+  <tbody>
+    @for (c of coaches(); track c.id) {
+      <tr><td><strong>{{ c.prenom }} {{ c.nom }}</strong><br><small class="muted">{{ c.email }}</small></td>
+        <td>{{ c.specialties || '-' }}</td><td>{{ c.clients }}</td>
+        <td><span class="badge" [class]="c.active ? 'badge-success' : 'badge-warning'">{{ c.active ? 'Actif' : 'Désactivé' }}</span></td>
+        <td><button class="btn btn-ghost" (click)="toggle(c)">{{ c.active ? 'Désactiver' : 'Réactiver' }}</button></td></tr>
+    } @empty { <tr><td colspan="5" class="empty">Aucun coach.</td></tr> }
+  </tbody></table></div></div>

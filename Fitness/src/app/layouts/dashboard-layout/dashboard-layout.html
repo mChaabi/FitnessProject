@@ -1,0 +1,31 @@
+<div class="shell">
+  <aside class="sidebar" [class.open]="open()">
+    <a routerLink="/" class="logo">FIT<span>FORGE</span></a>
+    <nav>
+  @for (s of sections(); track s.name) {
+    <p class="group">{{ s.name }}</p>
+    @for (i of s.items; track i.link) {
+      <a [routerLink]="i.link" routerLinkActive="active" (click)="open.set(false)">
+        <span class="ico">{{ i.icon }}</span> {{ i.label }}
+      </a>
+    }
+  }
+</nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="burger" (click)="open.set(!open())" aria-label="Menu">☰</button>
+      <div class="spacer"></div>
+      <div class="user">
+        <div class="avatar">{{ initials() }}</div>
+        <div class="who">
+          <strong>{{ auth.user()?.prenom }} {{ auth.user()?.nom }}</strong>
+          <small>{{ auth.role() }}</small>
+        </div>
+        <button class="btn btn-ghost" (click)="auth.logout()">Déconnexion</button>
+      </div>
+    </header>
+    <section class="content"><router-outlet /></section>
+  </div>
+</div>

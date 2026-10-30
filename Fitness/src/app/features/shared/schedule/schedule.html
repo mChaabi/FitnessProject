@@ -1,0 +1,83 @@
+<div class="head">
+  <div><h1>Planning</h1><p class="muted">{{ title() }}</p></div>
+  <div class="nav">
+    <button class="btn btn-ghost" (click)="shift(-1)" aria-label="Semaine précédente">←</button>
+    <button class="btn btn-ghost" (click)="thisWeek()">Aujourd'hui</button>
+    <button class="btn btn-ghost" (click)="shift(1)" aria-label="Semaine suivante">→</button>
+  </div>
+</div>
+
+@if (message(); as m) { <div [class]="m.ok ? 'alert-ok' : 'alert-error'" role="status">{{ m.text }}</div> }
+
+<div class="week">
+  @for (d of days(); track d.key) {
+    <section class="day" [class.today]="d.today">
+      <h3>{{ d.label }}</h3>
+      @for (s of d.sessions; track s.id) {
+        <article class="session" [class.cancelled]="s.status === 'CANCELLED'">
+          <div class="time">{{ time(s.startTime) }} – {{ time(s.endTime) }}</div>
+          <strong>{{ s.name }}</strong>
+          <small class="muted">{{ s.coachName }}@if (s.room) { · {{ s.room }} }</small>
+
+          @if (s.status === 'CANCELLED') {
+            <span class="badge badge-danger">Annulée</span>
+          } @else {
+            <div class="spots" [class.full]="free(s) === 0">
+              {{ free(s) === 0 ? 'Complet' : free(s) + ' place(s)' }}
+              @if (s.waiting > 0) { · {{ s.waiting }} en attente }
+            </div>
+
+            @if (isMember()) {
+              @if (s.myStatus === 'CONFIRMED') {
+                <span class="badge badge-success">Inscrit</span>
+                @if (s.bookable) { <button class="btn btn-ghost" [disabled]="busy() === s.id" (click)="cancel(s)">Annuler</button> }
+              } @else if (s.myStatus === 'WAITLIST') {
+                <span class="badge badge-warning">Liste d'attente #{{ s.myPosition }}</span>
+                <button class="btn btn-ghost" [disabled]="busy() === s.id" (click)="cancel(s)">Quitter la liste</button>
+              } @else if (s.bookable) {
+                <button class="btn btn-primary" [disabled]="busy() === s.id" (click)="book(s)">
+                  {{ free(s) === 0 ? "Liste d'attente" : 'Réserver' }}</button>
+              } @else { <small class="muted">Terminée</small> }
+            }
+          }
+
+          @if (canSeeAttendees()) {
+            <div class="row">
+              <button class="btn btn-ghost" (click)="showAttendees(s)">👥 {{ s.confirmed }}/{{ s.capacity }}</button>
+              @if (isAdmin() && s.status === 'SCHEDULED' && s.bookable) {
+                <button class="btn btn-ghost" (click)="cancelSession(s)" aria-label="Annuler la séance">✕</button>
+              }
+            </div>
+          }
+        </article>
+      } @empty { <p class="empty">{{ loading() ? '...' : 'Aucune séance' }}</p> }
+    </section>
+  }
+</div>
+
+@if (open(); as s) {
+  <aside class="panel" role="dialog" aria-label="Participants">
+    <div class="panel-head">
+      <div><strong>{{ s.name }}</strong><br><small class="muted">{{ s.date }} · {{ time(s.startTime) }}</small></div>
+      <button class="btn btn-ghost" (click)="closePanel()" aria-label="Fermer">✕</button>
+    </div>
+
+    @if (isStaff() && s.bookable) {
+      <input type="search" [formControl]="search" placeholder="Ajouter un membre...">
+      @for (m of found(); track m.id) {
+        <button class="hit" (click)="addMember(m)"><strong>{{ m.lastName }} {{ m.firstName }}</strong><small>{{ m.email }}</small></button>
+      }
+    }
+
+    <ul class="list">
+      @for (a of attendees(); track a.bookingId) {
+        <li>
+          <span>{{ a.memberName }}</span>
+          <span class="badge" [class]="a.status === 'CONFIRMED' ? 'badge-success' : 'badge-warning'">
+            {{ a.status === 'CONFIRMED' ? 'Confirmé' : 'En attente' }}</span>
+          @if (isStaff() && s.bookable) { <button class="btn btn-ghost" (click)="removeAttendee(a)" aria-label="Retirer">✕</button> }
+        </li>
+      } @empty { <li class="muted">Aucun participant.</li> }
+    </ul>
+  </aside>
+}

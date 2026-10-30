@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${subject}">FitForge</title>
+</head>
+<body style="margin:0;background:#f4f6fa;font-family:Arial,Helvetica,sans-serif;color:#0f172a">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fa;padding:24px 0">
+    <tr><td align="center">
+        <table role="presentation" width="560" cellpadding="0" cellspacing="0"
+               style="max-width:560px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden">
+
+            <tr><td style="background:#0b1220;padding:20px 28px">
+                <span style="font-size:24px;font-weight:800;letter-spacing:1px;color:#ffffff">FIT<span style="color:#f97316">FORGE</span></span>
+            </td></tr>
+
+            <tr><td style="padding:28px">
+                <p style="margin:0 0 14px;font-size:18px;font-weight:700">Bonjour <span th:text="${prenom}">Membre</span>,</p>
+                <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#334155" th:text="${paragraph}">Texte</p>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" th:if="${!facts.isEmpty()}"
+                       style="background:#f8fafc;border-radius:8px;margin-bottom:24px">
+                    <tr th:each="f : ${facts}">
+                        <td style="padding:10px 16px;font-size:13px;color:#64748b;border-bottom:1px solid #e5e9f0" th:text="${f.label()}">Libellé</td>
+                        <td style="padding:10px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #e5e9f0" th:text="${f.value()}">Valeur</td>
+                    </tr>
+                </table>
+
+                <a th:href="${ctaUrl}" th:text="${ctaLabel}"
+                   style="display:inline-block;background:#f97316;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:12px 24px;border-radius:8px">Ouvrir</a>
+
+                <p style="margin:28px 0 0;font-size:14px;color:#334155">À très vite,<br><strong>L'équipe FitForge</strong></p>
+            </td></tr>
+
+            <tr><td style="padding:16px 28px;background:#f8fafc;font-size:12px;color:#94a3b8;text-align:center">
+                FitForge · Cabo Negro, Maroc
+                <span th:if="${unsubscribeUrl != null}"><br>
+          <a th:href="${unsubscribeUrl}" style="color:#94a3b8">Ne plus recevoir ces emails</a></span>
+            </td></tr>
+        </table>
+    </td></tr>
+</table>
+</body>
+</html>

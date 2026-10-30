@@ -1,0 +1,35 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Connexion <span>Fitness</span></h2>
+      <p>Heureux de vous revoir ! Prêt pour votre séance ?</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <div class="form-control">
+        <label for="email">Email</label>
+        <input type="email" id="email" formControlName="email" placeholder="exemple@mail.com" />
+      </div>
+
+      <div class="form-control">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" formControlName="motDePasse" placeholder="••••••••" />
+      </div>
+      @if (error()) {
+        <div class="alert-error">{{ error() }}</div>
+      }
+
+      <button
+        type="submit"
+        [disabled]="loginForm.invalid || loading()"
+        class="btn btn-primary btn-lg full"
+      >
+        {{ loading() ? 'Connexion...' : 'Se connecter' }}
+      </button>
+
+      <div class="login-footer">
+        <p>Pas encore de compte ? <a routerLink="/register">Inscrivez-vous ici</a></p>
+      </div>
+    </form>
+  </div>
+</div>

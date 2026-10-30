@@ -1,0 +1,63 @@
+name: fitforge
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: fitness_db
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes: [db_data:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      retries: 12
+      start_period: 40s
+
+  backend:
+    build: ./fitnessBackEnd
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DB_URL: jdbc:mysql://db:3306/fitness_db?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+      DB_USER: root
+      DB_PASSWORD: ${DB_ROOT_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      UNSUB_SECRET: ${UNSUB_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      APP_FRONTEND_URL: http://localhost
+      APP_PUBLIC_API_URL: http://localhost/api
+
+  web:
+    build: ./Fitness
+    restart: unless-stopped
+    depends_on:
+      backend: { condition: service_healthy }
+    ports: ["80:80"]
+
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [web]
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [internal]  
+
+volumes:
+  db_data:
+   caddy_data:
+  caddy_config:
+
+networks:
+  internal:  

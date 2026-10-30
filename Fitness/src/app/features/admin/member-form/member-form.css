@@ -1,0 +1,5 @@
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+.actions { display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1rem; }
+.err { color: var(--danger); font-size: .8rem; }
+.alert-error { background: var(--danger-soft); color: var(--danger); padding: .75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; }
+@media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }

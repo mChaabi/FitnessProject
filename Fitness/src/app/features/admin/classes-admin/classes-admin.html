@@ -1,0 +1,59 @@
+<h1>Gestion des cours</h1>
+@if (message(); as m) { <div [class]="m.ok ? 'alert-ok' : 'alert-error'" role="status">{{ m.text }}</div> }
+
+<div class="card" style="margin-bottom:1rem">
+  <h3>{{ editingId() ? 'Modifier le cours récurrent' : 'Nouveau cours récurrent (chaque semaine)' }}</h3>
+  <form [formGroup]="tForm" (ngSubmit)="saveTemplate()">
+    <div class="grid2">
+      <div class="form-group"><label>Nom *</label><input formControlName="name" placeholder="Yoga"></div>
+      <div class="form-group"><label>Coach *</label>
+        <select formControlName="coachId"><option [ngValue]="0">Choisir...</option>
+          @for (c of coaches(); track c.id) { <option [ngValue]="c.id">{{ c.prenom }} {{ c.nom }}</option> }</select></div>
+      <div class="form-group"><label>Jour</label>
+        <select formControlName="dayOfWeek">@for (d of days; track d.n) { <option [ngValue]="d.n">{{ d.label }}</option> }</select></div>
+      <div class="form-group"><label>Heure</label><input type="time" formControlName="startTime"></div>
+      <div class="form-group"><label>Durée (min)</label><input type="number" formControlName="durationMinutes"></div>
+      <div class="form-group"><label>Places</label><input type="number" formControlName="capacity"></div>
+      <div class="form-group"><label>Salle</label><input formControlName="room"></div>
+      <div class="form-group"><label>Description</label><input formControlName="description"></div>
+    </div>
+    <div class="actions">
+      @if (editingId()) { <button type="button" class="btn btn-ghost" (click)="reset()">Annuler</button> }
+      <button class="btn btn-primary">Enregistrer</button>
+    </div>
+  </form>
+</div>
+
+<div class="card" style="margin-bottom:1rem"><div class="table-wrap"><table>
+  <thead><tr><th>Cours</th><th>Quand</th><th>Coach</th><th>Places</th><th>Statut</th><th></th></tr></thead>
+  <tbody>
+    @for (t of templates(); track t.id) {
+      <tr><td><strong>{{ t.name }}</strong><br><small class="muted">{{ t.room }}</small></td>
+        <td>{{ dayLabel(t.dayOfWeek) }} {{ t.startTime.substring(0,5) }} ({{ t.durationMinutes }} min)</td>
+        <td>{{ t.coachName }}</td><td>{{ t.capacity }}</td>
+        <td><span class="badge" [class]="t.active ? 'badge-success' : 'badge-warning'">{{ t.active ? 'Actif' : 'Désactivé' }}</span></td>
+        <td class="actions"><button class="btn btn-ghost" (click)="edit(t)">Modifier</button>
+          <button class="btn btn-ghost" (click)="toggle(t)">{{ t.active ? 'Désactiver' : 'Activer' }}</button></td></tr>
+    } @empty { <tr><td colspan="6" class="empty">Aucun cours récurrent.</td></tr> }
+  </tbody></table></div>
+  <div class="actions"><button class="btn btn-ghost" (click)="generate()">↻ Générer les séances à venir</button></div>
+</div>
+
+<div class="card">
+  <h3>Séance ponctuelle (une seule date)</h3>
+  <form [formGroup]="sForm" (ngSubmit)="saveSession()">
+    <div class="grid2">
+      <div class="form-group"><label>Nom *</label><input formControlName="name" placeholder="Atelier nutrition"></div>
+      <div class="form-group"><label>Coach *</label>
+        <select formControlName="coachId"><option [ngValue]="0">Choisir...</option>
+          @for (c of coaches(); track c.id) { <option [ngValue]="c.id">{{ c.prenom }} {{ c.nom }}</option> }</select></div>
+      <div class="form-group"><label>Date *</label><input type="date" formControlName="date"></div>
+      <div class="form-group"><label>Heure *</label><input type="time" formControlName="startTime"></div>
+      <div class="form-group"><label>Durée (min)</label><input type="number" formControlName="durationMinutes"></div>
+      <div class="form-group"><label>Places</label><input type="number" formControlName="capacity"></div>
+      <div class="form-group"><label>Salle</label><input formControlName="room"></div>
+      <div class="form-group"><label>Description</label><input formControlName="description"></div>
+    </div>
+    <div class="actions"><button class="btn btn-primary">Créer la séance</button></div>
+  </form>
+</div>

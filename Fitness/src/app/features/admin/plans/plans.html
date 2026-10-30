@@ -1,0 +1,36 @@
+<h1>Abonnements</h1>
+
+<div class="card" style="margin-bottom:1rem">
+  <h3>{{ editingId() ? 'Modifier le plan' : 'Nouveau plan' }}</h3>
+  @if (error()) { <div class="alert-error">{{ error() }}</div> }
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="grid2">
+      <div class="form-group"><label>Nom *</label><input formControlName="name" placeholder="Mensuel"></div>
+      <div class="form-group"><label>Prix (MAD) *</label><input type="number" step="0.01" formControlName="price"></div>
+      <div class="form-group"><label>Durée (jours) *</label><input type="number" formControlName="durationDays"></div>
+      <div class="form-group"><label>Description</label><input formControlName="description"></div>
+    </div>
+    <div class="actions">
+      @if (editingId()) { <button type="button" class="btn btn-ghost" (click)="reset()">Annuler</button> }
+      <button class="btn btn-primary">Enregistrer</button>
+    </div>
+  </form>
+</div>
+
+<div class="card"><div class="table-wrap"><table>
+  <thead><tr><th>Plan</th><th>Prix</th><th>Durée</th><th>Statut</th><th></th></tr></thead>
+  <tbody>
+    @for (p of plans(); track p.id) {
+      <tr>
+        <td><strong>{{ p.name }}</strong><br><small class="muted">{{ p.description }}</small></td>
+        <td>{{ p.price | currency:'MAD ':'symbol':'1.2-2' }}</td>
+        <td>{{ p.durationDays }} jours</td>
+        <td><span class="badge" [class]="p.active ? 'badge-success' : 'badge-warning'">{{ p.active ? 'Actif' : 'Désactivé' }}</span></td>
+        <td class="actions">
+          <button class="btn btn-ghost" (click)="edit(p)">Modifier</button>
+          <button class="btn btn-ghost" (click)="toggle(p)">{{ p.active ? 'Désactiver' : 'Activer' }}</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table></div></div>

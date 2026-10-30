@@ -1,0 +1,39 @@
+<h1>{{ id ? 'Modifier le programme' : 'Nouveau programme' }}</h1>
+<div class="card">
+  @if (error()) { <div class="alert-error">{{ error() }}</div> }
+  @if (!memberId) { <div class="alert-error">Choisissez un client depuis « Mes clients ».</div> }
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="grid2">
+      <div class="form-group"><label>Nom du programme *</label><input formControlName="name" placeholder="Prise de masse - 8 semaines"></div>
+      <div class="form-group"><label>Début *</label><input type="date" formControlName="startDate"></div>
+    </div>
+    <div class="form-group"><label>Objectif</label><input formControlName="goal"></div>
+
+    <h3>Séances</h3>
+    <div formArrayName="items">
+      @for (g of items.controls; track $index) {
+        <div class="line" [formGroupName]="$index">
+          <select formControlName="dayOfWeek">
+            @for (d of days; track d.n) { <option [ngValue]="d.n">{{ d.label }}</option> }
+          </select>
+          <select formControlName="exerciceId">
+            <option [ngValue]="0">Exercice...</option>
+            @for (e of exercices(); track e.id) { <option [ngValue]="e.id">{{ e.nom }}</option> }
+          </select>
+          <input type="number" formControlName="sets" title="Séries" placeholder="Séries">
+          <input type="number" formControlName="reps" title="Répétitions" placeholder="Reps">
+          <input type="number" formControlName="restSeconds" title="Repos (s)" placeholder="Repos s">
+          <input formControlName="notes" placeholder="Notes">
+          <button type="button" class="btn btn-ghost" (click)="removeItem($index)" aria-label="Supprimer">✕</button>
+        </div>
+      }
+    </div>
+    <button type="button" class="btn btn-ghost" (click)="addItem()">+ Ajouter un exercice</button>
+
+    <div class="actions">
+      <a routerLink="/coach/clients" class="btn btn-ghost">Annuler</a>
+      <button class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Enregistrement...' : 'Enregistrer' }}</button>
+    </div>
+  </form>
+</div>

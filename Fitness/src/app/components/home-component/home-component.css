@@ -1,0 +1,27 @@
+.hero {
+  background: linear-gradient(115deg, rgba(11,18,32,.96) 35%, rgba(11,18,32,.6)),
+              url('/gym-hero.jpg') center/cover, var(--navy);
+  color: #fff; padding: 7rem 0 6rem;
+}
+.eyebrow { color: var(--primary); font-weight: 700; letter-spacing: .15em; text-transform: uppercase; font-size: .8rem; }
+.hero h1 { font-size: clamp(2.8rem, 7vw, 5.2rem); margin: .8rem 0 1rem; }
+.hero h1 em { color: var(--primary); font-style: normal; }
+.hero p { max-width: 520px; color: #cbd5e1; font-size: 1.15rem; }
+.cta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+
+.section { padding: 4.5rem 0; }
+.section.alt { background: var(--surface); }
+.title { text-align: center; margin-bottom: 2.5rem; }
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.25rem; }
+.features.three { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.feature { text-align: center; transition: transform .25s, box-shadow .25s; }
+.feature:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.ico { font-size: 2rem; }
+.card p { color: var(--text-muted); }
+
+.plan { text-align: center; display: grid; gap: .4rem; align-content: start; }
+.price { font: 800 2.2rem var(--font-display); color: var(--primary) !important; margin: 0; }
+.center { text-align: center; margin-top: 2rem; }
+
+.cta-band { background: var(--navy); color: #fff; text-align: center; padding: 4rem 0; }
+.cta-band p { color: #94a3b8; margin-bottom: 1.5rem; }

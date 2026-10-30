@@ -1,0 +1,45 @@
+<section class="page container">
+  <h1>Nos <span>exercices</span></h1>
+  <p class="lead">Choisissez l'entraînement qui vous correspond le mieux.</p>
+
+  <div class="toolbar">
+    <input type="search" placeholder="Rechercher un exercice..." (input)="query.set($any($event.target).value)">
+    <div class="chips">
+      @for (c of categories(); track c) {
+        <button class="chip" [class.active]="filter() === c" (click)="filter.set(c)">{{ label(c) }}</button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="grid">
+      @for (i of [1,2,3,4,5,6]; track i) { <div class="card skeleton"></div> }
+    </div>
+  } @else if (error()) {
+    <div class="state error">
+      <p>Impossible de charger les exercices pour le moment.</p>
+      <button class="btn btn-ghost" (click)="load()">Réessayer</button>
+    </div>
+  } @else if (visible().length === 0) {
+    <p class="state">Aucun exercice ne correspond à votre recherche.</p>
+  } @else {
+    <p class="count">{{ visible().length }} exercice(s)</p>
+    <div class="grid">
+      @for (e of visible(); track e.id) {
+        <article class="card ex">
+          <div class="thumb">
+            @if (src(e); as s) {
+              <img [src]="s" [alt]="e.nom" loading="lazy" (error)="onImgError(e.id)">
+            } @else {
+              <span class="fallback">{{ icon(e.categorie) }}</span>
+            }
+          </div>
+          <span class="badge badge-info">{{ label(e.categorie.toString().toUpperCase()) }}</span>
+          <h3>{{ e.nom }}</h3>
+          <p>{{ e.description }}</p>
+          <small>⏱ {{ e.duree }} min</small>
+        </article>
+      }
+    </div>
+  }
+</section>
