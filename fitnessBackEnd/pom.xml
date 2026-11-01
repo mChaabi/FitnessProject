@@ -78,6 +78,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.bsc.langgraph4j</groupId>
+			<artifactId>langgraph4j-core</artifactId>
+			<version>1.6.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-google-ai-gemini</artifactId>
 		</dependency>

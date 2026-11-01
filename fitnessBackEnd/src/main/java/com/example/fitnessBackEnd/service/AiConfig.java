@@ -32,4 +32,9 @@ public class AiConfig {
     EmailCopywriter emailCopywriter(ChatModel model) {
         return AiServices.create(EmailCopywriter.class, model);
     }
+
+    @Bean
+    ProgramDrafter programDrafter(ChatModel model) {
+        return AiServices.create(ProgramDrafter.class, model);
+    }
 }

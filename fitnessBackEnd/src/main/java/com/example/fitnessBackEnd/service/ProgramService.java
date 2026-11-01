@@ -38,6 +38,13 @@ public class ProgramService {
         return map(repo.save(p));
     }
 
+    /** Lanza 403 si el usuario no puede gestionar a este miembro (coach propietario o admin). */
+    @Transactional(readOnly = true)
+    public void assertCanManage(Long memberId, Authentication a) {
+        Member m = memberRepo.findById(memberId).orElseThrow(() -> new NotFoundException("Membre introuvable"));
+        coachFor(m, a);              // ya existe: comprueba admin o coach propietario
+    }
+
     @Transactional
     public ProgramResponse update(Long id, ProgramRequest r, Authentication auth) {
         WorkoutProgram p = detailed(id);
