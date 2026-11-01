@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import {  inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CoachingService } from '../../../services/coaching';
-import { ClassTemplate } from '../../../models/classes';
-import { Coach, DAYS } from '../../../models/coaching';
+import { CoachingService } from '../../../data/coaching/service/coaching';
+import { ClassTemplate } from '../../../data/classes/classes';
+import { Coach, DAYS } from '../../../data/coaching/coaching';
 import { ymd } from '../../../core/dates';
-import { ClassesService } from '../../../services/classes';
+import { ClassesService } from '../../../data/classes/service/classes';
 
 @Component({ selector: 'app-classes-admin', standalone: true, imports: [ReactiveFormsModule], templateUrl: './classes-admin.html' })
 export class ClassesAdmin {

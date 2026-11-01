@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 import { DestroyRef, ElementRef, PLATFORM_ID, effect, inject, signal, viewChild } from '@angular/core';
 import { CurrencyPipe, DatePipe, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { DashboardData } from '../../../models/dashboard';
-import { DashboardService } from '../../../services/dashboard';
+import { DashboardData } from '../../../data/dashboard/dashboard';
+import { DashboardService } from '../../../data/dashboard/service/dashboard';
 
 @Component({
   selector: 'app-dashboard', standalone: true,

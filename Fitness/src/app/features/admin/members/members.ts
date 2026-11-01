@@ -2,8 +2,8 @@ import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { MemberService } from '../../../services/member';
-import { Member, MemberStatus, Page } from '../../../models/member';
+import { MemberService } from '../../../data/members/service/member';
+import { Member, MemberStatus, Page } from '../../../data/members/member';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 

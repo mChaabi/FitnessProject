@@ -1,8 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core'; // <-- ¡Corregido desde '@angular/core'!
-import { BillingService } from '../../../services/billing';
-import { Page } from '../../../models/member';
-import { PaymentRow, Revenue } from '../../../models/billing';
+import { Component, inject, signal } from '@angular/core';
+import { BillingService } from '../../../data/billing/service/billing';
+import { Page, PaymentRow, Revenue } from '../../../data/billing/billing';
 
 @Component({ selector: 'app-payments', standalone: true, imports: [DatePipe, CurrencyPipe], templateUrl: './payments.html' })
 export class PaymentsComponent {

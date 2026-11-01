@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CoachingService } from '../../../services/coaching';
-import { Coach } from '../../../models/coaching';
+import { CoachingService } from '../../../data/coaching/service/coaching';
+import { Coach } from '../../../data/coaching/coaching';
 
 @Component({ selector: 'app-coaches', standalone: true, imports: [ReactiveFormsModule], templateUrl: './coaches.html' })
 export class CoachesComponent {

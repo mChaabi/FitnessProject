@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MemberService } from '../../../services/member';
+import { MemberService } from '../../../data/members/service/member';
 
 @Component({
   selector: 'app-member-form', standalone: true,

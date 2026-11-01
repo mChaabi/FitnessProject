@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
-import { CoachingService } from '../../../services/coaching';
-import { DAYS, Program } from '../../../models/coaching';
+import { CoachingService } from '../../../data/coaching/service/coaching';
+import { DAYS, Program } from '../../../data/coaching/coaching';
 
 @Component({ selector: 'app-member-home', standalone: true, templateUrl: './home.html' })
 export class Home {

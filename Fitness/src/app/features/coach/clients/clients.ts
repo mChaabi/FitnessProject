@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CoachingService } from '../../../services/coaching';
-import { Member } from '../../../models/member';
+import { CoachingService } from '../../../data/coaching/service/coaching';
+import { Member } from '../../../data/members/member';
 @Component({ selector: 'app-clients', standalone: true, imports: [RouterLink], templateUrl: './clients.html' })
 export class Clients {
   private svc = inject(CoachingService);

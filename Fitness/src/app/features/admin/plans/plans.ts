@@ -2,8 +2,8 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { inject } from '@angular/core'; // <-- ¡Corregido desde '@angular/core'!
-import { BillingService } from '../../../services/billing';
-import { Plan } from '../../../models/billing';
+import { BillingService } from '../../../data/billing/service/billing';
+import { Plan } from '../../../data/billing/billing';
 
 @Component({ selector: 'app-plans', standalone: true, imports: [ReactiveFormsModule, CurrencyPipe],
   templateUrl: './plans.html' })

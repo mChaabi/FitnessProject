@@ -1,13 +1,13 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MemberService } from '../../../services/member';
-import { AuthService } from '../../../services/auth-service';
-import { Member } from '../../../models/member';
-import { Plan, SubscriptionRow, PaymentMethod } from '../../../models/billing';
-import { BillingService } from '../../../services/billing';
-import { Coach } from '../../../models/coaching';
-import { CoachingService } from '../../../services/coaching';
+import { MemberService } from '../../../data/members/service/member';
+import { Plan, SubscriptionRow, PaymentMethod } from '../../../data/billing/billing';
+import { Coach } from '../../../data/coaching/coaching';
+import { CoachingService } from '../../../data/coaching/service/coaching';
+import { BillingService } from '../../../data/billing/service/billing';
+import { Member } from '../../../data/members/member';
+import { AuthService } from '../../../core/auth/auth-service';
 
 @Component({
   selector: 'app-member-detail',
@@ -40,7 +40,7 @@ export class MemberDetailComponent implements OnDestroy {
   constructor() {
     this.svc.get(this.id).subscribe((m) => this.member.set(m));
     this.svc.qr(this.id).subscribe((blob) => this.qrUrl.set(URL.createObjectURL(blob)));
-    this.billing.activePlans().subscribe((p) => this.plans.set(p));
+    this.billing.getPlans().subscribe((p) => this.plans.set(p));
     if (this.auth.role() === 'ADMIN') this.coaching.coaches().subscribe(c => this.coaches.set(c.filter(x => x.active)));
 
     this.loadHistory();
@@ -56,7 +56,7 @@ link() {
     });}
 
   loadHistory() {
-    this.billing.history(this.id).subscribe((h) => this.history.set(h));
+    this.billing.getSubscriptions(this.id).subscribe((h) => this.history.set(h));
   }
   
 
@@ -72,7 +72,7 @@ link() {
     if (!plan || this.selling()) return; // evita el doble clic = doble cobro
     this.selling.set(true);
     this.saleError.set('');
-    this.billing.sell(this.id, plan, this.method()).subscribe({
+    this.billing.createBilling(this.id, { planId: plan, method: this.method() }).subscribe({
       next: (r) => {
         this.selling.set(false);
         this.loadHistory();

@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { Page } from '../../../models/member';
+import { Page } from '../../../data/members/member';
 
 export interface OutboxRow { id: number; type: string; recipient: string; status: string; attempts: number;
   createdAt: string; sentAt?: string; aiGenerated?: boolean; lastError?: string; }

@@ -1,13 +1,13 @@
 import { DatePipe } from '@angular/common';
 import { Component, ElementRef, inject, OnDestroy, signal, ViewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { CheckinService } from '../../../services/checkin';
-import { MemberService } from '../../../services/member';
+import { CheckinService } from '../../../data/checkin/service/checkin';
+import { MemberService } from '../../../data/members/service/member';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, Observable } from 'rxjs';
 import { FormControl } from '@angular/forms';
-import { Member } from '../../../models/member';
-import { Outcome, CheckInResult, CheckInRow, TodayStats } from '../../../models/checkin';
+import { Member } from '../../../data/members/member';
+import { Outcome, CheckInResult, CheckInRow, TodayStats } from '../../../data/checkin/checkin';
 
 
 @Component({

@@ -1,9 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CoachingService } from '../../../services/coaching';
-import { DAYS, ProgramItem } from '../../../models/coaching';
-import { Exercice } from '../../../models/exercice';
+import { CoachingService } from '../../../data/coaching/service/coaching';
+import { DAYS, ProgramItem } from '../../../data/coaching/coaching';
+import { Exercice } from '../../../data/public/exercice';
 
 @Component({ selector: 'app-program-form', standalone: true, imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './program-form.html' })
