@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +37,7 @@ class ProgramDraftEngineTest extends AbstractIntegrationTest {
                     : new DraftProgram("P", "g", List.of(new DraftItem(id, 1, 3, 10, 60, null)));
         };
         var provider = new StaticObjectProvider<>(fake);
-        var engine = new ProgramDraftEngine(provider, validator);
+        var engine = new ProgramDraftEngine(fake, validator);
         ReflectionTestUtils.setField(engine, "maxAttempts", 3);
 
         var state = engine.run("profil", "catalogue", Set.of(1));
@@ -49,7 +50,7 @@ class ProgramDraftEngineTest extends AbstractIntegrationTest {
 
     @Test void givesUpAfterMaxAttempts() throws Exception {
         ProgramDrafter alwaysBad = (p, c, f) -> new DraftProgram("P", "g", List.of());
-        var engine = new ProgramDraftEngine(new StaticObjectProvider<>(alwaysBad), validator);
+        var engine = new ProgramDraftEngine(alwaysBad, validator);
         ReflectionTestUtils.setField(engine, "maxAttempts", 3);
 
         var state = engine.run("profil", "catalogue", Set.of(1));

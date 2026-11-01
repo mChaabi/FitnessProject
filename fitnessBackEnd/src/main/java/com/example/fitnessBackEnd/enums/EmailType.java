@@ -6,6 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum EmailType {
+    WELCOME(false, "Bienvenue !",
+            "Accueille le nouvel utilisateur et lui souhaite la bienvenue dans le club.",
+            "Bienvenue dans notre club ! Nous sommes ravis de vous compter parmi nous.",
+            "Commencer", "/member/home"), // <-- Ajouté ici avec une virgule
     WAITLIST_PROMOTED(false, "Votre place est confirmée",
             "Informe le membre qu'une place s'est libérée et que sa réservation est désormais confirmée.",
             "Bonne nouvelle : une place s'est libérée et votre réservation est maintenant confirmée.",

@@ -19,11 +19,15 @@ import static org.bsc.langgraph4j.action.AsyncEdgeAction.edge_async;
 import static org.bsc.langgraph4j.action.AsyncNodeAction.node_async;
 
 @Component
-@RequiredArgsConstructor
 public class ProgramDraftEngine {
 
-    private final ObjectProvider<ProgramDrafter> drafter;
+    private final ProgramDrafter drafter;
     private final ProgramValidator validator;
+
+    public ProgramDraftEngine(ProgramDrafter drafter, ProgramValidator validator) {
+        this.drafter = drafter;
+        this.validator = validator;
+    }
     @Value("${app.agents.program.max-attempts:3}") private int maxAttempts;
 
     // ---------- estado ----------
@@ -41,7 +45,7 @@ public class ProgramDraftEngine {
 
     // ---------- nodos: lógica pura ----------
     Map<String, Object> generate(State s) {
-        ProgramDrafter ai = drafter.getIfAvailable();
+        ProgramDrafter ai = drafter;
         if (ai == null) return Map.of("errors", List.of("IA désactivée"), "attempts", maxAttempts);
         String feedback = s.errors().isEmpty() ? "Aucune" : String.join(" ; ", s.errors());
         try {
