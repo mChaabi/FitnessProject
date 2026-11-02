@@ -2,7 +2,7 @@
 <div class="chips" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
   <button class="chip" [class.active]="status() === ''" (click)="filter('')">Tous</button>
   @for (s of statuses; track s) {
-    <button class="chip" [class.active]="status() === s" (click)="filter(s)">{{ s }} ({{ stats()[s] ?? 0 }})</button>
+    <button class="chip" [class.active]="status() === s" (click)="filter(s)">{{ s }} ({{ stats()[s] || 0 }})</button>
   }
 </div>
 <div class="card"><div class="table-wrap"><table>

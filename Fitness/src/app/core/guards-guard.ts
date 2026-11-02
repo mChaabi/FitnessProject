@@ -8,10 +8,11 @@ export const authGuard: CanActivateFn = () => {
   return auth.isLoggedIn() ? true : inject(Router).createUrlTree(['/login']);
 };
 
-export const roleGuard = (...allowed: Role[]): CanActivateFn => () => {
+export const roleGuard = (...allowed: Role[]): CanActivateFn => (_route, state) => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  if (!auth.isLoggedIn()) return router.createUrlTree(['/login']);
+  if (!auth.isLoggedIn())
+    return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
   return allowed.includes(auth.role()!) ? true : router.createUrlTree([auth.homeFor(auth.role())]);
 };
 

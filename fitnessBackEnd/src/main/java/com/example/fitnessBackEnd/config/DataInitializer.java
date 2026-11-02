@@ -18,17 +18,12 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         String adminEmail = "admin@fitness.com";
-        if (!userRepository.existsByEmail(adminEmail)) {
-            User admin = User.builder()
-                    .nom("Admin")
-                    .prenom("System")
-                    .email(adminEmail)
-                    .motDePasse(passwordEncoder.encode("123456789"))
-                    .role(Role.ADMIN)
-                    .enabled(true)
-                    .build();
-            userRepository.save(admin);
-            System.out.println(">>> Usuario Admin creado exitosamente: " + adminEmail);
-        }
+        userRepository.findByEmailIgnoreCase(adminEmail).ifPresentOrElse(u -> {
+            u.setMotDePasse(passwordEncoder.encode("123456789"));
+            u.setEnabled(true);
+            userRepository.save(u);
+        }, () -> userRepository.save(User.builder().nom("Admin").prenom("System")
+                .email(adminEmail).motDePasse(passwordEncoder.encode("123456789"))
+                .role(Role.ADMIN).enabled(true).build()));
     }
 }

@@ -20,6 +20,7 @@ export interface Member {
   phone?: string;
   birthDate?: string;
   sex?: Sex;
+  age?: number;
   goal?: string;
   status: MemberStatus;
   qrCode: string;
@@ -27,6 +28,7 @@ export interface Member {
   coach?: any;       // Replace with a Coach interface if you have one
   joinedAt: string;  // LocalDate as string
   emailOptOut: boolean;
+  hasAccount: boolean;
 }
 
 // Optional helper interface if your Spring Boot backend returns Spring Data Page objects

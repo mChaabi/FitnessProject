@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Measurement } from '../data/progress/progress'; // Ajusta la ruta de tu modelo si es necesario
+import { Measurement } from '../progress';
 
 @Injectable({
   providedIn: 'root'

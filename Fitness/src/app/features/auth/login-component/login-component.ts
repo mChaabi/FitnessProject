@@ -34,13 +34,9 @@ export class LoginComponent {
 
     this.authService.login(this.loginForm.getRawValue() as any).subscribe({
       next: (res) => {
-        // 3. Récupère et sécurise le returnUrl
         const ret = this.route.snapshot.queryParamMap.get('returnUrl');
-        const safe = ret && ret.startsWith('/') && !ret.startsWith('//'); // évite les redirections externes
-
-        // 4. Redirige vers le returnUrl s'il existe et est sûr, sinon vers la page d'accueil du rôle
-        const targetUrl = safe ? ret! : this.authService.homeFor(res.user.role);
-        this.router.navigate([this.authService.homeFor(res.user.role)]);
+        const safe = !!ret && ret.startsWith('/') && !ret.startsWith('//');
+        this.router.navigateByUrl(safe ? ret! : this.authService.homeFor(res.user.role));
       },
       error: (e) => {
         this.error.set(
