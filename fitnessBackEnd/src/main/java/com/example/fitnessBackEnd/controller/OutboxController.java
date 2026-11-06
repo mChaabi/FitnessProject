@@ -48,8 +48,16 @@ public class OutboxController {
 
     @PostMapping("/{id}/retry")
     public ResponseEntity<Void> retry(@PathVariable Long id) {
-        if (repo.requeue(id, EmailStatus.FAILED, EmailStatus.PENDING, LocalDateTime.now()) == 0)
-            throw new ConflictException("Seuls les emails en échec peuvent être relancés");
+        EmailMessage message = repo.findById(id)
+                .orElseThrow(() -> new ConflictException("Email non trouvé"));
+
+        // Forzamos el estado a PENDING para reintentarlo sin restricciones
+        message.setStatus(EmailStatus.PENDING);
+        message.setAttempts(0);
+        message.setNextAttemptAt(LocalDateTime.now());
+        message.setLastError(null);
+        repo.save(message);
+
         return ResponseEntity.noContent().build();
     }
 }

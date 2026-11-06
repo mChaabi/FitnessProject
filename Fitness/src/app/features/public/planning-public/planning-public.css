@@ -1,0 +1,11 @@
+.page { padding: 3rem 0 4rem; } h1, .lead { text-align: center; } h1 span { color: var(--primary); }
+.lead, .muted, .state { color: var(--text-muted); } .state { text-align: center; padding: 3rem 0; }
+.days { display: grid; gap: 1.5rem; margin-top: 2rem; }
+.day { text-transform: capitalize; font: 700 1rem var(--font-body); margin-bottom: .6rem; }
+.row { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.slot { display: grid; gap: .35rem; border-left: 4px solid var(--primary); }
+.slot.full { border-left-color: var(--danger); }
+.time { color: var(--primary); font-weight: 700; font-size: .85rem; }
+.spots { font-size: .8rem; font-weight: 600; color: var(--success); }
+.full .spots { color: var(--danger); }
+.note { text-align: center; margin-top: 2rem; }

@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Plan, SubscriptionRow, BillingRecord, Page, PaymentRow, Revenue } from '../billing';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BillingService {
   private http = inject(HttpClient);
@@ -35,19 +35,19 @@ export class BillingService {
     return this.http.put<Plan>(`${this.api}/plans/${id}`, data);
   }
 
-  // Receipts, Payments, and Revenue
   downloadReceipt(paymentId: number, receiptNumber: string) {
-    return this.http.get(`${this.api}/billing/receipts/${paymentId}`, {
-      responseType: 'blob'
+    return this.http.get(`${this.api}/payments/${paymentId}/receipt`, {
+      // changed from /billing/receipts/
+      responseType: 'blob',
     });
   }
 
   payments(page: number = 0, size: number = 10) {
     const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.get<Page<PaymentRow>>(`${this.api}/billing/payments`, { params });
+    return this.http.get<Page<PaymentRow>>(`${this.api}/payments`, { params }); // changed from /billing/payments
   }
 
   revenue() {
-    return this.http.get<Revenue>(`${this.api}/billing/revenue`);
+    return this.http.get<Revenue>(`${this.api}/payments/summary`); // changed from /billing/revenue
   }
 }

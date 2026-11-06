@@ -46,10 +46,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/public/**").permitAll()
                         .requestMatchers("/auth/login", "/auth/register", "/auth/refresh", "/auth/logout").permitAll()
                         .requestMatchers("/actuator/health/**", "/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/contacts").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/exercices/**", "/plans/public").permitAll()
+                        .requestMatchers("/exercices/**", "/contacts/**", "/public/**", "/plans/public/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/notifications/unsubscribe").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

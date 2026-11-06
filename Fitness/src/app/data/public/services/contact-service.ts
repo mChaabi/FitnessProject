@@ -8,7 +8,7 @@ import { MessageContact } from '../message-contact';
 })
 export class ContactService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:8080/api/contacts/send';
+  private readonly API_URL = 'http://localhost:8080/contacts/send';
 
   /**
    * Envoie le formulaire de contact au backend Java

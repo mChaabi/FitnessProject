@@ -1,9 +1,6 @@
 package com.example.fitnessBackEnd.service;
 
-import com.example.fitnessBackEnd.dto.SessionRequest;
-import com.example.fitnessBackEnd.dto.SessionResponse;
-import com.example.fitnessBackEnd.dto.TemplateRequest;
-import com.example.fitnessBackEnd.dto.TemplateResponse;
+import com.example.fitnessBackEnd.dto.*;
 import com.example.fitnessBackEnd.entity.*;
 import com.example.fitnessBackEnd.enums.BookingStatus;
 import com.example.fitnessBackEnd.enums.SessionStatus;
@@ -118,6 +115,24 @@ public class ClassScheduleService {
         s.setCapacity(r.capacity()); s.setRoom(r.room());
         sessions.save(s);
         return toResponse(s, 0, 0, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PublicSession> publicList(LocalDate from, LocalDate to) {
+        if (to.isBefore(from) || ChronoUnit.DAYS.between(from, to) > 14)
+            throw new BadRequestException("Période invalide (14 jours maximum)");
+        Map<Long, Integer> confirmed = new HashMap<>();
+        for (Object[] r : bookings.counts(from, to, BookingStatus.CANCELLED))
+            if (r[1] == BookingStatus.CONFIRMED) confirmed.put((Long) r[0], ((Long) r[2]).intValue());
+        LocalDateTime now = LocalDateTime.now();
+        return sessions.findInRange(from, to).stream()
+                .filter(s -> s.getStatus() == SessionStatus.SCHEDULED
+                        && LocalDateTime.of(s.getSessionDate(), s.getStartTime()).isAfter(now))
+                .map(s -> new PublicSession(s.getId(), s.getName(), s.getDescription(),
+                        s.getCoach().getUser().getPrenom(), s.getSessionDate(), s.getStartTime(), s.getEndTime(),
+                        s.getRoom(), s.getCapacity(),
+                        Math.max(s.getCapacity() - confirmed.getOrDefault(s.getId(), 0), 0)))
+                .toList();
     }
 
     // ---------- lectura del planning ----------

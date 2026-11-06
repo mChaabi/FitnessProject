@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ContactService } from '../../../data/public/services/contact-service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-contact',
@@ -12,6 +13,7 @@ import { ContactService } from '../../../data/public/services/contact-service';
 export class ContactComponent {
   private fb = inject(FormBuilder);
   private contactService = inject(ContactService);
+  private route = inject(ActivatedRoute);
 
   // Création du formulaire avec validations
   contactForm = this.fb.group({
@@ -21,20 +23,36 @@ export class ContactComponent {
     message: ['', [Validators.required, Validators.minLength(1)]]
   });
 
-  onSubmit() {
-    if (this.contactForm.valid) {
-      const { nom, email, message } = this.contactForm.value;
-      const body = { nom, email, message };
-      const data =body
+  
 
-      this.contactService.envoyerMessage(data).subscribe({
-        next: (res: any) => alert('Succès!'),
-        error: (err: any) => {
-          // err.error contiene el mapa de mensajes: {nom: "...", email: "..."}
-          console.log("Erreurs du backend:", err.error);
-          alert('Veuillez vérifier les champs du formulaire');
-        }
+  constructor() {
+    // Read the query parameter 'plan' from the URL
+    const plan = this.route.snapshot.queryParamMap.get('plan');
+    
+    // If 'plan' exists, automatically patch the message field
+    if (plan) {
+      this.contactForm.patchValue({
+        message: `Bonjour, je souhaite m'inscrire : ${plan}.`
       });
     }
   }
+
+ onSubmit() {
+  if (this.contactForm.valid) {
+    // 👇 Incluye 'sujet' aquí
+    const { nom, email, sujet, message } = this.contactForm.value;
+    const data = { nom, email, sujet, message };
+
+    this.contactService.envoyerMessage(data).subscribe({
+      next: (res: any) => {
+        alert('Succès! Message envoyé.');
+        this.contactForm.reset(); // Opcional: limpia el formulario
+      },
+      error: (err: any) => {
+        console.log("Erreurs du backend:", err.error);
+        alert('Veuillez vérifier les champs du formulaire');
+      }
+    });
+  }
+}
 }

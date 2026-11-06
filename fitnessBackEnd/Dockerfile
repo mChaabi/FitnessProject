@@ -1,10 +1,19 @@
 # ---- compilar ----
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
+
+# 1. Solo el pom: esta capa se cachea mientras el pom no cambie
 COPY pom.xml .
-RUN mvn -B -q dependency:go-offline
+RUN --mount=type=cache,target=/root/.m2 \
+    for i in 1 2 3 4 5; do \
+      mvn -B -q dependency:go-offline -Dmaven.wagon.http.retryHandler.count=5 && break \
+      || (echo "Reintento $i..." && sleep 10); \
+    done
+
+# 2. El código: cambiarlo no vuelve a descargar nada
 COPY src ./src
-RUN mvn -B -q package -DskipTests
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -B -q package -DskipTests -o
 
 # ---- ejecutar ----
 FROM eclipse-temurin:21-jre

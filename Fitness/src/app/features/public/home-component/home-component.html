@@ -1,7 +1,7 @@
 <section class="hero">
   <div class="container hero-inner">
     <span class="eyebrow">Salle de sport premium</span>
-    <h1>Forgez le corps<br>que vous <em>voulez</em></h1>
+    <h1>Forgez le corps<br />que vous <em>voulez</em></h1>
     <p>Coachs certifiés, programmes personnalisés et suivi de vos progrès, au même endroit.</p>
     <div class="cta">
       <a routerLink="/contact" class="btn btn-primary btn-lg">Essai gratuit</a>
@@ -12,6 +12,26 @@
 
 <section class="section container">
   <h2 class="title">Pourquoi nous choisir</h2>
+  <section class="section container" reveal>
+    <h2 class="title">Tout pour votre réussite</h2>
+    <div class="features three">
+      <a routerLink="/planning" class="card feature hover-lift"
+        ><span class="ico">🗓️</span>
+        <h3>Réservez votre cours</h3>
+        <p>Voyez les horaires et les places libres.</p></a
+      >
+      <a routerLink="/coachs" class="card feature hover-lift"
+        ><span class="ico">🏅</span>
+        <h3>Rencontrez nos coachs</h3>
+        <p>Des experts certifiés à votre écoute.</p></a
+      >
+      <a routerLink="/exercices" class="card feature hover-lift"
+        ><span class="ico">💪</span>
+        <h3>Découvrez les exercices</h3>
+        <p>Cardio, musculation, HIIT et plus.</p></a
+      >
+    </div>
+  </section>
   <div class="features">
     @for (f of features; track f.title) {
       <article class="card feature">
@@ -36,7 +56,9 @@
           </article>
         }
       </div>
-      <p class="center"><a routerLink="/exercices" class="btn btn-ghost">Tous les exercices →</a></p>
+      <p class="center">
+        <a routerLink="/exercices" class="btn btn-ghost">Tous les exercices →</a>
+      </p>
     </div>
   </section>
 }
@@ -48,7 +70,7 @@
       @for (p of plans(); track p.id) {
         <article class="card plan">
           <h3>{{ p.name }}</h3>
-          <p class="price">{{ p.price | currency:'MAD ':'symbol':'1.0-2' }}</p>
+          <p class="price">{{ p.price | currency: 'MAD ' : 'symbol' : '1.0-2' }}</p>
           <small>{{ p.durationDays }} jours</small>
           <p>{{ p.description }}</p>
           <a routerLink="/contact" class="btn btn-primary">Je m'inscris</a>

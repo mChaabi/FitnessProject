@@ -1,0 +1,31 @@
+<section class="container page">
+  <h1>Nos <span>cours</span></h1>
+  <p class="lead">Les 7 prochains jours. Réservez votre place depuis votre espace membre.</p>
+
+  @if (loading()) { <p class="state">Chargement...</p> }
+  @else if (error()) { <p class="state">Planning indisponible pour le moment.</p> }
+  @else {
+    <div class="days">
+      @for (d of days(); track d.key) {
+        <div reveal>
+          <h3 class="day">{{ d.label }}</h3>
+          <div class="row">
+            @for (s of d.items; track s.id) {
+              <article class="card slot hover-lift" [class.full]="s.freeSpots === 0">
+                <span class="time">{{ time(s.startTime) }} – {{ time(s.endTime) }}</span>
+                <strong>{{ s.name }}</strong>
+                <small class="muted">Avec {{ s.coachName }}@if (s.room) { · {{ s.room }} }</small>
+                <span class="spots">{{ s.freeSpots === 0 ? 'Complet · liste d\'attente' : s.freeSpots + ' place(s) libre(s)' }}</span>
+                <a class="btn btn-primary"
+                   [routerLink]="auth.isLoggedIn() ? '/member/classes' : '/login'"
+                   [queryParams]="auth.isLoggedIn() ? null : { returnUrl: '/member/classes' }">
+                  {{ s.freeSpots === 0 ? 'Rejoindre la liste' : 'Réserver ma place' }}</a>
+              </article>
+            } @empty { <p class="muted">Aucun cours ce jour.</p> }
+          </div>
+        </div>
+      }
+    </div>
+    <p class="note">Pas encore membre ? <a routerLink="/tarifs">Découvrez nos abonnements</a>.</p>
+  }
+</section>
