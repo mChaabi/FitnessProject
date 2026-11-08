@@ -9,3 +9,5 @@
 .spots { font-size: .8rem; font-weight: 600; color: var(--success); }
 .full .spots { color: var(--danger); }
 .note { text-align: center; margin-top: 2rem; }
+
+.slot { transition: all .3s; } .slot:hover .time { letter-spacing: .06em; }

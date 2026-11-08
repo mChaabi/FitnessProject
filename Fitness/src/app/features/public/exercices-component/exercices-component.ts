@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Exercice } from '../../../data/public/exercice';
+import { API } from '../../../core/api';
 
 const LABELS: Record<string, string> = {
   CARDIO: 'Cardio', MUSCULATION: 'Musculation', YOGA: 'Yoga', HIIT: 'HIIT', GAINAGE: 'Gainage'
@@ -17,7 +18,6 @@ const ICONS: Record<string, string> = {
 })
 export class ExercicesComponent {
   private http = inject(HttpClient);
-    private readonly API = 'http://localhost:8080';
 
   all = signal<Exercice[]>([]);
   loading = signal(true);
@@ -41,7 +41,7 @@ export class ExercicesComponent {
 
   load() {
     this.loading.set(true); this.error.set(false);
-    this.http.get<Exercice[]>(`${this.API}/exercices`).subscribe({
+    this.http.get<Exercice[]>(`${API}/exercices`).subscribe({
       next: d => { this.all.set(d); this.loading.set(false); },
       error: () => { this.error.set(true); this.loading.set(false); }
     });

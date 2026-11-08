@@ -18,6 +18,8 @@ export class PlanningPublic {
   loading = signal(true);
   error = signal(false);
 
+hasAny = computed(() => this.sessions().length > 0);
+
   days = computed(() => Array.from({ length: 7 }, (_, i) => {
     const d = addDays(new Date(), i), key = ymd(d);
     return { key, label: d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' }),

@@ -119,3 +119,41 @@ tr:hover td { background: var(--surface-2); }
   .hover-lift, .reveal, .btn-primary::after { transition: none; }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* ============ ANIMACIONES ============ */
+.hover-lift { transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s; }
+.hover-lift:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(15,23,42,.14); border-color: var(--primary); }
+
+/* botón con destello */
+.btn-primary { position: relative; overflow: hidden; isolation: isolate; }
+.btn-primary::after { content: ''; position: absolute; inset: 0; z-index: -1; transform: translateX(-120%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent); transition: transform .7s; }
+.btn-primary:hover::after { transform: translateX(120%); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(249,115,22,.4); }
+.btn-primary:active { transform: translateY(0) scale(.98); }
+
+/* aparición al hacer scroll */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s cubic-bezier(.2,.8,.2,1), transform .8s cubic-bezier(.2,.8,.2,1); }
+.reveal.in { opacity: 1; transform: none; }
+.reveal-delay-1 { transition-delay: .1s; } .reveal-delay-2 { transition-delay: .2s; } .reveal-delay-3 { transition-delay: .3s; }
+
+/* entrada del hero */
+@keyframes rise { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .9s cubic-bezier(.2,.8,.2,1) both; }
+.rise-1 { animation-delay: .1s; } .rise-2 { animation-delay: .25s; } .rise-3 { animation-delay: .4s; } .rise-4 { animation-delay: .55s; }
+
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.float { animation: float 5s ease-in-out infinite; }
+
+/* ============ UTILIDADES PÚBLICAS ============ */
+.section-head { text-align: center; max-width: 640px; margin: 0 auto 3rem; }
+.section-head .eyebrow { display: inline-block; color: var(--primary); font-weight: 700; letter-spacing: .15em;
+  text-transform: uppercase; font-size: .78rem; margin-bottom: .6rem; }
+.section-head p { color: var(--text-muted); }
+.underline-accent::after { content: ''; display: block; width: 56px; height: 4px; border-radius: 4px;
+  background: var(--primary); margin: .8rem auto 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-lift, .reveal, .btn-primary, .btn-primary::after, .rise, .float { transition: none; animation: none; }
+  .reveal { opacity: 1; transform: none; }
+}

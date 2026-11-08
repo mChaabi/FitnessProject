@@ -24,13 +24,14 @@ import { Reveal } from '../../../core/reveal';
     <p class="center"><a routerLink="/planning" class="btn btn-primary">Voir les cours</a></p>
   </section>`,
   styles: [`
-    .page { padding: 3rem 0 4rem; } h1, .lead, .center { text-align: center; } h1 span { color: var(--primary); }
-    .lead, p { color: var(--text-muted); }
-    .grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin: 2rem 0; }
-    .card { text-align: center; display: grid; gap: .5rem; justify-items: center; }
-    .avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--primary-soft); color: var(--primary);
-      display: grid; place-items: center; font: 800 1.8rem var(--font-display); transition: transform .3s; }
-    .card:hover .avatar { transform: scale(1.1) rotate(-4deg); }
+    .page { padding: 4rem 0 5rem; } h1, .lead, .center { text-align: center; } h1 span { color: var(--primary); }
+.lead, p { color: var(--text-muted); }
+.grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin: 2.5rem 0; }
+.card { text-align: center; display: grid; gap: .6rem; justify-items: center; padding-top: 2rem; }
+.avatar { width: 88px; height: 88px; border-radius: 50%; color: #fff; display: grid; place-items: center;
+  font: 800 2.2rem var(--font-display); background: linear-gradient(135deg, var(--primary), #fb923c);
+  box-shadow: 0 10px 24px rgba(249,115,22,.35); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+.card:hover .avatar { transform: scale(1.12) rotate(-6deg); }
   `]
 })
 export class CoachesPublic {

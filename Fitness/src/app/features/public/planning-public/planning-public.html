@@ -7,6 +7,7 @@
   @else {
     <div class="days">
       @for (d of days(); track d.key) {
+        @if (d.items.length) {
         <div reveal>
           <h3 class="day">{{ d.label }}</h3>
           <div class="row">
@@ -24,8 +25,9 @@
             } @empty { <p class="muted">Aucun cours ce jour.</p> }
           </div>
         </div>
-      }
+      }}
     </div>
+    @if (!hasAny()) { <p class="state">Aucun cours programmé cette semaine. Revenez bientôt !</p> }
     <p class="note">Pas encore membre ? <a routerLink="/tarifs">Découvrez nos abonnements</a>.</p>
   }
 </section>
