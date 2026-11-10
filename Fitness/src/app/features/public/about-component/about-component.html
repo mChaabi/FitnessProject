@@ -18,10 +18,17 @@
       <a routerLink="/contact" class="btn btn-primary">Nous contacter</a>
     </div>
     <div class="panel float">
-      <strong>Cabo Negro</strong><span>Maroc</span>
-      <div class="mini">
-        <div><b>5+</b><small>disciplines</small></div>
-        <div><b>7j/7</b><small>ouvert</small></div>
+      <img src="/images/gym-about.jpg" alt="Salle de sport FitForge" loading="lazy" />
+
+      <div class="panel-content">
+        <span class="location">📍 Cabo Negro, Maroc</span>
+
+        <strong>FITFORGE</strong>
+
+        <div class="mini">
+          <div><b>5+</b><small>Disciplines</small></div>
+          <div><b>7j/7</b><small>Ouvert</small></div>
+        </div>
       </div>
     </div>
   </div>
@@ -38,13 +45,16 @@
   </div>
 
   <h2 class="title">Rencontrez nos experts</h2>
-  <div class="grid">
-    @for (m of team; track m.name) {
-      <article class="card center">
-        <span class="ico">{{ m.icon }}</span>
-        <h3>{{ m.name }}</h3>
-        <p>{{ m.role }}</p>
-      </article>
-    }
-  </div>
+  <div class="grid team-grid">
+  @for (m of team; track m.name) {
+    <article class="card center team-card">
+      <div class="team-image">
+        <img [src]="m.image" [alt]="m.name" loading="lazy">
+      </div>
+
+      <h3>{{ m.name }}</h3>
+      <span class="badge badge-info">{{ m.role }}</span>
+    </article>
+  }
+</div>
 </section>

@@ -24,9 +24,8 @@ export class ExercicesComponent {
   error = signal(false);
   filter = signal('ALL');
   query = signal('');
-  broken = signal<Set<number>>(new Set());     // imágenes que no cargaron
+  broken = signal<Set<number>>(new Set());
 
-  // los filtros salen de los datos reales
   categories = computed(() =>
     ['ALL', ...Array.from(new Set(this.all().map(e => String(e.categorie).toUpperCase())))]);
 
@@ -51,8 +50,46 @@ export class ExercicesComponent {
   icon(c: string)  { return ICONS[String(c).toUpperCase()] ?? '💪'; }
 
   src(e: Exercice): string | null {
-    if (!e.image || this.broken().has(e.id)) return null;
-    return e.image.startsWith('http') ? e.image : `/exercices/${e.image}`;
+    if (this.broken().has(e.id)) return null;
+
+    if (e.image) {
+      return e.image.startsWith('http') ? e.image : `/exercices/${e.image}`;
+    }
+
+    const name = e.nom.toLowerCase();
+    let filename = '';
+
+    // Coincidencia exacta con los nombres de tus archivos reales en public/images/
+    if (name.includes('burpee')) {
+      filename = 'workout-hiit.jpg';
+    } else if (name.includes('pompes')) {
+      filename = 'Pompes classiques.jpg';
+    } else if (name.includes('squat')) {
+      filename = 'Squats libres.jpg';
+    } else if (name.includes('tapis') || name.includes('course')) {
+      filename = 'Course sur tapis.jpg';
+    } else if (name.includes('traction')) {
+      filename = 'Tractions à la barre fixe.jpg';
+    } else if (name.includes('gainage') || name.includes('planche')) {
+      filename = 'Gainage ventral (Planche).jpg';
+    } else {
+      // Respaldo por categoría usando las imágenes de workout que tienes
+      const categoryImages: Record<string, string> = {
+        CARDIO: 'workout-cardio.jpg',
+        MUSCULATION: 'workout-musculation.jpg',
+        YOGA: 'workout-yoga.jpg',
+        HIIT: 'workout-hiit.jpg',
+        GAINAGE: 'workout-musculation.jpg'
+      };
+      filename = categoryImages[String(e.categorie).toUpperCase()] ?? 'workout-musculation.jpg';
+    }
+
+    // encodeURI convierte los espacios y tildes (à) en formato web válido (ej. %20)
+    return encodeURI(`/images/${filename}`);
   }
-  onImgError(id: number) { this.broken.update(s => new Set(s).add(id)); }
+
+  onImgError(id: number) { 
+    console.warn(`Error cargando imagen real para el ejercicio ID: ${id}`);
+    this.broken.update(s => new Set(s).add(id)); 
+  }
 }

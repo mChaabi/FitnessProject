@@ -157,3 +157,73 @@ tr:hover td { background: var(--surface-2); }
   .hover-lift, .reveal, .btn-primary, .btn-primary::after, .rise, .float { transition: none; animation: none; }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* Smooth entrance */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero animation */
+@keyframes heroReveal {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+    filter: blur(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.rise {
+  animation: heroReveal .9s ease both;
+}
+
+.rise-1 { animation-delay: .1s; }
+.rise-2 { animation-delay: .25s; }
+.rise-3 { animation-delay: .4s; }
+.rise-4 { animation-delay: .55s; }
+
+/* Cards */
+.hover-lift,
+.card {
+  transition:
+    transform .35s ease,
+    box-shadow .35s ease,
+    border-color .35s ease;
+}
+
+.hover-lift:hover,
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, .15);
+  border-color: var(--primary);
+}
+
+/* Image zoom */
+img {
+  max-width: 100%;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
