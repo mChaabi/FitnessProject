@@ -25,4 +25,8 @@ public class Exercice {
     private Categorie categorie;
 
     private String image;
+    @Column(length = 255) private String objectif;
+    @Column(columnDefinition = "TEXT") private String instructions;      // one step per line
+    @Column(length = 150) private String muscles;                         // "Pectoraux, Triceps"
+    @Column(name = "class_keywords", length = 255) private String classKeywords;   // "cardio,hiit"
 }

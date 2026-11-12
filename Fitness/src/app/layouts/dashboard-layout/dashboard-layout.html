@@ -11,29 +11,49 @@
       @for (s of sections(); track s.name) {
         <p class="group">{{ s.name }}</p>
         @for (i of s.items; track i.link) {
-          <a [routerLink]="i.link" routerLinkActive="active"
-             [routerLinkActiveOptions]="{ exact: !!i.exact }"
-             [attr.title]="collapsed() ? i.label : null">
-            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="icons[i.icon]" /></svg>
+          <a
+            [routerLink]="i.link"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: !!i.exact }"
+            [attr.title]="collapsed() ? i.label : null"
+          >
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path [attr.d]="icons[i.icon]" />
+            </svg>
             <span class="lbl">{{ i.label }}</span>
           </a>
         }
       }
     </nav>
 
-    <button class="collapse-btn" type="button" (click)="collapsed.set(!collapsed())"
-            [attr.aria-label]="collapsed() ? 'Agrandir le menu' : 'Réduire le menu'">
-      <svg class="ico chev" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="icons['chevronLeft']" /></svg>
+    <button
+      class="collapse-btn"
+      type="button"
+      (click)="collapsed.set(!collapsed())"
+      [attr.aria-label]="collapsed() ? 'Agrandir le menu' : 'Réduire le menu'"
+    >
+      <svg class="ico chev" viewBox="0 0 24 24" aria-hidden="true">
+        <path [attr.d]="icons['chevronLeft']" />
+      </svg>
       <span class="lbl">Réduire</span>
     </button>
   </aside>
 
-  @if (open()) { <div class="backdrop" (click)="open.set(false)"></div> }
+  @if (open()) {
+    <div class="backdrop" (click)="open.set(false)"></div>
+  }
 
   <div class="main">
     <header class="topbar">
-      <button class="icon-btn burger" type="button" (click)="open.set(!open())" aria-label="Menu">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="icons['menu']" /></svg>
+      <button
+        class="icon-btn"
+        type="button"
+        (click)="theme.toggle()"
+        [attr.aria-label]="theme.dark() ? 'Mode clair' : 'Mode sombre'"
+      >
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+          <path [attr.d]="theme.dark() ? icons['sun'] : icons['moon']" />
+        </svg>
       </button>
 
       <nav class="crumbs" aria-label="Fil d'Ariane">
@@ -46,29 +66,54 @@
 
       <div class="spacer"></div>
 
-      <button class="icon-btn" type="button" (click)="dark.set(!dark())"
-              [attr.aria-label]="dark() ? 'Mode clair' : 'Mode sombre'">
+      <button
+        class="icon-btn"
+        type="button"
+        (click)="dark.set(!dark())"
+        [attr.aria-label]="dark() ? 'Mode clair' : 'Mode sombre'"
+      >
         <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
-          <path [attr.d]="dark() ? icons['sun'] : icons['moon']" /></svg>
+          <path [attr.d]="dark() ? icons['sun'] : icons['moon']" />
+        </svg>
       </button>
 
       <div class="user-wrap">
-        <button class="user" type="button" (click)="menu.set(!menu())"
-                aria-haspopup="menu" [attr.aria-expanded]="menu()">
+        <button
+          class="user"
+          type="button"
+          (click)="menu.set(!menu())"
+          aria-haspopup="menu"
+          [attr.aria-expanded]="menu()"
+        >
           <span class="avatar">{{ initials() }}</span>
-          <span class="who"><strong>{{ auth.user()?.prenom }} {{ auth.user()?.nom }}</strong><small>{{ roleLabel() }}</small></span>
-          <svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="icons['chevronDown']" /></svg>
+          <span class="who"
+            ><strong>{{ auth.user()?.prenom }} {{ auth.user()?.nom }}</strong
+            ><small>{{ roleLabel() }}</small></span
+          >
+          <svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true">
+            <path [attr.d]="icons['chevronDown']" />
+          </svg>
         </button>
 
         @if (menu()) {
           <div class="scrim" (click)="menu.set(false)"></div>
           <div class="dropdown" role="menu">
-            <div class="dd-head"><strong>{{ auth.user()?.prenom }} {{ auth.user()?.nom }}</strong>
-              <small>{{ auth.user()?.email }}</small></div>
+            <div class="dd-head">
+              <strong>{{ auth.user()?.prenom }} {{ auth.user()?.nom }}</strong>
+              <small>{{ auth.user()?.email }}</small>
+            </div>
             <a routerLink="/" role="menuitem">
-              <svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="icons['external']" /></svg> Voir le site</a>
+              <svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true">
+                <path [attr.d]="icons['external']" />
+              </svg>
+              Voir le site</a
+            >
             <button type="button" role="menuitem" class="danger" (click)="auth.logout()">
-              <svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="icons['logout']" /></svg> Déconnexion</button>
+              <svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true">
+                <path [attr.d]="icons['logout']" />
+              </svg>
+              Déconnexion
+            </button>
           </div>
         }
       </div>

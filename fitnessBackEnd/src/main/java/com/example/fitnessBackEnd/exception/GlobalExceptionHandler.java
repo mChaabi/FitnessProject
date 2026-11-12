@@ -88,4 +88,14 @@ public class GlobalExceptionHandler {
         log.error("Erreur non gérée [ref={}]", ref, e);       // el detalle va al log, nunca al cliente
         return ResponseEntity.status(500).body(new ApiError(500, "Erreur interne. Référence : " + ref, null));
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    ResponseEntity<ApiError> notFound(NotFoundException e) {
+        return ResponseEntity.status(404).body(new ApiError(404, e.getMessage(), null));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    ResponseEntity<ApiError> conflict(ConflictException e) {
+        return ResponseEntity.status(409).body(new ApiError(409, e.getMessage(), null));
+    }
 }

@@ -8,25 +8,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExerciceMapper {
 
-    public ExerciceDTO toDTO(Exercice entity) {
-        return new ExerciceDTO(
-                entity.getId(),
-                entity.getNom(),
-                entity.getDescription(),
-                entity.getDuree(),
-                entity.getCategorie().name(), // Convertimos Enum a String para Angular
-                entity.getImage()
-        );
+    public ExerciceDTO toDTO(Exercice e) {
+        return new ExerciceDTO(e.getId(), e.getNom(), e.getDescription(), e.getDuree(),
+                e.getCategorie().name(), e.getImage(),
+                e.getObjectif(), e.getInstructions(), e.getMuscles(), e.getClassKeywords());
     }
 
     public Exercice toEntity(ExerciceDTO dto) {
-        Exercice entity = new Exercice();
-        entity.setId(dto.id());
-        entity.setNom(dto.nom());
-        entity.setDescription(dto.description());
-        entity.setDuree(dto.duree());
-        entity.setCategorie(Categorie.valueOf(dto.categorie()));
-        entity.setImage(dto.image());
-        return entity;
+        Exercice e = new Exercice();
+        e.setId(dto.id());
+        e.setNom(dto.nom());
+        e.setDescription(dto.description());
+        e.setDuree(dto.duree());
+        e.setCategorie(Categorie.valueOf(dto.categorie()));
+        e.setImage(dto.image());
+        e.setObjectif(dto.objectif());
+        e.setInstructions(dto.instructions());
+        e.setMuscles(dto.muscles());
+        e.setClassKeywords(dto.classKeywords());
+        return e;
     }
 }

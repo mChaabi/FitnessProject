@@ -1,6 +1,8 @@
 package com.example.fitnessBackEnd.controller;
 
 import com.example.fitnessBackEnd.dto.ExerciceDTO;
+import com.example.fitnessBackEnd.dto.ExerciceDetail;
+import com.example.fitnessBackEnd.service.ExerciceDetailService;
 import com.example.fitnessBackEnd.service.ExerciceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,8 @@ public class ExerciceController {
 
     @Autowired
     private ExerciceService exerciceService;
+    @Autowired
+    private ExerciceDetailService detailService;
 
     @GetMapping
     public ResponseEntity<List<ExerciceDTO>> getAll() {
@@ -29,6 +33,11 @@ public class ExerciceController {
     public ResponseEntity<ExerciceDTO> create(@RequestBody ExerciceDTO exerciceDTO) {
         ExerciceDTO created = exerciceService.save(exerciceDTO);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ExerciceDetail detail(@PathVariable Long id) {
+        return detailService.get(id);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','COACH')")

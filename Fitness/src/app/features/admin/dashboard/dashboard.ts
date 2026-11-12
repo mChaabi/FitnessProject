@@ -5,10 +5,13 @@ import { CurrencyPipe, DatePipe, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DashboardData } from '../../../data/dashboard/dashboard';
 import { DashboardService } from '../../../data/dashboard/service/dashboard';
+import { CountUp } from '../../../core/count-up';
+import { ThemeService } from '../../../core/theme';
+import { applyChartTheme } from '../../../core/chart-theme';
 
 @Component({
   selector: 'app-dashboard', standalone: true,
-  imports: [RouterLink, CurrencyPipe, DatePipe],
+  imports: [RouterLink, CurrencyPipe, DatePipe,CountUp],
   templateUrl: './dashboard.html', styleUrl: './dashboard.css'
 })
 export class Dashboard {
@@ -24,6 +27,8 @@ export class Dashboard {
   visCv = viewChild<ElementRef<HTMLCanvasElement>>('vis');
   planCv = viewChild<ElementRef<HTMLCanvasElement>>('plan');
   private charts: any[] = [];
+    private theme = inject(ThemeService);
+  private drawnDark: boolean | null = null;
 
   constructor() {
     this.load();
@@ -33,8 +38,9 @@ export class Dashboard {
       inject(DestroyRef).onDestroy(() => { clearInterval(timer); this.charts.forEach(c => c.destroy()); });
     }
 
-    effect(() => {
+        effect(() => {
       const d = this.data(), r = this.revCv(), v = this.visCv(), p = this.planCv();
+      this.theme.dark();                                  // reading it re-runs this effect when the theme changes
       if (d && r && v && p && isPlatformBrowser(this.platformId)) this.draw(d, r.nativeElement, v.nativeElement, p.nativeElement);
     });
   }
@@ -53,18 +59,21 @@ export class Dashboard {
 
   private async draw(d: DashboardData, rev: HTMLCanvasElement, vis: HTMLCanvasElement, plan: HTMLCanvasElement) {
     const { Chart } = await import('chart.js/auto');
-    this.charts.forEach(c => c.destroy());
+     const dark = this.theme.dark();
+      const animate = this.charts.length === 0 || dark !== this.drawnDark;
+    this.drawnDark = dark;
+     this.charts.forEach(c => c.destroy());
+    const { tok, primary, grid } = applyChartTheme(Chart);
 
     const css = getComputedStyle(document.documentElement);
-    const tok = (n: string, f: string) => css.getPropertyValue(n).trim() || f;
-    const primary = tok('--primary', '#f97316'), grid = tok('--border', '#e5e9f0');
     Chart.defaults.font.family = tok('--font-body', 'Inter, sans-serif');
     Chart.defaults.color = tok('--text-muted', '#64748b');
 
-    const month = (m: string) => new Date(+m.slice(0, 4), +m.slice(5, 7) - 1, 1)
+        const month = (m: string) => new Date(+m.slice(0, 4), +m.slice(5, 7) - 1, 1)
         .toLocaleDateString('fr-FR', { month: 'short' });
     const day = (s: string) => `${s.slice(8, 10)}/${s.slice(5, 7)}`;
-    const base = { responsive: true, maintainAspectRatio: false };
+    const base = { responsive: true, maintainAspectRatio: false,
+                   animation: animate ? { duration: 1100, easing: 'easeOutQuart' as const } : false as const };
     const scales = { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: grid }, ticks: { precision: 0 } } };
 
     this.charts = [

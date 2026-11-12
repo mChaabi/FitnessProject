@@ -1,10 +1,11 @@
-import { Component, HostListener, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, HostListener, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../../core/auth/auth-service';
 import { ICONS, NAV, NavItem, SECTION_ORDER } from './nav.config';
+import { ThemeService } from '../../core/theme';
 
 const ROLE_LABEL: Record<string, string> = {
   ADMIN: 'Administrateur', RECEPTION: 'Réception', COACH: 'Coach', MEMBER: 'Membre',
@@ -21,6 +22,7 @@ export class DashboardLayoutComponent {
   auth = inject(AuthService);
   private router = inject(Router);
   private browser = isPlatformBrowser(inject(PLATFORM_ID));   // keep above the signals that read storage
+    theme = inject(ThemeService);
 
   icons = ICONS;
   open = signal(false);                                   // mobile drawer
@@ -58,13 +60,9 @@ export class DashboardLayoutComponent {
       .sort((a, b) => b.link.length - a.link.length)[0] ?? null;
   });
 
-  constructor() {
-    effect(() => {                                        // apply and remember the theme
-      const d = this.dark();
-      if (!this.browser) return;
-      document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light');
-      this.write('fitforge_theme', d ? 'dark' : 'light');
-    });
+    constructor() {
+    this.theme.enter();
+    inject(DestroyRef).onDestroy(() => this.theme.leave());
     effect(() => this.write('fitforge_collapsed', this.collapsed() ? '1' : '0'));
     effect(() => { this.url(); this.open.set(false); this.menu.set(false); });   // close menus on navigation
   }

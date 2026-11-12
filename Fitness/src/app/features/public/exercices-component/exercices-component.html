@@ -3,17 +3,25 @@
   <p class="lead">Choisissez l'entraînement qui vous correspond le mieux.</p>
 
   <div class="toolbar">
-    <input type="search" placeholder="Rechercher un exercice..." (input)="query.set($any($event.target).value)">
+    <input
+      type="search"
+      placeholder="Rechercher un exercice..."
+      (input)="query.set($any($event.target).value)"
+    />
     <div class="chips">
       @for (c of categories(); track c) {
-        <button class="chip" [class.active]="filter() === c" (click)="filter.set(c)">{{ label(c) }}</button>
+        <button class="chip" [class.active]="filter() === c" (click)="filter.set(c)">
+          {{ label(c) }}
+        </button>
       }
     </div>
   </div>
 
   @if (loading()) {
     <div class="grid">
-      @for (i of [1,2,3,4,5,6]; track i) { <div class="card skeleton"></div> }
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="card skeleton"></div>
+      }
     </div>
   } @else if (error()) {
     <div class="state error">
@@ -26,10 +34,17 @@
     <p class="count">{{ visible().length }} exercice(s)</p>
     <div class="grid">
       @for (e of visible(); track e.id) {
-        <article class="card ex">
+        <article
+          class="card ex"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'Voir le détail : ' + e.nom"
+          (click)="open(e)"
+          (keydown.enter)="open(e)"
+        >
           <div class="thumb">
             @if (src(e); as s) {
-              <img [src]="s" [alt]="e.nom" loading="lazy" (error)="onImgError(e.id)">
+              <img [src]="s" [alt]="e.nom" loading="lazy" (error)="onImgError(e.id)" />
             } @else {
               <span class="fallback">{{ icon(e.categorie) }}</span>
             }
@@ -38,8 +53,108 @@
           <h3>{{ e.nom }}</h3>
           <p>{{ e.description }}</p>
           <small>⏱ {{ e.duree }} min</small>
+          <span class="more">Voir le détail →</span>
         </article>
       }
     </div>
   }
 </section>
+@if (selected(); as s) {
+  <div class="modal" role="dialog" aria-modal="true" [attr.aria-label]="s.nom" (click)="close()">
+    <div class="sheet" (click)="$event.stopPropagation()">
+      <button type="button" class="x" (click)="close()" aria-label="Fermer">✕</button>
+
+      <div class="hero">
+        @if (src(s); as im) {
+          <img [src]="im" [alt]="s.nom" (error)="onImgError(s.id)" />
+        } @else {
+          <span class="fallback">{{ icon(s.categorie) }}</span>
+        }
+      </div>
+
+      <div class="body">
+        <span class="badge badge-info">{{ label(s.categorie.toString().toUpperCase()) }}</span>
+        <h2>{{ s.nom }}</h2>
+        <p class="muted">⏱ {{ s.duree }} min · {{ s.description }}</p>
+
+        @if (detailLoading()) {
+          <section aria-busy="true">
+            <span class="sk"></span><span class="sk w70"></span><span class="sk w50"></span>
+          </section>
+        } @else if (detailError()) {
+          <p class="alert-error" role="alert">
+            Détails indisponibles pour le moment.
+            <button type="button" class="lnk" (click)="open(s)">Réessayer</button>
+          </p>
+        } @else if (detail(); as d) {
+          <section>
+            <h3>Objectif</h3>
+            <p>{{ d.objectif || "L'objectif de cet exercice sera bientôt précisé." }}</p>
+            @if (muscleList().length) {
+              <div class="tags">
+                @for (m of muscleList(); track m) {
+                  <span class="badge badge-warning">{{ m }}</span>
+                }
+              </div>
+            }
+          </section>
+
+          <section>
+            <h3>Comment le faire</h3>
+            @if (steps().length) {
+              <ol class="steps">
+                @for (st of steps(); track $index) {
+                  <li [style.--i]="$index">{{ st }}</li>
+                }
+              </ol>
+            } @else {
+              <p class="muted">Les instructions seront bientôt disponibles.</p>
+            }
+          </section>
+
+          <section>
+            <h3>Cours disponibles (14 prochains jours)</h3>
+            @if (d.sessions.length) {
+              <ul class="sess stagger">
+                @for (x of d.sessions; track x.id; let i = $index) {
+                  <li [style.--i]="i">
+                    <span class="when"
+                      >{{ when(x) }} · {{ time(x.startTime) }} – {{ time(x.endTime) }}</span
+                    >
+                    <span
+                      ><strong>{{ x.name }}</strong
+                      ><small class="muted">
+                        · {{ x.coachName }}
+                        @if (x.room) {
+                          · {{ x.room }}
+                        }
+                      </small></span
+                    >
+                    <span class="spots" [class.full]="x.freeSpots === 0">
+                      {{
+                        x.freeSpots === 0 ? "Complet · liste d'attente" : x.freeSpots + ' place(s)'
+                      }}</span
+                    >
+                  </li>
+                }
+              </ul>
+              @if (!auth.isLoggedIn()) {
+                <a
+                  class="btn btn-primary"
+                  routerLink="/inscription"
+                  [queryParams]="{ returnUrl: '/member/book' }"
+                  >Créer mon compte pour réserver</a
+                >
+              } @else if (auth.role() === 'MEMBER') {
+                <a class="btn btn-primary" routerLink="/member/book">Réserver un cours</a>
+              }
+            } @else {
+              <p class="muted">Aucun cours lié à cet exercice dans les 14 prochains jours.</p>
+              <a class="btn btn-ghost" routerLink="/planning">Voir tout le planning</a>
+            }
+          </section>
+        }
+      </div>
+    </div>
+  </div>
+}

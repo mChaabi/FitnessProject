@@ -6,5 +6,9 @@ public record ExerciceDTO(
         String description,
         Integer duree,
         String categorie,
-        String image
+        String image,
+        String objectif,
+        String instructions,
+        String muscles,
+        String classKeywords
 ) {}
