@@ -39,6 +39,11 @@ public class AiConfig {
     }
 
     @Bean
+    DataAnalyst dataAnalyst(ChatModel model) {
+        return AiServices.create(DataAnalyst.class, model);
+    }
+
+    @Bean
     ProgramDrafter programDrafter(ChatModel model) {
         return AiServices.create(ProgramDrafter.class, model);
     }

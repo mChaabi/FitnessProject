@@ -1,0 +1,58 @@
+<button type="button" class="fab" (click)="open.set(!open())" [attr.aria-expanded]="open()" aria-label="Assistant d'analyse">
+  <span class="fab-ico">✨</span><span class="fab-txt">Assistant</span>
+</button>
+
+@if (open()) {
+  <aside class="panel" role="dialog" aria-label="Assistant d'analyse">
+    <header class="p-head">
+      <div><strong>Assistant d'analyse</strong><small class="muted">Basé sur les données anonymisées de votre salle</small></div>
+      <button type="button" class="x" (click)="close()" aria-label="Fermer">✕</button>
+    </header>
+
+    <div class="p-body">
+      <div class="quick">
+        @for (c of quick; track c.label) {
+          <button type="button" class="chip" [disabled]="busy()" (click)="ask(c.q)">{{ c.label }}</button>
+        }
+      </div>
+
+      @if (busy()) { <div class="typing" role="status" aria-label="Analyse en cours"><i></i><i></i><i></i></div> }
+      @if (error()) { <p class="alert-error" role="alert">{{ error() }}</p> }
+
+      @if (result(); as r) {
+        <div aria-live="polite">
+          <p class="summary">{{ r.summary }}</p>
+
+          <div class="insights stagger">
+            @for (i of r.insights; track i.title; let n = $index) {
+              <article class="insight" [style.--i]="n" [attr.data-sev]="i.severity">
+                <header><strong>{{ i.title }}</strong><span class="sev">{{ labels[i.severity] }}</span></header>
+                <p>{{ i.detail }}</p>
+                <div class="metrics">
+                  @for (m of i.metrics; track m.key) {
+                    <span class="metric" [title]="m.label"><small>{{ m.label }}</small><b>{{ m.value }}</b></span>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+
+          @if (r.actions.length) {
+            <h4>Actions recommandées</h4>
+            <ol class="actions-list">@for (a of r.actions; track $index) { <li [style.--i]="$index">{{ a }}</li> }</ol>
+          }
+          <small class="muted foot">
+            {{ r.ai ? 'Analyse générée par IA à ' : 'Analyse automatique (IA indisponible) à ' }}{{ r.generatedAt | date:'HH:mm' }}.
+            Les chiffres en cartes viennent de vos données : vérifiez avant de décider.
+          </small>
+        </div>
+      }
+    </div>
+
+    <form class="p-form" (submit)="$event.preventDefault(); ask()">
+      <input [value]="question()" (input)="question.set($any($event.target).value)" maxlength="300"
+             placeholder="Posez une question sur votre salle..." aria-label="Votre question">
+      <button class="btn btn-primary" [disabled]="busy() || question().trim().length < 3">Analyser</button>
+    </form>
+  </aside>
+}

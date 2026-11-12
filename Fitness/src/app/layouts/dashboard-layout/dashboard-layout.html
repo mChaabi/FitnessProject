@@ -121,4 +121,5 @@
 
     <main class="content"><router-outlet /></main>
   </div>
+    @if (auth.role() === 'ADMIN') { <app-assistant /> }
 </div>

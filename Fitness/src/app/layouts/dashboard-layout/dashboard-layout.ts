@@ -6,6 +6,7 @@ import { filter, map } from 'rxjs';
 import { AuthService } from '../../core/auth/auth-service';
 import { ICONS, NAV, NavItem, SECTION_ORDER } from './nav.config';
 import { ThemeService } from '../../core/theme';
+import { AssistantPanel } from '../../shared/assistant/assistant';
 
 const ROLE_LABEL: Record<string, string> = {
   ADMIN: 'Administrateur', RECEPTION: 'Réception', COACH: 'Coach', MEMBER: 'Membre',
@@ -14,7 +15,12 @@ const ROLE_LABEL: Record<string, string> = {
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [
+    RouterOutlet, 
+    RouterLink, 
+    RouterLinkActive, 
+    AssistantPanel // <-- Added here
+  ],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css',
 })
@@ -22,11 +28,11 @@ export class DashboardLayoutComponent {
   auth = inject(AuthService);
   private router = inject(Router);
   private browser = isPlatformBrowser(inject(PLATFORM_ID));   // keep above the signals that read storage
-    theme = inject(ThemeService);
+  theme = inject(ThemeService);
 
   icons = ICONS;
-  open = signal(false);                                   // mobile drawer
-  menu = signal(false);                                   // user dropdown
+  open = signal(false);                                     // mobile drawer
+  menu = signal(false);                                     // user dropdown
   collapsed = signal(this.read('fitforge_collapsed') === '1');
   dark = signal(this.read('fitforge_theme') === 'dark');
 
@@ -60,7 +66,7 @@ export class DashboardLayoutComponent {
       .sort((a, b) => b.link.length - a.link.length)[0] ?? null;
   });
 
-    constructor() {
+  constructor() {
     this.theme.enter();
     inject(DestroyRef).onDestroy(() => this.theme.leave());
     effect(() => this.write('fitforge_collapsed', this.collapsed() ? '1' : '0'));
