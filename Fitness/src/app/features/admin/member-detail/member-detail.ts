@@ -35,13 +35,17 @@ export class MemberDetailComponent implements OnDestroy {
 
   member = signal<Member | null>(null);
   qrUrl = signal<string | null>(null);
+  barcodeUrl = signal<string | null>(null);
   private id = Number(this.route.snapshot.paramMap.get('id'));
 
   constructor() {
     this.svc.get(this.id).subscribe((m) => this.member.set(m));
     this.svc.qr(this.id).subscribe((blob) => this.qrUrl.set(URL.createObjectURL(blob)));
     this.billing.getPlans().subscribe((p) => this.plans.set(p));
+        this.svc.barcode(this.id).subscribe((b) => this.barcodeUrl.set(URL.createObjectURL(b)));
     if (this.auth.role() === 'ADMIN') this.coaching.coaches().subscribe(c => this.coaches.set(c.filter(x => x.active)));
+        const wanted = Number(this.route.snapshot.queryParamMap.get('plan')) || null;   // ?plan=3 from the Inscriptions page
+    if (wanted) this.planId.set(wanted);
 
     this.loadHistory();
   }
@@ -92,6 +96,7 @@ link() {
 
   ngOnDestroy() {
     const u = this.qrUrl();
+        const bu = this.barcodeUrl(); if (bu) URL.revokeObjectURL(bu);
     if (u) URL.revokeObjectURL(u);
   } // libera memoria
 }

@@ -31,6 +31,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final LoginRateLimiter limiter;
     private final RefreshTokenService refreshTokens;
+    private final EnrollmentService enrollment;
 
     @Value("${app.auth.max-failures:5}") private int maxFailures;
     private String dummyHash;
@@ -49,7 +50,7 @@ public class AuthService {
         user.setRole(Role.MEMBER);                       // nunca el rol que mande el cliente
         user.setMotDePasse(passwordEncoder.encode(request.motDePasse()));
         user.setEnabled(true);
-        return userMapper.toDTO(userRepository.save(user));
+        return enrollment.register(request);
     }
 
     public AuthResult login(LoginRequest req, String ip) {

@@ -1,20 +1,134 @@
-<h1>Mon programme</h1>
-@for (p of programs(); track p.id) {
-  <div class="card" style="margin-bottom:1rem">
-    <h2>{{ p.name }}</h2>
-    <p class="muted">Coach : {{ p.coachName }} · depuis le {{ p.startDate }}@if (p.goal) { · {{ p.goal }} }</p>
-    @for (g of byDay(p); track g.label) {
-      <h3>{{ g.label }}</h3>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Exercice</th><th>Séries × Reps</th><th>Repos</th><th>Notes</th></tr></thead>
-        <tbody>
-          @for (i of g.items; track i.id) {
-            <tr><td><strong>{{ i.exerciceName }}</strong></td><td>{{ i.sets }} × {{ i.reps }}</td>
-              <td>{{ i.restSeconds }} s</td><td>{{ i.notes || '-' }}</td></tr>
+<header class="hero">
+  <div>
+    <h1>Bonjour {{ overview()?.firstName }}</h1>
+    <p>Votre abonnement, vos coachs et vos programmes, au même endroit.</p>
+  </div>
+  <a class="btn btn-primary btn-lg" routerLink="/member/book">Réserver un cours</a>
+</header>
+
+@if (overview(); as o) {
+  <div class="top stagger">
+
+    <!-- 1. Subscription -->
+    <article class="card sub" [style.--i]="0">
+      <span class="eyebrow">Mon abonnement</span>
+      @switch (o.status) {
+        @case ('ACTIVE') {
+          <h2>{{ o.planName }}</h2>
+          <div class="meter" role="progressbar" [attr.aria-valuenow]="percent()" aria-valuemin="0" aria-valuemax="100">
+            <span [style.width.%]="percent()" [class.warn]="(o.daysLeft ?? 99) <= 7"></span>
+          </div>
+          <div class="sub-meta">
+            <span><b>{{ o.daysLeft }}</b> jour(s) restant(s)</span>
+            <span class="muted">{{ o.startDate | date:'dd/MM/yyyy' }} → {{ o.endDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+          @if ((o.daysLeft ?? 99) <= 7) { <p class="note-warn">Votre abonnement se termine bientôt : renouvelez-le à l'accueil.</p> }
+        }
+        @case ('EXPIRED') {
+          <h2>Abonnement expiré</h2>
+          <p class="muted">Renouvelez-le à l'accueil pour réserver à nouveau.</p>
+          <a class="btn btn-ghost" routerLink="/tarifs">Voir les abonnements</a>
+        }
+        @default {
+          <h2>Pas encore d'abonnement</h2>
+          @if (o.requestedPlan) {
+            <p class="muted">Votre demande « {{ o.requestedPlan }} » est enregistrée. Réglez-la à l'accueil pour l'activer.</p>
+          } @else {
+            <p class="muted">Choisissez une formule, puis réglez-la à l'accueil.</p>
           }
-        </tbody></table></div>
+          <a class="btn btn-primary" routerLink="/tarifs">Voir les abonnements</a>
+        }
+      }
+    </article>
+
+    <!-- 2. My coach -->
+    <article class="card" [style.--i]="1">
+      <span class="eyebrow">Mon coach</span>
+      @if (o.coachName) {
+        <div class="who">
+          <span class="avatar-l">{{ initials(o.coachName) }}</span>
+          <div><h3>{{ o.coachName }}</h3><small class="muted">{{ o.coachSpecialties || 'Coach' }}</small></div>
+        </div>
+      } @else {
+        <p class="muted">Aucun coach assigné pour l'instant. Demandez-en un à l'accueil.</p>
+      }
+    </article>
+
+    <!-- 3. Access card -->
+    <article class="card pass" [style.--i]="2">
+      <span class="eyebrow">Carte d'accès</span>
+      @if (showQr() && qrUrl()) { <img class="qr" [src]="qrUrl()" alt="Mon QR code d'accès" width="160" height="160"> }
+      @else { <p class="muted">Présentez votre QR code au scanner de l'accueil.</p> }
+      <button type="button" class="btn btn-ghost" (click)="toggleQr()">{{ showQr() ? 'Masquer' : 'Afficher mon QR' }}</button>
+    </article>
+  </div>
+} @else if (!loading()) {
+  <div class="card state">Votre compte n'est pas encore lié à une fiche membre. Contactez l'accueil.</div>
+}
+
+@if (latest().length) {
+  <section class="sec">
+    <h2 class="sec-title">Dernières vidéos</h2>
+    <div class="vids stagger">
+      @for (v of latest(); track v.id; let i = $index) {
+        <a class="vmini hover-lift" routerLink="/member/videos" [style.--i]="i">
+          <span class="vthumb">@if (thumb(v); as t) { <img [src]="t" [alt]="v.title" loading="lazy"> }</span>
+          <strong>{{ v.title }}</strong><small class="muted">{{ label(v.category) }}</small>
+        </a>
+      }
+    </div>
+    <p><a class="btn btn-ghost" routerLink="/member/videos">Toutes les vidéos →</a></p>
+  </section>
+}
+
+<!-- Coaches available -->
+<section class="sec">
+  <h2 class="sec-title">Coachs disponibles</h2>
+  <div class="rail stagger">
+    @for (c of coaches(); track c.id; let i = $index) {
+      <article class="card coach hover-lift" [style.--i]="i">
+        <span class="avatar-l">{{ initials(c.name) }}</span>
+        <h3>{{ c.name }}</h3>
+        <span class="badge badge-info">{{ c.specialties || 'Coach' }}</span>
+        <p class="muted">{{ c.bio }}</p>
+      </article>
+    } @empty { <p class="muted">Aucun coach pour le moment.</p> }
+  </div>
+</section>
+
+<!-- Programs -->
+<section class="sec">
+  <h2 class="sec-title">Mes programmes</h2>
+  <div class="progs stagger">
+    @for (p of programs(); track p.id; let i = $index) {
+      <article class="card prog" [style.--i]="i" [class.open]="openId() === p.id">
+        <button type="button" class="prog-head" (click)="toggle(p.id)" [attr.aria-expanded]="openId() === p.id">
+          <span class="ph-text">
+            <strong>{{ p.name }}</strong>
+            <small class="muted">Coach : {{ p.coachName }} · depuis le {{ p.startDate | date:'dd/MM/yyyy' }}</small>
+          </span>
+          <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+        </button>
+        <div class="tags">
+          @if (p.goal) { <span class="badge badge-info">{{ p.goal }}</span> }
+          @for (g of byDay(p); track g.label) { <span class="badge badge-warning">{{ g.label.slice(0, 3) }}</span> }
+        </div>
+        <div class="panel" [class.open]="openId() === p.id"><div class="panel-in">
+          @for (g of byDay(p); track g.label) {
+            <h3>{{ g.label }}</h3>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Exercice</th><th>Séries × Reps</th><th>Repos</th><th>Notes</th></tr></thead>
+              <tbody>
+                @for (i of g.items; track i.id) {
+                  <tr><td><strong>{{ i.exerciceName }}</strong></td><td>{{ i.sets }} × {{ i.reps }}</td>
+                    <td>{{ i.restSeconds }} s</td><td>{{ i.notes || '-' }}</td></tr>
+                }
+              </tbody></table></div>
+          }
+        </div></div>
+      </article>
+    } @empty {
+      <div class="card state">Aucun programme actif pour l'instant. Demandez à votre coach.</div>
     }
   </div>
-} @empty {
-  <p class="muted">{{ loading() ? 'Chargement...' : "Aucun programme actif pour l'instant. Demandez à votre coach." }}</p>
-}
+</section>

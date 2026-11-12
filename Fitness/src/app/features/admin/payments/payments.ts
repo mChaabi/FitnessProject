@@ -3,7 +3,8 @@ import { Component, inject, signal } from '@angular/core';
 import { BillingService } from '../../../data/billing/service/billing';
 import { Page, PaymentRow, Revenue } from '../../../data/billing/billing';
 
-@Component({ selector: 'app-payments', standalone: true, imports: [DatePipe, CurrencyPipe], templateUrl: './payments.html' })
+@Component({ selector: 'app-payments', standalone: true, imports: [DatePipe, CurrencyPipe],
+  templateUrl: './payments.html', styleUrl: './payments.css' })
 export class PaymentsComponent {
   private svc = inject(BillingService);
   data = signal<Page<PaymentRow> | null>(null);

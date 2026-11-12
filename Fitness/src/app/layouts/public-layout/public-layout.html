@@ -18,6 +18,7 @@
           <span class="avatar-sm">{{ auth.user()?.prenom?.charAt(0) }}</span> Mon espace
         </a>
       } @else {
+        <a routerLink="/inscription" class="btn btn-outline-light">Inscription</a>
         <a routerLink="/login" class="btn btn-primary">Connexion</a>
       }
       <button class="burger" (click)="menuOpen.set(!menuOpen())" aria-label="Menu">☰</button>

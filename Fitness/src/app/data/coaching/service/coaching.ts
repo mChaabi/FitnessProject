@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Coach, Program, ProgramSummary } from '../coaching';
+import { Coach, DraftResponse, Program, ProgramSummary } from '../coaching';
 import { Member, Page } from '../../members/member';
 import { Exercice } from '../../public/exercice';
 
@@ -25,4 +25,8 @@ export class CoachingService {
     return id ? this.http.put<Program>(`${this.api}/programs/${id}`, body)
               : this.http.post<Program>(`${this.api}/programs`, body); }
   deleteProgram(id: number)      { return this.http.delete<void>(`${this.api}/programs/${id}`); }
+
+    draft(body: { memberId: number; level: string; days: number[]; minutesPerSession: number }) {
+    return this.http.post<DraftResponse>(`${this.api}/agents/program-drafts`, body);
+  }
 }

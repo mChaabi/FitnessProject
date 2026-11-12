@@ -14,6 +14,7 @@ export const ADMIN_ROUTES: Routes = [
   { path: 'outbox', canActivate: onlyAdmin, loadComponent: () => import('./outbox/outbox').then((m) => m.OutboxPage) },
   { path: 'classes/manage', canActivate: onlyAdmin, loadComponent: () => import('./classes-admin/classes-admin').then((m) => m.ClassesAdmin) },
   { path: 'members/:id/progress', canActivate: onlyAdmin, loadComponent: () => import('../progress/progress').then((m) => m.ProgressPage) },
+    { path: 'videos', canActivate: onlyAdmin, loadComponent: () => import('./videos-admin/videos-admin').then((m) => m.VideosAdmin) },
 
   // ---- ADMIN y RECEPTION ----
   { path: 'classes', loadComponent: () => import('../schedule/schedule').then((m) => m.SchedulePage) },
@@ -21,4 +22,5 @@ export const ADMIN_ROUTES: Routes = [
   { path: 'members/new', loadComponent: () => import('./member-form/member-form').then((m) => m.MemberFormComponent) },
   { path: 'members/:id', loadComponent: () => import('./member-detail/member-detail').then((m) => m.MemberDetailComponent) },
   { path: 'members/:id/edit', loadComponent: () => import('./member-form/member-form').then((m) => m.MemberFormComponent) },
+    { path: 'enrollments', loadComponent: () => import('./enrollments/enrollments').then((m) => m.EnrollmentsPage) },
 ];

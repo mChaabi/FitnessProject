@@ -18,4 +18,5 @@ export class MemberService {
   update(id: number, m: MemberRequest) { return this.http.put<Member>(`${this.api}/${id}`, m); }
   deactivate(id: number)            { return this.http.delete<void>(`${this.api}/${id}`); }
   qr(id: number)                    { return this.http.get(`${this.api}/${id}/qr`, { responseType: 'blob' }); }
+    barcode(id: number) { return this.http.get(`${this.api}/${id}/barcode`, { responseType: 'blob' }); }
 }

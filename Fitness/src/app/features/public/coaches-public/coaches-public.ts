@@ -13,12 +13,17 @@ import { Reveal } from '../../../core/reveal';
     <div class="grid">
       @for (c of coaches(); track c.id) {
         <article class="card hover-lift">
-          <div class="coach-photo">
-            <img src="/images/coach-default.jpg" [alt]="c.name" loading="lazy" />
-          </div>
+          @if (broken().has(c.id)) {
+            <div class="avatar">{{ initials(c.name) }}</div>
+          } @else {
+            <div class="coach-photo">
+              <img src="/images/coach-default.jpg" alt="" loading="lazy" (error)="onError(c.id)" />
+            </div>
+          }
           <h3>{{ c.name }}</h3>
           <span class="badge badge-info">{{ c.specialties || 'Coach' }}</span>
           <p>{{ c.bio }}</p>
+          <a class="btn btn-ghost" routerLink="/inscription" [queryParams]="{ coach: c.id }">Choisir ce coach</a>
         </article>
       } @empty {
         <p class="lead">Nos coachs seront bientôt présentés ici.</p>
@@ -76,6 +81,8 @@ import { Reveal } from '../../../core/reveal';
 })
 export class CoachesPublic {
   coaches = signal<PublicCoach[]>([]);
+  broken = signal<Set<number>>(new Set());
+
   constructor() {
     inject(PublicCatalogService)
       .coaches()
@@ -83,5 +90,19 @@ export class CoachesPublic {
         next: (c) => this.coaches.set(c),
         error: () => {},
       });
+  }
+
+  initials(name: string): string {
+    if (!name) return 'C';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  }
+
+  onError(id: number) {
+    this.broken.update((set) => new Set(set).add(id));
   }
 }

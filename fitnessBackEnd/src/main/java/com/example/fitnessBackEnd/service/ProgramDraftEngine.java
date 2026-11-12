@@ -8,6 +8,7 @@ import org.bsc.langgraph4j.StateGraph;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,11 @@ public class ProgramDraftEngine {
         this.validator = validator;
     }
     @Value("${app.agents.program.max-attempts:3}") private int maxAttempts;
+
+    @Autowired   // Spring uses this one; your tests keep calling the plain constructor
+    public ProgramDraftEngine(ObjectProvider<ProgramDrafter> drafter, ProgramValidator validator) {
+        this(drafter.getIfAvailable(), validator);
+    }
 
     // ---------- estado ----------
     public static class State extends AgentState {

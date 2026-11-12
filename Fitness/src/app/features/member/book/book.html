@@ -1,0 +1,156 @@
+<header class="head">
+  <h1>Réserver un cours</h1>
+  <p class="muted">Choisissez un cours, une séance, puis confirmez.</p>
+</header>
+
+<ol class="stepper" aria-label="Progression">
+  @for (l of labels; track l; let i = $index) {
+    <li [class.done]="step() > i + 1" [class.on]="step() === i + 1">
+      <span class="dot">@if (step() > i + 1) { ✓ } @else { {{ i + 1 }} }</span>
+      <span class="lab">{{ l }}</span>
+    </li>
+  }
+</ol>
+
+@if (error()) {
+  <div class="alert-error" role="alert">{{ error() }}
+    @if (error().includes('Abonnement')) { <a class="lnk" routerLink="/tarifs"> Voir les abonnements</a> }
+  </div>
+}
+
+@if (loading()) {
+  <div class="grid">@for (i of [1,2,3]; track i) { <div class="card skeleton"></div> }</div>
+} @else {
+  <div class="stage">
+  @switch (step()) {
+
+    <!-- STEP 1: choose the class -->
+    @case (1) {
+              <section class="card assistant">
+        <div class="a-head">
+          <span class="spark" aria-hidden="true">✨</span>
+          <div><strong>Assistant de réservation</strong>
+            <small class="muted">Décrivez ce que vous cherchez : je propose des séances, vous confirmez.</small></div>
+        </div>
+
+        <div class="a-form">
+          <input [value]="ask()" (input)="ask.set($any($event.target).value)" (keydown.enter)="askAssistant()"
+                 maxlength="300" placeholder="Ex : un cours de cardio le soir" aria-label="Votre demande">
+          <button type="button" class="btn btn-primary" [disabled]="asking() || ask().trim().length < 3"
+                  (click)="askAssistant()">{{ asking() ? 'Recherche...' : 'Demander' }}</button>
+        </div>
+
+        @if (!aiReply() && !asking()) {
+          <div class="ideas">
+            @for (i of ideas; track i) { <button type="button" class="chip" (click)="askAssistant(i)">{{ i }}</button> }
+          </div>
+        }
+
+        @if (asking()) { <span class="typing" role="status" aria-label="L'assistant réfléchit"><i></i><i></i><i></i></span> }
+        @if (aiError()) { <p class="alert-error" role="alert">{{ aiError() }}</p> }
+
+        @if (aiReply(); as r) {
+          <p class="a-reply">{{ r.text }}</p>
+          <div class="picks stagger">
+            @for (s of picks(); track s.id; let i = $index) {
+              <button type="button" class="card slot hover-lift" [style.--i]="i" [disabled]="!!s.myStatus" (click)="pickSuggestion(s)">
+                <span class="time">{{ s.date | date:'EEE dd/MM' }} · {{ time(s.startTime) }}</span>
+                <strong>{{ s.name }}</strong>
+                <small class="muted">{{ s.coachName }}</small>
+                <span class="spots" [class.full]="free(s) === 0">
+                  {{ free(s) === 0 ? "Complet · liste d'attente" : free(s) + ' place(s) libre(s)' }}</span>
+                @if (s.myStatus) { <span class="badge badge-success">Déjà inscrit</span> }
+              </button>
+            }
+          </div>
+          <small class="muted">{{ r.ai ? 'Suggestions générées par IA : vérifiez avant de confirmer.' : 'Recherche simple (assistant IA indisponible).' }}</small>
+        }
+      </section>
+      <div class="grid stagger">
+        @for (t of types(); track t.name; let i = $index) {
+          <button type="button" class="card type hover-lift" [style.--i]="i" (click)="pickType(t.name)">
+            <span class="badge-l">{{ initials(t.name) }}</span>
+            <strong>{{ t.name }}</strong>
+            <small class="muted">{{ t.count }} séance(s) · {{ t.coaches.length }} coach(s)</small>
+            <span class="next">Prochaine : {{ t.next.date | date:'EEE dd/MM' }} · {{ time(t.next.startTime) }}</span>
+          </button>
+        } @empty { <p class="state">Aucun cours disponible ces 14 prochains jours.</p> }
+      </div>
+    }
+
+    <!-- STEP 2: choose the coach and the session -->
+    @case (2) {
+      <div class="bar-row">
+        <button type="button" class="btn btn-ghost" (click)="back()">← Changer de cours</button>
+        <h2 class="sel">{{ name() }}</h2>
+      </div>
+
+      @if (coachesOf().length > 1) {
+        <div class="chips">
+          <button type="button" class="chip" [class.active]="!coach()" (click)="coach.set('')">Tous les coachs</button>
+          @for (c of coachesOf(); track c) {
+            <button type="button" class="chip" [class.active]="coach() === c" (click)="coach.set(c)">{{ c }}</button>
+          }
+        </div>
+      }
+
+      @for (d of days(); track d.key) {
+        <h3 class="day">{{ d.label }}</h3>
+        <div class="slots stagger">
+          @for (s of d.items; track s.id; let i = $index) {
+            <button type="button" class="card slot hover-lift" [style.--i]="i" [disabled]="!!s.myStatus" (click)="pickSession(s)">
+              <span class="time">{{ time(s.startTime) }} – {{ time(s.endTime) }}</span>
+              <strong>{{ s.coachName }}</strong>
+              <small class="muted">{{ s.room || 'Salle principale' }}</small>
+              <div class="bar"><span [style.width.%]="fill(s)" [class.full]="free(s) === 0"></span></div>
+              <span class="spots" [class.full]="free(s) === 0">
+                {{ free(s) === 0 ? "Complet · liste d'attente" : free(s) + ' place(s) libre(s)' }}</span>
+              @if (s.myStatus) {
+                <span class="badge badge-success">{{ s.myStatus === 'WAITLIST' ? 'En attente' : 'Déjà inscrit' }}</span>
+              }
+            </button>
+          }
+        </div>
+      } @empty { <p class="state">Aucune séance pour ce choix.</p> }
+    }
+
+    <!-- STEP 3: confirm -->
+    @case (3) {
+      @if (picked(); as s) {
+        <div class="card confirm">
+          <span class="eyebrow">Récapitulatif</span>
+          <h2>{{ s.name }}</h2>
+          <dl>
+            <div><dt>Date</dt><dd>{{ s.date | date:'fullDate' }}</dd></div>
+            <div><dt>Heure</dt><dd>{{ time(s.startTime) }} – {{ time(s.endTime) }}</dd></div>
+            <div><dt>Coach</dt><dd>{{ s.coachName }}</dd></div>
+            <div><dt>Salle</dt><dd>{{ s.room || '-' }}</dd></div>
+          </dl>
+          @if (free(s) === 0) {
+            <p class="note-warn">Ce cours est complet : vous serez sur liste d'attente et prévenu(e) par email si une place se libère.</p>
+          }
+          <p class="muted small">Annulation possible jusqu'à 2 h avant le début.</p>
+          <div class="row-end">
+            <button type="button" class="btn btn-ghost" (click)="back()">Retour</button>
+            <button type="button" class="btn btn-primary btn-lg" [disabled]="busy()" (click)="confirm()">
+              {{ busy() ? 'Réservation...' : free(s) === 0 ? "Rejoindre la liste d'attente" : 'Confirmer ma place' }}</button>
+          </div>
+        </div>
+      }
+    }
+
+    <!-- STEP 4: done -->
+    @case (4) {
+      <div class="card done">
+        <svg class="check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" /><path d="M14 27l8 8 16-17" /></svg>
+        <h2>{{ result()?.status === 'CONFIRMED' ? 'Place confirmée !' : "Vous êtes sur liste d'attente" }}</h2>
+        @if (result()?.status === 'WAITLIST') { <p class="muted">Votre position : {{ result()?.position }}</p> }
+        <div class="row-end center">
+          <a class="btn btn-ghost" routerLink="/member/classes">Voir mon planning</a>
+          <button type="button" class="btn btn-primary" (click)="restart()">Réserver un autre cours</button>
+        </div>
+      </div>
+    }
+  }
+  </div>
+}

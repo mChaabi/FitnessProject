@@ -51,6 +51,11 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping(value = "/{id}/barcode", produces = MediaType.IMAGE_PNG_VALUE)
+    public byte[] barcode(@PathVariable Long id) throws Exception {
+        return QrGenerator.code128(service.qrCodeOf(id), 900, 160);
+    }
+
     @GetMapping(value = "/{id}/qr", produces = MediaType.IMAGE_PNG_VALUE)
     public byte[] qr(@PathVariable Long id) throws Exception {
         return QrGenerator.png(service.qrCodeOf(id), 320);

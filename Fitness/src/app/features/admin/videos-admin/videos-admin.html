@@ -1,0 +1,39 @@
+<h1>Vidéos</h1>
+@if (message(); as m) { <div [class]="m.ok ? 'alert-ok' : 'alert-error'" role="status">{{ m.text }}</div> }
+
+<div class="card" style="margin-bottom:1rem">
+  <h3>{{ editingId() ? 'Modifier la vidéo' : 'Nouvelle vidéo' }}</h3>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="grid2">
+      <div class="form-group"><label>Titre *</label><input formControlName="title" placeholder="Body Attack : échauffement"></div>
+      <div class="form-group"><label>Catégorie *</label>
+        <select formControlName="category">@for (c of categories; track c.key) { <option [value]="c.key">{{ c.label }}</option> }</select></div>
+      <div class="form-group"><label>Lien YouTube ou fichier *</label>
+        <input formControlName="url" placeholder="https://youtu.be/xxxxxxxxxxx  ou  /videos/squat.mp4">
+        <small class="muted">Utilisez des vidéos dont vous avez les droits (vos propres vidéos en « non répertoriée »).</small></div>
+      <div class="form-group"><label>Durée (min)</label><input type="number" formControlName="durationMin"></div>
+    </div>
+    <div class="form-group"><label>Description</label><input formControlName="description"></div>
+    <div class="form-group"><label><input type="checkbox" formControlName="active" style="width:auto"> Visible par les membres</label></div>
+    <div class="actions">
+      @if (editingId()) { <button type="button" class="btn btn-ghost" (click)="reset()">Annuler</button> }
+      <button class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Enregistrement...' : 'Enregistrer' }}</button>
+    </div>
+  </form>
+</div>
+
+<div class="card"><div class="table-wrap"><table>
+  <thead><tr><th>Titre</th><th>Catégorie</th><th>Source</th><th>Statut</th><th></th></tr></thead>
+  <tbody>
+    @for (v of videos(); track v.id) {
+      <tr><td><strong>{{ v.title }}</strong><br><small class="muted">{{ v.durationMin ? v.durationMin + ' min' : '' }}</small></td>
+        <td><span class="badge badge-info">{{ label(v.category) }}</span></td>
+        <td>{{ v.type === 'YOUTUBE' ? 'YouTube' : 'Fichier' }}</td>
+        <td><span class="badge" [class]="v.active ? 'badge-success' : 'badge-warning'">{{ v.active ? 'Visible' : 'Masquée' }}</span></td>
+        <td class="actions">
+          <button class="btn btn-ghost" (click)="edit(v)">Modifier</button>
+          <button class="btn btn-ghost" (click)="toggle(v)">{{ v.active ? 'Masquer' : 'Afficher' }}</button>
+          <button class="btn btn-ghost" (click)="remove(v)">Supprimer</button>
+        </td></tr>
+    } @empty { <tr><td colspan="5" class="empty">Aucune vidéo.</td></tr> }
+  </tbody></table></div></div>

@@ -10,10 +10,9 @@ import com.example.fitnessBackEnd.enums.MemberStatus;
 import com.example.fitnessBackEnd.enums.SubscriptionStatus;
 import com.example.fitnessBackEnd.exception.ConflictException;
 import com.example.fitnessBackEnd.exception.NotFoundException;
-import com.example.fitnessBackEnd.repository.MemberRepository;
-import com.example.fitnessBackEnd.repository.PaymentRepository;
-import com.example.fitnessBackEnd.repository.PlanRepository;
-import com.example.fitnessBackEnd.repository.SubscriptionRepository;
+import com.example.fitnessBackEnd.repository.*;
+import com.example.fitnessBackEnd.enums.EmailType;
+import com.example.fitnessBackEnd.repository.EnrollmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +29,8 @@ public class SubscriptionService {
     private final PlanRepository planRepo;
     private final SubscriptionRepository subRepo;
     private final PaymentRepository payRepo;
+    private final EnrollmentRepository enrollRepo;
+    private final EmailQueue emailQueue;
 
     @Transactional
     public SubscriptionRow sell(Long memberId, SellRequest r, String staffEmail) {
@@ -58,6 +59,17 @@ public class SubscriptionService {
         pay.setReceiptNumber(String.format("R-%d-%06d", today.getYear(), pay.getId()));
 
         member.setStatus(MemberStatus.ACTIVE);
+        // close the sign-up request; give the member the coach they asked for (never overwrite an existing one)
+        enrollRepo.findByMemberIdAndStatus(memberId, "PENDING").forEach(req -> {
+            if (member.getCoach() == null && req.getCoach() != null && req.getCoach().isActive())
+                member.setCoach(req.getCoach());
+            req.setStatus("DONE");
+        });
+
+        emailQueue.enqueue(EmailType.PAYMENT_CONFIRMED, member,
+                Facts.of("Abonnement", plan.getName(), "Valable jusqu'au", Facts.date(sub.getEndDate()),
+                        "Montant", plan.getPrice().toPlainString() + " MAD"),
+                "PAY:" + pay.getId());
         return row(pay);
     }
 

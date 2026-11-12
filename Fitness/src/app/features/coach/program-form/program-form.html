@@ -3,6 +3,28 @@
   @if (error()) { <div class="alert-error">{{ error() }}</div> }
   @if (!memberId) { <div class="alert-error">Choisissez un client depuis « Mes clients ».</div> }
 
+    @if (!id && memberId) {
+    <div class="ai" [formGroup]="ai">
+      <strong>✨ Assistant IA</strong>
+      <small class="muted">Génère un brouillon à relire et modifier. Seuls le niveau, les jours, la durée, la tranche d'âge et l'objectif sont envoyés.</small>
+      <div class="ai-row">
+        <div class="form-group"><label>Niveau</label>
+          <select formControlName="level">@for (l of levels; track l.k) { <option [value]="l.k">{{ l.l }}</option> }</select></div>
+        <div class="form-group"><label>Durée par séance (min)</label><input type="number" formControlName="minutes"></div>
+      </div>
+      <div class="days">
+        @for (d of days; track d.n) {
+          <button type="button" class="chip" [class.active]="aiDays().includes(d.n)" (click)="toggleDay(d.n)">{{ d.label.slice(0, 3) }}</button>
+        }
+      </div>
+      <div>
+        <button type="button" class="btn btn-primary" [disabled]="aiBusy() || !aiDays().length || aiDays().length > 6" (click)="generate()">
+          {{ aiBusy() ? 'Génération en cours...' : "Générer avec l'IA" }}</button>
+      </div>
+      @if (aiMsg(); as m) { <div [class]="m.ok ? 'alert-ok' : 'alert-error'" role="status">{{ m.text }}</div> }
+    </div>
+  }
+
   <form [formGroup]="form" (ngSubmit)="save()">
     <div class="grid2">
       <div class="form-group"><label>Nom du programme *</label><input formControlName="name" placeholder="Prise de masse - 8 semaines"></div>

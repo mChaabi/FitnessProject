@@ -22,7 +22,7 @@ public class AiConfig {
         return GoogleAiGeminiChatModel.builder()
                 .apiKey(apiKey).modelName(model)
                 .temperature(0.4)                       // poca creatividad: texto sobrio y estable
-                .maxOutputTokens(200)                   // tope de coste y de longitud
+                .maxOutputTokens(2048)                    // tope de coste y de longitud
                 .timeout(Duration.ofSeconds(timeout))
                 .maxRetries(1)
                 .build();
@@ -31,6 +31,11 @@ public class AiConfig {
     @Bean
     EmailCopywriter emailCopywriter(ChatModel model) {
         return AiServices.create(EmailCopywriter.class, model);
+    }
+
+    @Bean
+    ClassAssistant classAssistant(ChatModel model) {
+        return AiServices.create(ClassAssistant.class, model);
     }
 
     @Bean

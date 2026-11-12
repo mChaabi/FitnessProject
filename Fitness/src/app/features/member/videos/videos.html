@@ -1,0 +1,56 @@
+<header class="head">
+  <div><h1>Vidéos</h1><p class="muted">Apprenez les mouvements avant vos séances.</p></div>
+  <input type="search" class="search" placeholder="Rechercher une vidéo..." aria-label="Rechercher"
+         (input)="query.set($any($event.target).value)">
+</header>
+
+<div class="chips">
+  <button type="button" class="chip" [class.active]="!filter()" (click)="filter.set('')">Toutes ({{ all().length }})</button>
+  @for (c of categories; track c.key) {
+    @if (count(c.key) > 0) {
+      <button type="button" class="chip" [class.active]="filter() === c.key" (click)="filter.set(c.key)">
+        {{ c.label }} ({{ count(c.key) }})</button>
+    }
+  }
+</div>
+
+@if (loading()) {
+  <div class="grid">@for (i of [1,2,3,4]; track i) { <div class="card skeleton"></div> }</div>
+} @else if (error()) {
+  <p class="state">Impossible de charger les vidéos pour le moment.</p>
+} @else {
+  <div class="grid stagger">
+    @for (v of visible(); track v.id; let i = $index) {
+      <button type="button" class="vcard" [style.--i]="i" (click)="open(v)" [attr.aria-label]="'Lire ' + v.title">
+        <span class="thumb">
+          @if (thumb(v); as t) { <img [src]="t" [alt]="v.title" loading="lazy" (error)="$any($event.target).style.display='none'"> }
+          <span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" /></svg></span>
+          @if (v.durationMin) { <span class="dur">{{ v.durationMin }} min</span> }
+        </span>
+        <span class="info">
+          <span class="badge badge-info">{{ label(v.category) }}</span>
+          <strong>{{ v.title }}</strong>
+          @if (v.description) { <small class="muted">{{ v.description }}</small> }
+        </span>
+      </button>
+    } @empty { <p class="state full-row">Aucune vidéo ne correspond à votre recherche.</p> }
+  </div>
+}
+
+@if (playing(); as v) {
+  <div class="modal" role="dialog" aria-modal="true" [attr.aria-label]="v.title" (click)="close()">
+    <div class="player" (click)="$event.stopPropagation()">
+      <button type="button" class="x" (click)="close()" aria-label="Fermer">✕</button>
+      <div class="frame">
+        @if (v.type === 'YOUTUBE') {
+          <iframe [src]="embed()" [title]="v.title" allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                  allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        } @else {
+          <video [src]="v.source" controls autoplay playsinline></video>
+        }
+      </div>
+      <div class="meta"><span class="badge badge-info">{{ label(v.category) }}</span>
+        <h3>{{ v.title }}</h3>@if (v.description) { <p class="muted">{{ v.description }}</p> }</div>
+    </div>
+  </div>
+}

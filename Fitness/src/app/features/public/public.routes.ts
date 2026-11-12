@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { guestGuard } from '../../core/guards-guard';
 
 export const PUBLIC_ROUTES: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -10,4 +11,6 @@ export const PUBLIC_ROUTES: Routes = [
   { path: 'planning', loadComponent: () => import('./planning-public/planning-public').then((m) => m.PlanningPublic) },
   { path: 'contact', loadComponent: () => import('./contact-component/contact-component').then((m) => m.ContactComponent) },
   { path: 'unsubscribe', loadComponent: () => import('./unsubscribe-page/unsubscribe-page').then((m) => m.UnsubscribePage) },
+    { path: 'inscription', canActivate: [guestGuard],
+    loadComponent: () => import('./register-component/register-component').then((m) => m.RegisterComponent) },
 ];

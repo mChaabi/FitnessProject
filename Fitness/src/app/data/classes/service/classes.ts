@@ -11,6 +11,7 @@ export class ClassesService {
   sessions(from: string, to: string): Observable<ClassSession[]> {
     return this.http.get<ClassSession[]>(`${this.api}/sessions`, { params: { from, to } });
   }
+  
 
   createSession(b: any): Observable<ClassSession> {
     return this.http.post<ClassSession>(`${this.api}/sessions`, b);
@@ -20,18 +21,16 @@ export class ClassesService {
     return this.http.post<void>(`${this.api}/sessions/${id}/cancel`, {});
   }
 
-  attendees(id: number): Observable<Attendee[]> {
-    return this.http.get<Attendee[]>(`${this.api}/sessions/${id}/attendees`);
+   attendees(id: number): Observable<Attendee[]> {
+    return this.http.get<Attendee[]>(`${this.api}/sessions/${id}/bookings`);        // was /attendees (404)
   }
 
-  /** memberId solo lo usa el personal; el miembro reserva siempre para sí mismo. */
-  book(id: number, memberId: number | null): Observable<BookingResult> {
-    const url = memberId ? `${this.api}/sessions/${id}/book?memberId=${memberId}` : `${this.api}/sessions/${id}/book`;
-    return this.http.post<BookingResult>(url, {});
+    book(id: number, memberId: number | null): Observable<BookingResult> {
+    return this.http.post<BookingResult>(`${this.api}/sessions/${id}/book`, memberId ? { memberId } : {});
   }
 
-  cancelBooking(id: number): Observable<void> {
-    return this.http.post<void>(`http://localhost:8080/api/bookings/${id}/cancel`, {});
+    cancelBooking(id: number): Observable<void> {
+    return this.http.post<void>(`${this.api}/bookings/${id}/cancel`, {});           // was /api/bookings/... (404)
   }
 
   templates(): Observable<ClassTemplate[]> {
@@ -44,5 +43,11 @@ export class ClassesService {
 
   generate(): Observable<{ created: number }> {
     return this.http.post<{ created: number }>(`${this.api}/generate`, {});
+  }
+
+    /** AI assistant: returns a short reply and the ids of suggested sessions. */
+  suggest(message: string): Observable<{ reply: string; sessionIds: number[]; ai: boolean }> {
+    return this.http.post<{ reply: string; sessionIds: number[]; ai: boolean }>(
+      'http://localhost:8080/agents/class-suggestions', { message });
   }
 }

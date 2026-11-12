@@ -85,10 +85,10 @@ export class Checkin implements OnDestroy {
   async startCamera() {
     this.cameraError.set('');
     try {
-      const { Html5Qrcode } = await import('html5-qrcode');
-      this.scanner = new Html5Qrcode('reader');
+       const { Html5Qrcode, Html5QrcodeSupportedFormats: F } = await import('html5-qrcode');
+      this.scanner = new Html5Qrcode('reader', { formatsToSupport: [F.QR_CODE, F.CODE_128], verbose: false });
       this.cameraOn.set(true);
-      await this.scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: 240 },
+       await this.scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 320, height: 140 } },
         (code: string) => {
           const now = Date.now();
           if (code === this.lastCode && now - this.lastAt < 4000) return;   // la cámara lee el mismo QR muchas veces

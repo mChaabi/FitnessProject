@@ -19,6 +19,11 @@ export class ProgramForm {
   exercices = signal<Exercice[]>([]);
   error = signal('');
   saving = signal(false);
+    levels = [{ k: 'BEGINNER', l: 'Débutant' }, { k: 'INTERMEDIATE', l: 'Intermédiaire' }, { k: 'ADVANCED', l: 'Avancé' }];
+  ai = this.fb.nonNullable.group({ level: ['BEGINNER'], minutes: [60, [Validators.min(20), Validators.max(120)]] });
+  aiDays = signal<number[]>([1, 3, 5]);
+  aiBusy = signal(false);
+  aiMsg = signal<{ ok: boolean; text: string } | null>(null);
 
   form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -52,6 +57,27 @@ export class ProgramForm {
   }
   removeItem(i: number) { this.items.removeAt(i); }
 
+
+    toggleDay(n: number) {
+    const d = this.aiDays();
+    this.aiDays.set(d.includes(n) ? d.filter(x => x !== n) : [...d, n].sort());
+  }
+  generate() {
+    if (!this.memberId || this.aiBusy() || this.ai.invalid || !this.aiDays().length || this.aiDays().length > 6) return;
+    this.aiBusy.set(true); this.aiMsg.set(null);
+    const v = this.ai.getRawValue();
+    this.svc.draft({ memberId: this.memberId, level: v.level, days: this.aiDays(), minutesPerSession: v.minutes }).subscribe({
+      next: r => {
+        this.aiBusy.set(false);
+        if (!r.ready) { this.aiMsg.set({ ok: false, text: 'Brouillon non valide : ' + r.errors.join(' ; ') }); return; }
+        this.form.patchValue({ name: r.name ?? '', goal: r.goal ?? '' });
+        this.items.clear();
+        r.items.forEach(i => this.addItem({ ...i, notes: i.notes ?? undefined }));
+        this.aiMsg.set({ ok: true, text: `Brouillon généré (${r.attempts} essai(s)). Relisez et modifiez avant d'enregistrer.` });
+      },
+      error: e => { this.aiBusy.set(false);
+        this.aiMsg.set({ ok: false, text: e.error?.message ?? 'Génération impossible, créez le programme manuellement.' }); }
+    });}
   save() {
     if (this.form.invalid || this.items.length === 0 || this.saving() || !this.memberId) {
       this.form.markAllAsTouched(); return;

@@ -18,8 +18,7 @@ import { Reveal } from '../../../core/reveal';
           <p class="price">{{ p.price | currency:'MAD ':'symbol':'1.0-0' }}</p>
           <small class="muted">{{ p.durationDays }} jour{{ p.durationDays > 1 ? 's' : '' }}</small>
           <p>{{ p.description }}</p>
-          <a class="btn btn-primary" routerLink="/contact"
-             [queryParams]="{ plan: p.name }">Je m'inscris</a>
+          <a class="btn btn-primary" routerLink="/inscription" [queryParams]="{ plan: p.id }">Je m'inscris</a>
         </article>
       } @empty { <p class="muted">Aucun abonnement disponible.</p> }
     </div>

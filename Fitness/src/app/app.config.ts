@@ -5,6 +5,9 @@ import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { authInterceptor } from './core/auth-interceptor';
 import { AuthService } from './core/auth/auth-service';
+import localeFr from '@angular/common/locales/fr';
+import { registerLocaleData } from '@angular/common';
+registerLocaleData(localeFr);
 
 export const appConfig: ApplicationConfig = {
   providers: [

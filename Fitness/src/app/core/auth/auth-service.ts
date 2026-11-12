@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, firstValueFrom, of, shareReplay, tap } from 'rxjs';
 import { API } from '../api';
-import { AuthResponse, Role } from './auth';
+import { AuthResponse, Role, User } from './auth';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -22,6 +22,13 @@ export class AuthService {
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) sessionStorage.removeItem('fitforge_session');  // limpia el formato antiguo
+  }
+
+    register(body: {
+    nom: string; prenom: string; email: string; motDePasse: string;
+    phone?: string; planId?: number; coachId?: number;
+  }) {
+    return this.http.post<User>(`${API}/auth/register`, body);
   }
 
   login(credentials: { email: string; motDePasse: string }) {
