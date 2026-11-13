@@ -3,20 +3,27 @@ package com.example.fitnessBackEnd.service;
 import com.example.fitnessBackEnd.dto.AnalysisReply;
 import com.example.fitnessBackEnd.dto.AnalysisReply.InsightView;
 import com.example.fitnessBackEnd.dto.Metric;
+import com.example.fitnessBackEnd.dto.VideoResponse;
 import com.example.fitnessBackEnd.entity.AgentRun;
+import com.example.fitnessBackEnd.enums.VideoCategory;
 import com.example.fitnessBackEnd.exception.ConflictException;
 import com.example.fitnessBackEnd.service.AnalyticsSnapshot.Snapshot;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +33,37 @@ public class AnalystService {
     private static final String GRAPH = "analyst";
     private static final Set<String> SEVERITIES = Set.of("POSITIVE", "INFO", "WARNING", "CRITICAL");
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH);
+    private static final Pattern FACTUAL = Pattern.compile("^(combien|quel|quels|quelle|quelles|liste|qui|quand|donne|montre|affiche)\\b.*");
+
+    private static final Map<String, VideoCategory> VIDEO_TOPICS = Map.of(
+            "cardio", VideoCategory.CARDIO_HIIT, "hiit", VideoCategory.CARDIO_HIIT,
+            "muscu", VideoCategory.MUSCULATION, "crossfit", VideoCategory.CROSSFIT, "cross fit", VideoCategory.CROSSFIT,
+            "yoga", VideoCategory.YOGA, "etir", VideoCategory.STRETCHING, "stretch", VideoCategory.STRETCHING,
+            "attack", VideoCategory.BODY_ATTACK);
+
+    /** Keyword fallback (AI off): topic regex -> metric key prefixes to show. */
+    private static final Map<String, List<String>> TOPICS = new LinkedHashMap<>();
+    static {
+        TOPICS.put("coach", List.of("coaches."));
+        TOPICS.put("abonnement|plan|tarif|prix", List.of("plans.", "plan."));
+        TOPICS.put("membre|inscrit|adherent", List.of("members.", "enrollments."));
+        TOPICS.put("cours|planning|seance|horaire", List.of("classes."));
+        TOPICS.put("exercice", List.of("exercises."));
+        TOPICS.put("video", List.of("videos."));
+        TOPICS.put("email|mail", List.of("emails."));
+        TOPICS.put("revenu|paiement|chiffre", List.of("revenue."));
+        TOPICS.put("entree|frequentation|visite", List.of("visits.", "checkins."));
+    }
 
     private final ObjectProvider<DataAnalyst> analyst;      // empty when the AI is disabled
     private final AnalyticsSnapshot snapshots;
     private final AgentQuota quota;
+    private final VideoService videoService;
 
     @Value("${app.agents.enabled:true}") private boolean enabled;
     @Value("${app.agents.analyst.max-runs-per-day:30}") private int maxRuns;
+    @Value("classpath:prompts/app-guide.txt") private Resource guideFile;
+    private String guide;
 
     public AnalysisReply analyze(String question, Authentication a) {
         if (!enabled) throw new ConflictException("Cette fonctionnalité est désactivée");
@@ -45,31 +76,32 @@ public class AnalystService {
             out = ask(q, snap);
         } catch (Exception e) {
             log.warn("Analyste IA indisponible, règles utilisées : {}", e.getMessage());
-            out = rules(snap);
+            out = rules(snap, q);
         }
         quota.finish(run, out.ai() ? "READY" : "FALLBACK");
-        return out;
+        return out.withVideos(videosFor(q));
     }
 
     // ---------- AI path ----------
     private AnalysisReply ask(String question, Snapshot snap) {
         DataAnalyst ai = analyst.getIfAvailable();
-        if (ai == null) return rules(snap);
+        if (ai == null) return rules(snap, question);
 
-        DataAnalyst.Analysis r = ai.analyze(DAY.format(LocalDate.now()), question, snap.asText());
-        if (r == null || r.insights() == null) return rules(snap);
+        DataAnalyst.Analysis r = ai.analyze(DAY.format(LocalDate.now()), question, snap.asText(), guide());
+        if (r == null) return rules(snap, question);
 
         Map<String, Metric> byKey = snap.byKey();
-        List<InsightView> insights = r.insights().stream().filter(Objects::nonNull)
+        List<DataAnalyst.Insight> raw = r.insights() == null ? List.of() : r.insights();   // help answers have none
+        List<InsightView> insights = raw.stream().filter(Objects::nonNull)
                 .map(i -> ground(i, byKey)).filter(Objects::nonNull).limit(5).toList();
 
-        String summary = safe(r.summary(), 500);
-        if (summary == null) return rules(snap);
-        if (insights.isEmpty() && r.actions() != null && !r.actions().isEmpty()) return rules(snap);   // ungrounded answer
+        String summary = safe(r.summary(), 700);
+        if (summary == null) return rules(snap, question);
 
         List<String> actions = r.actions() == null ? List.of()
                 : r.actions().stream().map(x -> safe(x, 220)).filter(Objects::nonNull).limit(4).toList();
-        return new AnalysisReply(summary, insights, actions, true, LocalDateTime.now());
+        if (insights.isEmpty() && !actions.isEmpty()) return rules(snap, question);        // ungrounded advice
+        return new AnalysisReply(summary, insights, actions, true, LocalDateTime.now(), List.of());
     }
 
     /** Keeps an insight only if it points to real metrics. The values shown come from OUR data. */
@@ -83,8 +115,21 @@ public class AnalystService {
         return new InsightView(title, detail, SEVERITIES.contains(sev) ? sev : "INFO", metrics);
     }
 
+    // ---------- videos: chosen by code, never by the AI ----------
+    private List<VideoResponse> videosFor(String question) {
+        String n = norm(question);
+        if (!(n.contains("video") || n.contains("tuto") || n.contains("demonstration"))) return List.of();
+        Set<VideoCategory> wanted = EnumSet.noneOf(VideoCategory.class);
+        VIDEO_TOPICS.forEach((k, v) -> { if (n.contains(k)) wanted.add(v); });
+        return videoService.published().stream()
+                .filter(v -> wanted.isEmpty() || wanted.contains(v.category())).limit(3).toList();
+    }
+
     // ---------- fallback: rules, no AI ----------
-    private AnalysisReply rules(Snapshot snap) {
+    private AnalysisReply rules(Snapshot snap, String question) {
+        AnalysisReply byTopic = byTopic(snap, question);
+        if (byTopic != null) return byTopic;
+
         var k = snap.data().kpis();
         var c = snap.data().classes();
         Map<String, Metric> by = snap.byKey();
@@ -121,12 +166,35 @@ public class AnalystService {
                 "INFO", by, "members.active", "visits.total_14d"));
 
         return new AnalysisReply("Analyse automatique basée sur des règles (l'assistant IA est indisponible).",
-                out, actions.stream().limit(4).toList(), false, LocalDateTime.now());
+                out, actions.stream().limit(4).toList(), false, LocalDateTime.now(), List.of());
+    }
+
+    /** "Combien d'abonnements et de coachs ?" without AI: show the metrics of every topic mentioned. */
+    private AnalysisReply byTopic(Snapshot snap, String question) {
+        String n = norm(question);
+        if (!FACTUAL.matcher(n).matches()) return null;
+        List<Metric> found = new ArrayList<>();
+        TOPICS.forEach((regex, prefixes) -> {
+            if (!Pattern.compile(regex).matcher(n).find()) return;
+            snap.metrics().stream().filter(m -> prefixes.stream().anyMatch(m.key()::startsWith)).forEach(found::add);
+        });
+        if (found.isEmpty()) return null;
+        return new AnalysisReply("Voici les informations disponibles (réponse automatique : l'assistant IA est indisponible).",
+                List.of(new InsightView("Données trouvées", "Valeurs actuelles de votre application.", "INFO",
+                        found.stream().distinct().limit(10).toList())),
+                List.of(), false, LocalDateTime.now(), List.of());
     }
 
     private static InsightView fixed(String title, String detail, String sev, Map<String, Metric> by, String... keys) {
-        return new InsightView(title, detail, sev,
-                Arrays.stream(keys).map(by::get).filter(Objects::nonNull).toList());
+        return new InsightView(title, detail, sev, Arrays.stream(keys).map(by::get).filter(Objects::nonNull).toList());
+    }
+
+    private synchronized String guide() {
+        if (guide == null) {
+            try (var in = guideFile.getInputStream()) { guide = new String(in.readAllBytes(), StandardCharsets.UTF_8); }
+            catch (IOException e) { log.warn("Guide introuvable : {}", e.getMessage()); guide = ""; }
+        }
+        return guide;
     }
 
     // ---------- text safety ----------
@@ -142,5 +210,10 @@ public class AnalystService {
         String t = s.replaceAll("<[^>]*>", " ").replaceAll("[\\r\\n]+", " ").replaceAll("\\s+", " ").trim();
         if (t.isEmpty() || t.toLowerCase(Locale.ROOT).contains("http") || t.contains("www.")) return null;
         return t.length() > max ? t.substring(0, max - 1) + "…" : t;
+    }
+
+    private static String norm(String s) {
+        return Normalizer.normalize(s == null ? "" : s, Normalizer.Form.NFD).replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT).trim();
     }
 }

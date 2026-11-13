@@ -36,6 +36,18 @@
               </article>
             }
           </div>
+                    @if (r.videos.length) {
+            <h4>Vidéos</h4>
+            <div class="vids">
+              @for (v of r.videos; track v.id) {
+                <a class="vid" [href]="videoLink(v)" target="_blank" rel="noopener noreferrer">
+                  <span class="vt">@if (thumb(v); as t) { <img [src]="t" [alt]="v.title" loading="lazy"> }<span class="vp">▶</span></span>
+                  <strong>{{ v.title }}</strong>
+                  <small class="muted">{{ label(v.category) }}@if (v.durationMin) { · {{ v.durationMin }} min }</small>
+                </a>
+              }
+            </div>
+          }
 
           @if (r.actions.length) {
             <h4>Actions recommandées</h4>

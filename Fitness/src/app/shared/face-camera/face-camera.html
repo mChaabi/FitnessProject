@@ -1,0 +1,30 @@
+<div class="cam">
+  <div class="stage" [class.live]="state() === 'live'" [class.busy]="busy()">
+    <video #v playsinline muted disablePictureInPicture disableRemotePlayback></video>
+
+    @if (state() === 'live') {
+      <span class="oval" [class.scan]="busy()" aria-hidden="true"></span>
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <span class="live-dot"><i></i> En direct</span>
+    }
+    @if (state() === 'starting') { <div class="center"><span class="spin"></span><p>Ouverture de la caméra...</p></div> }
+    @if (state() === 'idle') { <div class="center"><span class="cam-ico">📷</span><p>Caméra éteinte</p></div> }
+    @if (state() === 'error') { <div class="center"><span class="cam-ico">⚠️</span><p>Caméra indisponible</p></div> }
+  </div>
+
+  @if (error()) { <p class="alert-error" role="alert">{{ error() }}</p> }
+
+  <ul class="tips">
+    <li>Visage de face</li><li>Bonne lumière</li><li>40 à 60 cm</li><li>Une seule personne</li>
+  </ul>
+
+  <div class="bar">
+    @if (state() === 'live') {
+      <button type="button" class="btn btn-primary btn-lg" [disabled]="busy()" (click)="snap()">
+        {{ busy() ? 'Analyse en cours...' : label() }}</button>
+    } @else if (state() !== 'starting') {
+      <button type="button" class="btn btn-primary" (click)="start()">Activer la caméra</button>
+    }
+  </div>
+</div>

@@ -1,0 +1,13 @@
+GUIDE DE L'APPLICATION FITFORGE (réservé au gérant)
+
+Membres : menu Personnes > Membres. « + Nouveau membre » crée une fiche. Sur la fiche : vendre un abonnement (bouton Encaisser), assigner un coach, lier un compte, imprimer la carte (QR code et code-barres).
+Inscriptions : menu Accueil > Inscriptions. Liste des personnes inscrites en ligne qui n'ont pas encore payé. Bouton Encaisser : ouvre la fiche avec l'abonnement choisi ; il reste à choisir le mode de paiement. Le coach souhaité est assigné automatiquement.
+Check-in : menu Accueil > Check-in. Scanner le QR code ou le code-barres (lecteur USB ou caméra), ou rechercher le membre. Refus possibles : abonnement expiré, gelé, compte inactif, aucun abonnement. Un second scan dans les 5 minutes est signalé comme doublon.
+Abonnements (offres) : menu Finance > Abonnements. Créer, modifier, désactiver. Changer un prix ne touche pas les abonnements déjà vendus.
+Paiements : menu Finance > Paiements. Liste, revenus du mois, reçu PDF.
+Coachs : menu Personnes > Coachs. Créer un coach avec un mot de passe initial. Désactiver un coach libère ses clients.
+Cours : menu Cours > Gérer les cours. Un cours récurrent génère les séances des 28 prochains jours. Une séance ponctuelle crée une seule date. Planning : voir les participants, ajouter un membre, annuler une séance (les inscrits sont prévenus par email).
+Réservations des membres : un abonnement valide est obligatoire. Si le cours est complet, le membre va en liste d'attente et passe automatiquement en confirmé si une place se libère. Annulation possible jusqu'à 2 heures avant le début.
+Vidéos : menu Cours > Vidéos. Ajouter un lien YouTube (de préférence non répertorié) ou un fichier /videos/nom.mp4. Une vidéo peut être masquée sans être supprimée.
+Emails : menu Pilotage > Emails. File d'envoi, statuts, bouton Relancer pour les échecs. Envois automatiques : rappel de cours la veille, abonnement qui expire sous 7 jours, membre absent depuis 14 jours, liste d'attente, annulation de cours, bienvenue, paiement confirmé.
+Tableau de bord : menu Pilotage. Membres actifs, revenus, entrées du jour, occupation des cours, abonnements à renouveler, membres à risque d'abandon.

@@ -20,6 +20,10 @@ public interface DataAnalyst {
         Métriques (clé | libellé | valeur) :
         {{facts}}
 
-        Rédige l'analyse.""")
-    Analysis analyze(@V("today") String today, @V("question") String question, @V("facts") String facts);
+        Guide de l'application :
+        {{guide}}
+
+        Réponds.""")
+    Analysis analyze(@V("today") String today, @V("question") String question,
+                     @V("facts") String facts, @V("guide") String guide);
 }

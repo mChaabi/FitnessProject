@@ -51,5 +51,12 @@ services:
       backend: { condition: service_healthy }
     ports: ["${WEB_PORT}:80"]
 
+
+    face:
+    build: ./face-service
+    restart: unless-stopped
+    environment:
+      FACE_API_KEY: ${FACE_API_KEY}
+      
 volumes:
   db_data:

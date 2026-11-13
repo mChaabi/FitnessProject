@@ -21,6 +21,42 @@
       <div id="reader" [hidden]="!cameraOn()"></div>
     </div>
 
+       <div class="card face-card" style="margin-top:1rem">
+      <div class="face-head">
+        <span class="face-ico">🙂</span>
+        <div><strong>Reconnaissance faciale</strong>
+          <small class="muted">Alternative au QR code. Vous confirmez toujours l'entrée.</small></div>
+      </div>
+
+      @switch (faceMode()) {
+        @case ('off') {
+          <button class="btn btn-primary" (click)="startFace()">Scanner un visage</button>
+        }
+        @case ('camera') {
+          <app-face-camera [busy]="faceBusy()" label="Identifier" (captured)="onFacePhoto($event)" />
+          @if (faceMsg()) { <p class="alert-error" role="alert">{{ faceMsg() }}</p> }
+          <button class="btn btn-ghost" (click)="stopFace()">Fermer la caméra</button>
+        }
+        @case ('proposal') {
+          @if (faceMatch(); as m) {
+            <div class="proposal">
+              <span class="who-ava">{{ m.memberName?.charAt(0) }}</span>
+              <div class="who-txt">
+                <small class="muted">Visage reconnu, à confirmer</small>
+                <h3>{{ m.memberName }}</h3>
+                <div class="conf"><span [style.width.%]="m.confidence"></span></div>
+                <small class="muted">Confiance {{ m.confidence }} %</small>
+              </div>
+              <div class="prop-actions">
+                <button class="btn btn-primary btn-lg" [disabled]="busy()" (click)="confirmFace()">Confirmer l'entrée</button>
+                <button class="btn btn-ghost" (click)="startFace()">Ce n'est pas lui</button>
+              </div>
+            </div>
+          }
+        }
+      }
+    </div>
+
     <div class="card" style="margin-top:1rem">
       <label class="lbl">Recherche manuelle</label>
       <input type="search" [formControl]="search" placeholder="Nom ou email du membre...">

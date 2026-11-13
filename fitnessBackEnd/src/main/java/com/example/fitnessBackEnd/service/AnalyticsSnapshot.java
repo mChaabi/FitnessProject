@@ -24,6 +24,7 @@ public class AnalyticsSnapshot {
     }
 
     private final DashboardService dashboard;
+    private final AppKnowledge knowledge;
 
     public Snapshot build() {
         DashboardResponse d = dashboard.build();
@@ -59,6 +60,8 @@ public class AnalyticsSnapshot {
         add(m, "classes.sessions_7d", "Séances prévues sur 7 jours", d.classes().sessions());
         add(m, "classes.avg_occupancy_pct", "Taux d'occupation moyen des cours (%)", d.classes().avgOccupancy());
         add(m, "classes.waiting_total", "Personnes en liste d'attente", d.classes().waitingTotal());
+
+        m.addAll(knowledge.build());
 
         return new Snapshot(d, m);
     }

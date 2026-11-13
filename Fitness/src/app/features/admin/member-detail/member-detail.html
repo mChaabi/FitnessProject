@@ -37,6 +37,56 @@
       }
       <small class="muted">À scanner à l'entrée</small>
     </div>
+    <div class="card" style="margin-top: 1rem">
+      <h3>Reconnaissance faciale</h3>
+      @if (face(); as f) {
+        <p>
+          <span class="badge" [class]="f.enrolled ? 'badge-success' : 'badge-warning'">{{
+            f.enrolled ? 'Enregistré' : 'Non enregistré'
+          }}</span>
+          @if (f.consentAt) {
+            <small class="muted">
+              · consentement du {{ f.consentAt | date: 'dd/MM/yyyy HH:mm' }}</small
+            >
+          }
+        </p>
+      }
+      @if (faceMsg(); as fm) {
+        <div [class]="fm.ok ? 'alert-ok' : 'alert-error'" role="status">{{ fm.text }}</div>
+      }
+
+      @if (!faceCam()) {
+        <label class="consent">
+          <input
+            type="checkbox"
+            [checked]="faceConsent()"
+            (change)="faceConsent.set($any($event.target).checked)"
+          />
+          Le membre a donné son consentement écrit au traitement de son visage.
+        </label>
+        <div class="actions" style="justify-content: flex-start">
+          <button
+            class="btn btn-primary"
+            [disabled]="!faceConsent()"
+            (click)="faceCam.set(true); faceMsg.set(null)"
+          >
+            {{ face()?.enrolled ? 'Remplacer le visage' : 'Enregistrer le visage' }}
+          </button>
+          @if (face()?.enrolled) {
+            <button class="btn btn-ghost" (click)="removeFace()">Supprimer</button>
+          }
+        </div>
+      } @else {
+        <app-face-camera
+          [busy]="faceBusy()"
+          label="Prendre la photo et enregistrer"
+          (captured)="onFacePhoto($event)"
+        />
+        <div class="actions" style="justify-content: flex-start">
+          <button class="btn btn-ghost" (click)="faceCam.set(false)">Annuler</button>
+        </div>
+      }
+    </div>
 
     <div class="card" style="margin-top: 1rem">
       <h3>Vendre un abonnement</h3>
@@ -46,8 +96,10 @@
       <div class="sell">
         <select (change)="planId.set(+$any($event.target).value || null)">
           <option value="">Choisir un plan...</option>
-          @for (p of plans(); track p.id) { 
-            <option [value]="p.id" [selected]="planId() === p.id">{{ p.name }} - {{ p.price }} MAD ({{ p.durationDays }} j)</option> 
+          @for (p of plans(); track p.id) {
+            <option [value]="p.id" [selected]="planId() === p.id">
+              {{ p.name }} - {{ p.price }} MAD ({{ p.durationDays }} j)
+            </option>
           }
         </select>
         <select (change)="method.set($any($event.target).value)">

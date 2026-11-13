@@ -8,12 +8,14 @@ import { debounceTime, distinctUntilChanged, Observable } from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { Member } from '../../../data/members/member';
 import { Outcome, CheckInResult, CheckInRow, TodayStats } from '../../../data/checkin/checkin';
+import { FaceCamera } from '../../../shared/face-camera/face-camera';
+import { FaceMatch, FaceService } from '../../../data/face/service/face';
 
 
 @Component({
   selector: 'app-checkin',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, FaceCamera],
   templateUrl: './checkin.html',
   styleUrl: './checkin.css'
 })
@@ -32,6 +34,36 @@ export class Checkin implements OnDestroy {
   found = signal<Member[]>([]);
 
   search = new FormControl('', { nonNullable: true });
+
+    private faceSvc = inject(FaceService);
+  faceMode = signal<'off' | 'camera' | 'proposal'>('off');
+  faceBusy = signal(false);
+  faceMatch = signal<FaceMatch | null>(null);
+  faceMsg = signal('');
+
+  startFace() { this.faceMsg.set(''); this.faceMatch.set(null); this.faceMode.set('camera'); }
+  stopFace() { this.faceMode.set('off'); this.faceMatch.set(null); this.faceMsg.set(''); }
+
+  onFacePhoto(photo: Blob) {
+    if (this.faceBusy()) return;
+    this.faceBusy.set(true); this.faceMsg.set('');
+    this.faceSvc.identify(photo).subscribe({
+      next: m => {
+        this.faceBusy.set(false);
+        if (m.matched) { this.faceMatch.set(m); this.faceMode.set('proposal'); }     // camera closes: a human must confirm
+        else this.faceMsg.set(m.message);                                              // camera stays open: retry or use QR
+      },
+      error: e => { this.faceBusy.set(false); this.faceMsg.set(e.error?.message ?? 'Reconnaissance impossible.'); }
+    });
+  }
+
+  /** The face only PROPOSES. This is the same call as the manual search: all subscription rules still apply. */
+  confirmFace() {
+    const m = this.faceMatch();
+    if (!m?.memberId) return;
+    this.handle(() => this.svc.byMember(m.memberId!));
+    this.stopFace();
+  }
 
   private scanner: any = null;
   private lastCode = '';

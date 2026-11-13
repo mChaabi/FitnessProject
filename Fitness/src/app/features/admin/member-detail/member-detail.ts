@@ -8,11 +8,13 @@ import { CoachingService } from '../../../data/coaching/service/coaching';
 import { BillingService } from '../../../data/billing/service/billing';
 import { Member } from '../../../data/members/member';
 import { AuthService } from '../../../core/auth/auth-service';
+import { FaceCamera } from '../../../shared/face-camera/face-camera';
+import { FaceService, FaceStatus } from '../../../data/face/service/face';
 
 @Component({
   selector: 'app-member-detail',
   standalone: true,
-  imports: [RouterLink, DatePipe, CurrencyPipe],
+  imports: [RouterLink, DatePipe, CurrencyPipe, FaceCamera],
   templateUrl: './member-detail.html',
   styleUrl: './member-detail.css',
 })
@@ -38,11 +40,37 @@ export class MemberDetailComponent implements OnDestroy {
   barcodeUrl = signal<string | null>(null);
   private id = Number(this.route.snapshot.paramMap.get('id'));
 
+    private faceSvc = inject(FaceService);
+  face = signal<FaceStatus | null>(null);
+  faceConsent = signal(false);
+  faceCam = signal(false);
+  faceBusy = signal(false);
+  faceMsg = signal<{ ok: boolean; text: string } | null>(null);
+
+  loadFace() { this.faceSvc.status(this.id).subscribe({ next: s => this.face.set(s), error: () => this.face.set(null) }); }
+
+  onFacePhoto(photo: Blob) {
+    if (!this.faceConsent() || this.faceBusy()) return;
+    this.faceBusy.set(true); this.faceMsg.set(null);
+    this.faceSvc.enroll(this.id, photo, true).subscribe({
+      next: s => { this.face.set(s); this.faceBusy.set(false); this.faceCam.set(false); this.faceConsent.set(false);
+                   this.faceMsg.set({ ok: true, text: 'Visage enregistré.' }); },
+      error: e => { this.faceBusy.set(false);
+                    this.faceMsg.set({ ok: false, text: e.error?.message ?? 'Enregistrement impossible.' }); }   // camera stays open: retry
+    });
+  }
+
+  removeFace() {
+    if (!confirm('Supprimer les données faciales de ce membre ?')) return;
+    this.faceSvc.remove(this.id).subscribe(() => { this.loadFace(); this.faceMsg.set({ ok: true, text: 'Données faciales supprimées.' }); });
+  }
+
   constructor() {
     this.svc.get(this.id).subscribe((m) => this.member.set(m));
     this.svc.qr(this.id).subscribe((blob) => this.qrUrl.set(URL.createObjectURL(blob)));
     this.billing.getPlans().subscribe((p) => this.plans.set(p));
         this.svc.barcode(this.id).subscribe((b) => this.barcodeUrl.set(URL.createObjectURL(b)));
+            if (this.auth.role() === 'ADMIN' || this.auth.role() === 'RECEPTION') this.loadFace();
     if (this.auth.role() === 'ADMIN') this.coaching.coaches().subscribe(c => this.coaches.set(c.filter(x => x.active)));
         const wanted = Number(this.route.snapshot.queryParamMap.get('plan')) || null;   // ?plan=3 from the Inscriptions page
     if (wanted) this.planId.set(wanted);
