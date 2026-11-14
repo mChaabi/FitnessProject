@@ -84,3 +84,49 @@ h1 span { color: var(--primary); }
   .hero { height: 170px; }
   .body { padding: 1.1rem 1.1rem 1.5rem; }
 }
+
+/* ---------- popup ---------- */
+.modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 1rem;
+         background: rgba(2,6,23,.78); backdrop-filter: blur(6px); overscroll-behavior: contain;
+         animation: fade .25s both; }
+.dialog { position: relative; width: min(760px, 100%); max-height: calc(100dvh - 2rem);   /* a REAL height limit */
+          display: flex; flex-direction: column; background: var(--surface); border-radius: var(--radius-lg);
+          overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.55); animation: pop .3s var(--ease) both; }
+
+/* the only part that scrolls */
+.sheet { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth;
+         scrollbar-width: thin; scrollbar-color: var(--primary) transparent; }
+.sheet::-webkit-scrollbar { width: 8px; }
+.sheet::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 8px; }
+.sheet::-webkit-scrollbar-track { background: transparent; }
+
+/* scroll progress bar (top edge) */
+.progress { position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 3; background: transparent; }
+.progress i { display: block; height: 100%; background: linear-gradient(90deg, var(--primary), #fb923c);
+              transition: width .12s linear; box-shadow: 0 0 10px rgba(249,115,22,.7); }
+
+.x { position: absolute; top: .7rem; right: .7rem; z-index: 4; width: 38px; height: 38px; border: 0; border-radius: 50%;
+     background: rgba(0,0,0,.6); color: #fff; cursor: pointer; backdrop-filter: blur(4px);
+     transition: background .2s, transform .3s var(--ease); }
+.x:hover { background: var(--primary); transform: rotate(90deg); }
+
+/* ---------- scroll-driven animation (Chrome / Edge; other browsers just skip it) ---------- */
+@supports (animation-timeline: view()) {
+  .hero img { animation: parallax linear both; animation-timeline: scroll(nearest block); animation-range: 0 320px; }
+  .body section { animation: sectionIn linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+}
+@keyframes parallax { to { transform: translateY(55px) scale(1.12); opacity: .6; } }
+@keyframes sectionIn { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: none; } }
+
+/* ---------- phone: bottom sheet ---------- */
+@media (max-width: 640px) {
+  .modal { place-items: end center; padding: 0; }
+  .dialog { max-height: 92dvh; border-radius: 22px 22px 0 0; animation: slideUp .35s var(--ease) both; }
+  .hero { height: 170px; }
+  .body { padding: 1.1rem 1.1rem 1.6rem; }
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .hero img, .body section { animation: none !important; }
+  .sheet { scroll-behavior: auto; }
+}

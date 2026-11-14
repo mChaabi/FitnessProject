@@ -6,6 +6,7 @@ import { Exercice, ExerciceDetail } from '../../../data/public/exercice';
 import { PublicSession } from '../../../data/public/public-catalog';
 import { AuthService } from '../../../core/auth/auth-service';
 import { API } from '../../../core/api';
+import { Portal } from '../../../core/portal';
 
 const LABELS: Record<string, string> = {
   CARDIO: 'Cardio', MUSCULATION: 'Musculation', YOGA: 'Yoga', HIIT: 'HIIT', GAINAGE: 'Gainage', STRETCHING: 'Étirements'
@@ -42,6 +43,7 @@ export class ExercicesComponent {
   filter = signal('ALL');
   query = signal('');
   private failed = signal<Record<number, number>>({});
+    progress = signal(0);   
 
   // ---------- detail panel ----------
   selected = signal<Exercice | null>(null);
@@ -64,12 +66,11 @@ export class ExercicesComponent {
 
   constructor() {
     this.load();
-    effect(() => {                                   // lock the page scroll while the panel is open
+       effect(() => {
       const open = this.selected() !== null;
-      if (this.browser) document.body.style.overflow = open ? 'hidden' : '';
+      if (this.browser) document.documentElement.style.overflow = open ? 'hidden' : '';
     });
-    inject(DestroyRef).onDestroy(() => { if (this.browser) document.body.style.overflow = ''; });
-  }
+    inject(DestroyRef).onDestroy(() => { if (this.browser) document.documentElement.style.overflow = ''; });}
 
   load() {
     this.loading.set(true); this.error.set(false);
@@ -82,10 +83,17 @@ export class ExercicesComponent {
   open(e: Exercice) {
     this.selected.set(e); this.detail.set(null);
     this.detailError.set(false); this.detailLoading.set(true);
+        this.progress.set(0);
     this.http.get<ExerciceDetail>(`${API}/exercices/${e.id}`).subscribe({
       next: d => { if (this.selected()?.id !== e.id) return; this.detail.set(d); this.detailLoading.set(false); },
       error: () => { if (this.selected()?.id !== e.id) return; this.detailError.set(true); this.detailLoading.set(false); }
     });
+  }
+
+    onScroll(ev: Event) {
+    const el = ev.target as HTMLElement;
+    const max = el.scrollHeight - el.clientHeight;
+    this.progress.set(max > 0 ? (el.scrollTop / max) * 100 : 0);
   }
 
   @HostListener('document:keydown.escape')
