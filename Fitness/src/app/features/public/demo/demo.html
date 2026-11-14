@@ -1,0 +1,48 @@
+<div class="stage" [class.paused]="!playing()">
+  <span class="ring"></span><span class="orb"></span>
+
+  <header class="top">
+    <a routerLink="/" class="logo">FIT<span>FORGE</span></a>
+    <span class="tag">PROJECT DEMO</span>
+  </header>
+
+  <!-- the slide is re-created on every change, so all CSS animations replay -->
+  @for (s of [current()]; track s.title) {
+    <section class="slide">
+      <div class="txt">
+        <div class="count">
+          <b>{{ pad(index() + 1) }}</b><span> / {{ pad(total) }}</span>
+          <i class="bar"><u [style.animation-duration.ms]="duration"></u></i>
+        </div>
+        <h1>{{ s.title }}</h1>
+        <p class="tagline">{{ s.tagline }}</p>
+        <ul>
+          @for (b of s.bullets; track b; let i = $index) { <li [style.--i]="i">{{ b }}</li> }
+        </ul>
+      </div>
+
+      <div class="shot" [class.phone]="s.device === 'phone'">
+        <div class="frame">
+          @if (!failed()[s.image]) { <img [src]="s.image" [alt]="s.title" (error)="fail(s.image)"> }
+          @else { <div class="ph">Ajoutez {{ s.image }}</div> }
+        </div>
+      </div>
+    </section>
+  }
+
+  @if (ui()) {
+    <nav class="ctrl" aria-label="Contrôles de la démo">
+      <button type="button" (click)="go(index() - 1)" aria-label="Précédent">‹</button>
+      <button type="button" (click)="playing.set(!playing())" [attr.aria-label]="playing() ? 'Pause' : 'Lecture'">
+        {{ playing() ? '❚❚' : '▶' }}</button>
+      <button type="button" (click)="go(index() + 1)" aria-label="Suivant">›</button>
+      <span class="dots">
+        @for (s of slides; track s.title; let i = $index) {
+          <button type="button" class="dot" [class.on]="i === index()" (click)="go(i)" [attr.aria-label]="'Diapositive ' + (i + 1)"></button>
+        }
+      </span>
+      <button type="button" (click)="fullscreen()" aria-label="Plein écran">⛶</button>
+      <small>← → naviguer · espace pause · F plein écran · H masquer</small>
+    </nav>
+  }
+</div>

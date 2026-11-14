@@ -25,7 +25,8 @@ export const routes: Routes = [
     path: 'reception',
     component: DashboardLayoutComponent,
     canActivate: [roleGuard('ADMIN', 'RECEPTION')],
-    loadChildren: () => import('./features/reception/reception.routes').then((m) => m.RECEPTION_ROUTES),
+    loadChildren: () =>
+      import('./features/reception/reception.routes').then((m) => m.RECEPTION_ROUTES),
   },
   {
     path: 'coach',
@@ -38,6 +39,10 @@ export const routes: Routes = [
     component: DashboardLayoutComponent,
     canActivate: [roleGuard('MEMBER')],
     loadChildren: () => import('./features/member/member.routes').then((m) => m.MEMBER_ROUTES),
+  },
+  {
+    path: 'demo',
+    loadComponent: () => import('./features/public/demo/demo').then((m) => m.DemoPage),
   },
   { path: '**', redirectTo: 'home' },
 ];
