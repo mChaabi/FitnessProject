@@ -7,12 +7,17 @@ import { authInterceptor } from './core/auth-interceptor';
 import { AuthService } from './core/auth/auth-service';
 import localeFr from '@angular/common/locales/fr';
 import { registerLocaleData } from '@angular/common';
+import { TitleStrategy, withInMemoryScrolling, withViewTransitions } from '@angular/router';
+import { AppTitleStrategy } from './core/title-strategy';
 registerLocaleData(localeFr);
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+        provideRouter(routes,
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
+      withViewTransitions()),                                   // smooth cross-fade between pages
+    { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideAppInitializer(() => {

@@ -48,6 +48,13 @@ export class DemoPage {
   current = computed(() => SLIDES[this.index()]);
   private browser = isPlatformBrowser(inject(PLATFORM_ID));
 
+    private x0 = 0;
+  swipeStart(e: TouchEvent) { this.x0 = e.changedTouches[0].clientX; }
+  swipeEnd(e: TouchEvent) {
+    const dx = e.changedTouches[0].clientX - this.x0;
+    if (Math.abs(dx) > 50) this.go(this.index() + (dx < 0 ? 1 : -1));   // swipe left = next
+  }
+
   constructor() {
     effect((onCleanup) => {                       // restarts whenever the slide changes or play/pause toggles
       const i = this.index();

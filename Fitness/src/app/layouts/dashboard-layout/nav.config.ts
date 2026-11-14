@@ -87,6 +87,8 @@ export const NAV: NavItem[] = [
     roles: ['COACH'],
   },
 
+  { section: 'Coaching', label: 'Vidéos', icon: 'play', link: '/coach/videos', roles: ['COACH'] },
+
   {
     section: 'Cours',
     label: 'Planning',

@@ -37,3 +37,11 @@
   .links a { padding: .9rem 0; }
 }
 @media (max-width: 560px) { .foot-grid { grid-template-columns: 1fr; } }
+
+.only-mobile { display: none; }
+@media (max-width: 560px) {
+  .actions .btn-outline-light { display: none; }     /* it moves into the burger menu */
+  .only-mobile { display: block; color: var(--primary) !important; font-weight: 700; }
+  .logo { font-size: 1.4rem; }
+  .nav-inner { height: 64px; }
+}

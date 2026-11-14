@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CoachingService } from '../../../data/coaching/service/coaching';
 import { DAYS, Program } from '../../../data/coaching/coaching';
 import { MemberOverview } from '../../../data/me/me';
@@ -17,6 +17,7 @@ export class Home {
   private me = inject(MeService);
   private coaching = inject(CoachingService);
   private catalog = inject(PublicCatalogService);
+    needSub = inject(ActivatedRoute).snapshot.queryParamMap.get('need') === 'subscription';
 
   overview = signal<MemberOverview | null>(null);
   programs = signal<Program[]>([]);

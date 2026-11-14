@@ -10,6 +10,9 @@
       <a routerLink="/planning" routerLinkActive="active" (click)="closeAll()">Cours</a>
       <a routerLink="/tarifs" routerLinkActive="active" (click)="closeAll()">Abonnements</a>
       <a routerLink="/contact" routerLinkActive="active" (click)="closeAll()">Contact</a>
+      @if (!auth.isLoggedIn()) {
+        <a class="only-mobile" routerLink="/inscription" (click)="closeAll()">Inscription</a>
+      }
     </nav>
 
     <div class="actions">

@@ -1,6 +1,6 @@
 <div class="stage" [class.paused]="!playing()">
   <span class="ring"></span><span class="orb"></span>
-
+<div class="stage" [class.paused]="!playing()" (touchstart)="swipeStart($event)" (touchend)="swipeEnd($event)"></div>
   <header class="top">
     <a routerLink="/" class="logo">FIT<span>FORGE</span></a>
     <span class="tag">PROJECT DEMO</span>

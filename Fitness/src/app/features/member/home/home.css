@@ -62,3 +62,10 @@
 .vthumb { aspect-ratio: 16/9; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: .4rem;
           background: linear-gradient(135deg, var(--navy), var(--primary)); }
 .vthumb img { width: 100%; height: 100%; object-fit: cover; }
+.journey { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .8rem; margin: 0 0 1.5rem; padding: 1rem 1.2rem; }
+.journey li { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; font-weight: 600; font-size: .9rem; }
+.journey li span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; flex: none;
+                   border: 2px solid var(--border); font-size: .8rem; }
+.journey li.done span { background: var(--success); border-color: var(--success); color: #fff; }
+.journey li.locked { opacity: .5; }
+.lnk { color: var(--primary); font-weight: 700; }

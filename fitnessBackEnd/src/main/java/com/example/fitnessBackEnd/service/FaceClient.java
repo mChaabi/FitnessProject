@@ -2,7 +2,8 @@ package com.example.fitnessBackEnd.service;
 
 import com.example.fitnessBackEnd.exception.BadRequestException;
 import com.example.fitnessBackEnd.exception.ConflictException;
-import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.core.ParameterizedTypeReference;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.io.IOException;
 import java.util.Map;
@@ -53,23 +55,24 @@ public class FaceClient {
             body.add("image", new ByteArrayResource(photo.getBytes()) {
                 @Override public String getFilename() { return "photo.jpg"; }
             });
-            JsonNode r = http.post().uri("/embed").contentType(MediaType.MULTIPART_FORM_DATA)
-                    .body(body).retrieve().body(JsonNode.class);
+            // a plain Map works with any Jackson version
+            Map<String, Object> r = http.post().uri("/embed").contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(body).retrieve().body(new ParameterizedTypeReference<Map<String, Object>>() {});
 
-            if (r == null || !r.path("ok").asBoolean())
-                throw new BadRequestException(REASONS.getOrDefault(r == null ? "" : r.path("reason").asText(),
+            if (r == null || !Boolean.TRUE.equals(r.get("ok")))
+                throw new BadRequestException(REASONS.getOrDefault(r == null ? "" : String.valueOf(r.get("reason")),
                         "Photo non utilisable"));
-            JsonNode e = r.path("embedding");
-            float[] v = new float[e.size()];
-            for (int i = 0; i < v.length; i++) v[i] = (float) e.get(i).asDouble();
-            if (v.length != 128) throw new IllegalStateException("embedding inattendu");
+            List<?> e = (List<?>) r.get("embedding");
+            if (e == null || e.size() != 128) throw new IllegalStateException("embedding inattendu");
+            float[] v = new float[128];
+            for (int i = 0; i < 128; i++) v[i] = ((Number) e.get(i)).floatValue();
             return v;
         } catch (BadRequestException | ConflictException e) {
             throw e;
         } catch (IOException | RuntimeException e) {
-        org.slf4j.LoggerFactory.getLogger(FaceClient.class)
-                .error("Appel du service facial impossible : {}", e.toString());
-        throw new ConflictException("Service de reconnaissance indisponible");
-    }
+            org.slf4j.LoggerFactory.getLogger(FaceClient.class)
+                    .error("Appel du service facial impossible : {}", e.toString(), e);
+            throw new ConflictException("Service de reconnaissance indisponible");
+        }
     }
 }

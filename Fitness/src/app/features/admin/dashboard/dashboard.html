@@ -58,11 +58,11 @@
 
   <!-- Alertas accionables -->
   <div class="alerts">
-    <a class="alert-card warn" href="#expiring">
+    <a class="alert-card warn" routerLink="." fragment="expiring">
       <strong [countUp]="d.kpis.expiringCount"></strong>
       <span>abonnement(s) expirent dans {{ d.kpis.expiringDays }} jours</span>
     </a>
-    <a class="alert-card danger" href="#risk">
+    <a class="alert-card danger" routerLink="." fragment="risk">
       <strong [countUp]="d.kpis.atRiskCount"></strong>
       <span>membre(s) absent(s) depuis {{ d.kpis.inactivityDays }} jours</span>
     </a>

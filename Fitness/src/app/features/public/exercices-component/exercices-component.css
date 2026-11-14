@@ -78,3 +78,9 @@ h1 span { color: var(--primary); }
      background: rgba(0,0,0,.6); color: #fff; cursor: pointer; transition: background .2s, transform .2s; }
 .x:hover { background: var(--primary); transform: rotate(90deg); }
 @keyframes fade { from { opacity: 0; } }
+
+@media (max-width: 640px) {
+  .sheet { max-height: 92dvh; }
+  .hero { height: 170px; }
+  .body { padding: 1.1rem 1.1rem 1.5rem; }
+}

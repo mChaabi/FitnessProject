@@ -186,3 +186,41 @@ tbody tr:nth-child(n+6) { animation-delay: .2s; }
 }
 
 .stagger > * { animation: fadeUp .6s var(--ease) both; animation-delay: calc(var(--i, 0) * 90ms); }
+
+/* ============ MOBILE FOUNDATIONS ============ */
+html { -webkit-text-size-adjust: 100%; }
+body { overflow-x: clip; }                       /* safety net: no accidental sideways scroll */
+img, video, canvas, svg { max-width: 100%; }
+
+@media (max-width: 640px) {
+  input, select, textarea { font-size: 16px; }   /* below 16px iOS zooms the page on focus */
+  .btn { min-height: 44px; }                      /* comfortable touch target */
+  .card { padding: 1.1rem; }
+  h1 { font-size: 1.7rem; } h2 { font-size: 1.4rem; }
+  .head > .btn, .head .nav { width: 100%; }
+  .actions { flex-wrap: wrap; }
+}
+
+/* phones and tablets have no hover: do not leave cards "lifted" after a tap */
+@media (hover: none) {
+  .hover-lift:hover { transform: none; box-shadow: var(--shadow-sm); border-color: var(--border); }
+  .btn-primary:hover { transform: none; }
+  .btn-primary:hover::after { transform: translateX(-120%); }
+}
+
+@media (max-width: 700px) {
+  table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.stack, table.stack tbody, table.stack tr, table.stack td { display: block; width: 100%; }
+  table.stack tr { margin-bottom: .75rem; padding: .35rem .9rem; border: 1px solid var(--border);
+                   border-radius: var(--radius); background: var(--surface); animation: none; }
+  table.stack td { display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+                   padding: .55rem 0; border-top: 1px dashed var(--border); text-align: right; }
+  table.stack td:first-child { border-top: 0; }
+  table.stack td::before { content: attr(data-label); flex: none; text-align: left; color: var(--text-muted);
+                           font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  table.stack td:not([data-label])::before { content: none; }
+  table.stack td[colspan] { justify-content: center; }
+  table.stack td.actions { justify-content: flex-end; flex-wrap: wrap; }
+}
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .25s; }
+@media (prefers-reduced-motion: reduce) { ::view-transition-group(*) { animation: none; } }

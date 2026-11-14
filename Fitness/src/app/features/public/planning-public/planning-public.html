@@ -30,8 +30,8 @@
                   }}</span>
                   <a
                     class="btn btn-primary"
-                    [routerLink]="auth.isLoggedIn() ? '/member/classes' : '/inscription'"
-                    [queryParams]="auth.isLoggedIn() ? null : { returnUrl: '/member/classes' }"
+                    [routerLink]="auth.isLoggedIn() ? '/member/book' : '/inscription'"
+                    [queryParams]="auth.isLoggedIn() ? null : { returnUrl: '/member/book' }"
                   >
                     {{ s.freeSpots === 0 ? 'Rejoindre la liste' : 'Réserver ma place' }}</a
                   >

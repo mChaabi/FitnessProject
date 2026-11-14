@@ -14,20 +14,19 @@
   </div>
 
   <div class="table-wrap">
-    <table>
+    <table class="stack">
       <thead><tr><th>Membre</th><th>Contact</th><th>Statut</th><th>Inscrit le</th><th></th></tr></thead>
       <tbody>
         @for (m of data()?.content; track m.id) {
-          <tr>
-            <td><a [routerLink]="['/admin/members', m.id]"><strong>{{ m.lastName }} {{ m.firstName }}</strong></a></td>
-            <td>{{ m.email }}<br><small class="muted">{{ m.phone || '-' }}</small></td>
-            <td><span class="badge" [class]="badge(m.status)">{{ m.status }}</span></td>
-            <td>{{ m.joinedAt | date:'dd/MM/yyyy' }}</td>
-            <td><a [routerLink]="['/admin/members', m.id, 'edit']" class="btn btn-ghost">Modifier</a></td>
-          </tr>
-        } @empty {
+      <tr>
+        <td data-label="Membre"><a [routerLink]="['/admin/members', m.id]"><strong>{{ m.lastName }} {{ m.firstName }}</strong></a></td>
+        <td data-label="Contact">{{ m.email }}<br><small class="muted">{{ m.phone || '-' }}</small></td>
+        <td data-label="Statut"><span class="badge" [class]="badge(m.status)">{{ m.status }}</span></td>
+        <td data-label="Inscrit le">{{ m.joinedAt | date:'dd/MM/yyyy' }}</td>
+        <td class="actions"><a [routerLink]="['/admin/members', m.id, 'edit']" class="btn btn-ghost">Modifier</a></td>
+      </tr>
+    } @empty { ... }
           <tr><td colspan="5" class="empty">{{ loading() ? 'Chargement...' : 'Aucun membre trouvé.' }}</td></tr>
-        }
       </tbody>
     </table>
   </div>

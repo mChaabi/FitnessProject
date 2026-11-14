@@ -49,3 +49,10 @@
 .conf { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
 .conf span { display: block; height: 100%; background: var(--success); border-radius: 99px; animation: grow .8s var(--ease) both; }
 @keyframes grow { from { width: 0; } }
+
+@media (max-width: 560px) {
+  #reader { max-width: 100%; }
+  .kpis { width: 100%; }
+  .kpi { flex: 1; }
+  .proposal { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+}

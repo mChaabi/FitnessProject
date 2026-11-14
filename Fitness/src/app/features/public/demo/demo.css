@@ -1,6 +1,9 @@
 :host { display: block; }
-.stage { position: relative; min-height: 100vh; overflow: hidden; color: #fff; display: grid; grid-template-rows: auto 1fr auto;
+.stage { position: relative; height: 100vh; height: 100dvh; min-height: 0; overflow: clip; color: #fff;
+         display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
          background: radial-gradient(900px 500px at 85% 20%, rgba(249,115,22,.10), transparent 60%), #0a0f1c; }
+.slide { min-height: 0; }
+.frame img { max-height: calc(68vh - 28px); object-fit: cover; object-position: top left; }
 
 /* decoration: ring + dark orb */
 .ring { position: absolute; left: -170px; bottom: -170px; width: 520px; height: 520px; border-radius: 50%;
@@ -78,4 +81,18 @@ li::before { content: ''; position: absolute; left: 0; top: .5em; width: 8px; he
 @media (prefers-reduced-motion: reduce) {
   .ring, .orb, .frame { animation: none !important; }
   li { opacity: 1; animation: none; }
+}
+
+@media (max-width: 900px) {
+  .stage { min-height: 100dvh; }
+  h1 { font-size: 2rem; }
+  .tag, .ctrl small { display: none; }
+  .frame { transform-origin: center; }
+}
+@media (max-width: 560px) {
+  .ctrl .dots { display: none; }                      /* the progress bar and arrows are enough */
+}
+@media (max-width: 900px) {
+  .stage { height: auto; min-height: 100dvh; }
+  .frame img { max-height: 42vh; }
 }
