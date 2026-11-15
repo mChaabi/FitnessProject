@@ -1,19 +1,24 @@
-<h1>Emails</h1>
-<div class="chips" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+<div class="head"><div><h1>Emails</h1><p class="muted">File d'envoi et historique</p></div></div>
+<div class="chips">
   <button class="chip" [class.active]="status() === ''" (click)="filter('')">Tous</button>
   @for (s of statuses; track s) {
-    <button class="chip" [class.active]="status() === s" (click)="filter(s)">{{ s }} ({{ stats()[s] || 0 }})</button>
+    <button class="chip" [class.active]="status() === s" (click)="filter(s)">{{ statusLabel(s) }} ({{ stats()[s] || 0 }})</button>
   }
 </div>
-<div class="card"><div class="table-wrap"><table>
-  <thead><tr><th>Date</th><th>Type</th><th>Destinataire</th><th>Statut</th><th>IA</th><th>Détail</th><th></th></tr></thead>
+<div class="card"><div class="table-wrap"><table class="stack">
+  <thead><tr><th>Date</th><th>Type</th><th>Destinataire</th><th>Statut</th><th>Rédaction</th><th>Détail</th><th></th></tr></thead>
   <tbody>
     @for (r of data()?.content; track r.id) {
-      <tr><td>{{ r.createdAt | date:'dd/MM HH:mm' }}</td><td>{{ r.type }}</td><td>{{ r.recipient }}</td>
-        <td><span class="badge" [class]="badge(r.status)">{{ r.status }}</span> @if (r.attempts > 1) { <small>×{{ r.attempts }}</small> }</td>
-        <td>{{ r.aiGenerated == null ? '-' : r.aiGenerated ? '🤖' : '📝' }}</td>
-        <td><small class="muted">{{ r.lastError || '' }}</small></td>
-        <td>@if (r.status === 'FAILED') { <button class="btn btn-ghost" (click)="retry(r)">Relancer</button> }</td></tr>
+      <tr><td data-label="Date">{{ r.createdAt | date:'dd/MM HH:mm' }}</td>
+        <td data-label="Type"><strong>{{ typeLabel(r.type) }}</strong></td>
+        <td data-label="Destinataire">{{ r.recipient }}</td>
+        <td data-label="Statut"><span class="badge" [class]="badge(r.status)">{{ statusLabel(r.status) }}</span>
+          @if (r.attempts > 1) { <small class="muted"> ×{{ r.attempts }}</small> }</td>
+        <td data-label="Rédaction">
+          @if (r.aiGenerated == null) { - }
+          @else { <span class="badge" [class]="r.aiGenerated ? 'badge-info' : 'badge-warning'">{{ r.aiGenerated ? 'IA' : 'Texte fixe' }}</span> }</td>
+        <td data-label="Détail"><small class="muted">{{ r.lastError || '' }}</small></td>
+        <td class="actions">@if (r.status === 'FAILED') { <button class="btn btn-ghost" (click)="retry(r)">Relancer</button> }</td></tr>
     } @empty { <tr><td colspan="7" class="empty">Aucun email.</td></tr> }
   </tbody></table></div>
   @if (data(); as d) { @if (d.totalPages > 1) {

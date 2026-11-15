@@ -1,0 +1,1 @@
+@Column(length = 255) private String thumb;                          // poster image file (uploaded videos)

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, HostListener, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, HostListener, PLATFORM_ID, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -45,6 +45,8 @@ export class ExercicesComponent {
   private failed = signal<Record<number, number>>({});
     progress = signal(0);   
 
+     dlg = viewChild.required<ElementRef<HTMLDialogElement>>('dlg');
+
   // ---------- detail panel ----------
   selected = signal<Exercice | null>(null);
   detail = signal<ExerciceDetail | null>(null);
@@ -66,11 +68,16 @@ export class ExercicesComponent {
 
   constructor() {
     this.load();
-       effect(() => {
+           effect(() => {
       const open = this.selected() !== null;
-      if (this.browser) document.documentElement.style.overflow = open ? 'hidden' : '';
+      if (!this.browser) return;
+      const d = this.dlg().nativeElement;
+      if (open && !d.open) d.showModal();
+      else if (!open && d.open) d.close();
     });
     inject(DestroyRef).onDestroy(() => { if (this.browser) document.documentElement.style.overflow = ''; });}
+    
+onBackdrop(e: MouseEvent) { if (e.target === this.dlg().nativeElement) this.close(); }
 
   load() {
     this.loading.set(true); this.error.set(false);
@@ -97,7 +104,7 @@ export class ExercicesComponent {
   }
 
   @HostListener('document:keydown.escape')
-  close() { this.selected.set(null); }
+    close() { this.selected.set(null); }
 
   when(s: PublicSession) {
     return new Date(s.date + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });

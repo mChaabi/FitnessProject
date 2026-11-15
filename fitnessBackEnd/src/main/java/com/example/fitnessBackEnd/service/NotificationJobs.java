@@ -32,6 +32,7 @@ public class NotificationJobs {
     private final MemberRepository members;
     private final CheckInRepository checkIns;
     private final EmailQueue queue;
+    private final EnrollmentRepository enrollments;
 
     @Value("${app.dashboard.expiring-days:7}")   private int expiringDays;
     @Value("${app.dashboard.inactivity-days:14}") private int inactivityDays;
@@ -83,5 +84,14 @@ public class NotificationJobs {
 
     private void safe(Runnable r) {
         try { r.run(); } catch (RuntimeException e) { log.warn("Notificación omitida: {}", e.getMessage()); }
+    }
+
+    @Scheduled(cron = "${app.mail.pending-cron:0 0 11 * * *}")
+    public void pendingPayments() {
+        for (var r : enrollments.findPendingBefore("PENDING", LocalDateTime.now().minusHours(48))) {
+            safe(() -> queue.enqueue(EmailType.PAYMENT_REMINDER, r.getMember(),
+                    Facts.of("Abonnement souhaité", r.getPlan() == null ? null : r.getPlan().getName()),
+                    "PENDING:" + r.getId()));
+        }
     }
 }

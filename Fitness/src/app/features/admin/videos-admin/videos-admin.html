@@ -1,39 +1,91 @@
-<h1>Vidéos</h1>
+<div class="head">
+  <div><h1>Vidéos</h1><p class="muted">{{ videos().length }} vidéo(s) dans la bibliothèque</p></div>
+</div>
 @if (message(); as m) { <div [class]="m.ok ? 'alert-ok' : 'alert-error'" role="status">{{ m.text }}</div> }
 
-<div class="card" style="margin-bottom:1rem">
-  <h3>{{ editingId() ? 'Modifier la vidéo' : 'Nouvelle vidéo' }}</h3>
-  <form [formGroup]="form" (ngSubmit)="save()">
-    <div class="grid2">
-      <div class="form-group"><label>Titre *</label><input formControlName="title" placeholder="Body Attack : échauffement"></div>
-      <div class="form-group"><label>Catégorie *</label>
-        <select formControlName="category">@for (c of categories; track c.key) { <option [value]="c.key">{{ c.label }}</option> }</select></div>
-      <div class="form-group"><label>Lien YouTube ou fichier *</label>
-        <input formControlName="url" placeholder="https://youtu.be/xxxxxxxxxxx  ou  /videos/squat.mp4">
-        <small class="muted">Utilisez des vidéos dont vous avez les droits (vos propres vidéos en « non répertoriée »).</small></div>
-      <div class="form-group"><label>Durée (min)</label><input type="number" formControlName="durationMin"></div>
-    </div>
-    <div class="form-group"><label>Description</label><input formControlName="description"></div>
-    <div class="form-group"><label><input type="checkbox" formControlName="active" style="width:auto"> Visible par les membres</label></div>
-    <div class="actions">
-      @if (editingId()) { <button type="button" class="btn btn-ghost" (click)="reset()">Annuler</button> }
-      <button class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Enregistrement...' : 'Enregistrer' }}</button>
-    </div>
-  </form>
-</div>
+<form class="card up" [formGroup]="form" (ngSubmit)="save()">
+  <div class="top">
+    <h3>{{ editing() ? 'Modifier la vidéo' : 'Ajouter une vidéo' }}</h3>
+    @if (!editing()) {
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" [class.on]="mode() === 'file'" (click)="mode.set('file')">Depuis mon ordinateur</button>
+        <button type="button" role="tab" [class.on]="mode() === 'link'" (click)="mode.set('link')">Lien YouTube</button>
+      </div>
+    }
+  </div>
 
-<div class="card"><div class="table-wrap"><table>
-  <thead><tr><th>Titre</th><th>Catégorie</th><th>Source</th><th>Statut</th><th></th></tr></thead>
-  <tbody>
-    @for (v of videos(); track v.id) {
-      <tr><td><strong>{{ v.title }}</strong><br><small class="muted">{{ v.durationMin ? v.durationMin + ' min' : '' }}</small></td>
-        <td><span class="badge badge-info">{{ label(v.category) }}</span></td>
-        <td>{{ v.type === 'YOUTUBE' ? 'YouTube' : 'Fichier' }}</td>
-        <td><span class="badge" [class]="v.active ? 'badge-success' : 'badge-warning'">{{ v.active ? 'Visible' : 'Masquée' }}</span></td>
-        <td class="actions">
-          <button class="btn btn-ghost" (click)="edit(v)">Modifier</button>
-          <button class="btn btn-ghost" (click)="toggle(v)">{{ v.active ? 'Masquer' : 'Afficher' }}</button>
-          <button class="btn btn-ghost" (click)="remove(v)">Supprimer</button>
-        </td></tr>
-    } @empty { <tr><td colspan="5" class="empty">Aucune vidéo.</td></tr> }
-  </tbody></table></div></div>
+  <div class="cols">
+    <div>
+      @if (!editing() && mode() === 'file') {
+        <div class="drop" [class.over]="dragging()" tabindex="0" role="button" aria-label="Choisir une vidéo"
+             (dragover)="$event.preventDefault(); dragging.set(true)" (dragleave)="dragging.set(false)" (drop)="onDrop($event)"
+             (click)="picker.click()" (keydown.enter)="picker.click()">
+          <input #picker type="file" hidden accept="video/mp4,video/webm,.mp4,.webm" (change)="onPick($event)">
+          @if (file(); as f) {
+            <div class="chosen">
+              <span class="pv">@if (posterUrl(); as p) { <img [src]="p" alt="Aperçu"> } @else { 🎞️ }</span>
+              <span><strong>{{ f.name }}</strong><small class="muted">{{ size(f) }}</small></span>
+              <button type="button" class="btn btn-ghost" (click)="clearFile($event)">Changer</button>
+            </div>
+          } @else {
+            <span class="up-ico">⬆️</span>
+            <strong>Glissez une vidéo ici</strong>
+            <small class="muted">ou cliquez pour la choisir · MP4 ou WebM · 200 Mo maximum</small>
+          }
+        </div>
+      } @else if (editing()?.type === 'UPLOAD') {
+        <div class="chosen fixed">
+          <span class="pv">@if (thumb(editing()!); as t) { <img [src]="t" alt=""> } @else { 🎞️ }</span>
+          <span><strong>Fichier envoyé depuis un ordinateur</strong><small class="muted">Le fichier lui-même ne se modifie pas : supprimez la vidéo pour en envoyer une autre.</small></span>
+        </div>
+      } @else {
+        <div class="form-group"><label>Lien YouTube *</label>
+          <input formControlName="url" placeholder="https://youtu.be/xxxxxxxxxxx  ou  /videos/squat.mp4">
+          <small class="muted">Utilisez des vidéos dont vous avez les droits (de préférence « non répertoriées »).</small></div>
+      }
+    </div>
+
+    <div>
+      <div class="form-group"><label>Titre *</label><input formControlName="title" placeholder="Body Attack : échauffement"></div>
+      <div class="grid2">
+        <div class="form-group"><label>Catégorie *</label>
+          <select formControlName="category">@for (c of categories; track c.key) { <option [value]="c.key">{{ c.label }}</option> }</select></div>
+        <div class="form-group"><label>Durée (min)</label><input type="number" formControlName="durationMin"></div>
+      </div>
+      <div class="form-group"><label>Description</label><input formControlName="description"></div>
+      <label class="check"><input type="checkbox" formControlName="active"> Visible par les membres</label>
+    </div>
+  </div>
+
+  @if (saving() && mode() === 'file' && !editing()) {
+    <div class="bar" role="progressbar" [attr.aria-valuenow]="progress()" aria-valuemin="0" aria-valuemax="100">
+      <span [style.width.%]="progress()"></span></div>
+    <small class="muted">{{ progress() < 100 ? 'Envoi en cours : ' + progress() + ' %' : 'Traitement...' }}</small>
+  }
+
+  <div class="actions">
+    @if (editing() || file()) { <button type="button" class="btn btn-ghost" [disabled]="saving()" (click)="reset()">Annuler</button> }
+    <button class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Enregistrement...' : editing() ? 'Enregistrer' : mode() === 'file' ? 'Envoyer la vidéo' : 'Ajouter' }}</button>
+  </div>
+</form>
+
+<div class="lib stagger">
+  @for (v of videos(); track v.id; let i = $index) {
+    <article class="vc" [style.--i]="i" [class.off]="!v.active">
+      <span class="th">
+        @if (thumb(v); as t) { <img [src]="t" [alt]="v.title" loading="lazy"> } @else { <i>🎞️</i> }
+        @if (v.durationMin) { <small class="dur">{{ v.durationMin }} min</small> }
+        @if (!v.active) { <small class="hid">Masquée</small> }
+      </span>
+      <div class="vi">
+        <strong>{{ v.title }}</strong>
+        <div><span class="badge badge-info">{{ label(v.category) }}</span> <small class="muted">{{ sourceLabel(v) }}</small></div>
+      </div>
+      <div class="va">
+        <button class="btn btn-ghost" (click)="edit(v)">Modifier</button>
+        <button class="btn btn-ghost" (click)="toggle(v)">{{ v.active ? 'Masquer' : 'Afficher' }}</button>
+        <button class="btn btn-ghost" (click)="remove(v)">Supprimer</button>
+      </div>
+    </article>
+  } @empty { <p class="state full">Aucune vidéo pour le moment.</p> }
+</div>

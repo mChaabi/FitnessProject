@@ -59,13 +59,11 @@
     </div>
   }
 </section>
-@if (selected(); as s) {
-  <div class="modal" portal role="dialog" aria-modal="true" [attr.aria-label]="s.nom" (click)="close()">
-    <div class="dialog" (click)="$event.stopPropagation()">
-      <span class="progress" aria-hidden="true"><i [style.width.%]="progress()"></i></span>
-      <button type="button" class="x" (click)="close()" aria-label="Fermer">✕</button>
-
-      <div class="sheet" (scroll)="onScroll($event)">
+<dialog #dlg class="dlg" (close)="selected.set(null)" (click)="onBackdrop($event)"></dialog>
+ @if (selected(); as s) {
+    <span class="progress" aria-hidden="true"><i [style.width.%]="progress()"></i></span>
+    <button type="button" class="x" (click)="close()" aria-label="Fermer">✕</button>
+    <div class="sheet" (scroll)="onScroll($event)">
         <div class="hero">
           @if (src(s); as im) { <img [src]="im" [alt]="s.nom" (error)="onImgError(s.id)"> }
           @else { <span class="fallback">{{ icon(s.categorie) }}</span> }
@@ -122,7 +120,9 @@
             </section>
           }
         </div>
+          }
+</dialog>
       </div>
     </div>
   </div>
-}
+

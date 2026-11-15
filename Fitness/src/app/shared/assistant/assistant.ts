@@ -3,6 +3,7 @@ import { Component, HostListener, inject, signal } from '@angular/core';
 import { AnalysisReply, Severity } from '../../data/agents/agents';
 import { AgentsService } from '../../data/agents/service/agents';
 import { Video, categoryLabel, thumbOf } from '../../data/videos/videos';
+import { API } from '../../core/api';
 
 @Component({
   selector: 'app-assistant',
@@ -21,9 +22,7 @@ export class AssistantPanel {
   result = signal<AnalysisReply | null>(null);
   thumb = thumbOf;
   label = categoryLabel;
-  videoLink(v: Video) {
-    return v.type === 'YOUTUBE' ? `https://www.youtube.com/watch?v=${v.source}` : v.source;
-  }
+   videoLink(v: Video) { return v.type === 'YOUTUBE' ? `https://www.youtube.com/watch?v=${v.source}` : v.type === 'UPLOAD' ? `${API}/media/videos/${v.source}` : v.source; }
 
   quick = [
     { label: 'Analyse globale', q: "Fais une analyse globale de l'activité de la salle." },

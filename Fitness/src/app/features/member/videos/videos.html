@@ -19,6 +19,20 @@
 } @else if (error()) {
   <p class="state">Impossible de charger les vidéos pour le moment.</p>
 } @else {
+
+  @if (featured(); as f) {
+    <button type="button" class="feat" (click)="open(f)" [attr.aria-label]="'Lire ' + f.title">
+      @if (thumb(f); as t) { <img [src]="t" alt=""> }
+      <span class="feat-in">
+        <span class="pill">À LA UNE · {{ label(f.category) }}</span>
+        <strong class="feat-title">{{ f.title }}</strong>
+        @if (f.description) { <span class="feat-desc">{{ f.description }}</span> }
+        <span class="go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" /></svg>
+          Regarder@if (f.durationMin) { · {{ f.durationMin }} min }</span>
+      </span>
+    </button>
+  }
+
   <div class="grid stagger">
     @for (v of visible(); track v.id; let i = $index) {
       <button type="button" class="vcard" [style.--i]="i" (click)="open(v)" [attr.aria-label]="'Lire ' + v.title">
@@ -33,24 +47,40 @@
           @if (v.description) { <small class="muted">{{ v.description }}</small> }
         </span>
       </button>
-    } @empty { <p class="state full-row">Aucune vidéo ne correspond à votre recherche.</p> }
+    } @empty {
+      @if (!featured()) { <p class="state full-row">Aucune vidéo ne correspond à votre recherche.</p> }
+    }
   </div>
 }
 
-@if (playing(); as v) {
-  <div class="modal" role="dialog" aria-modal="true" [attr.aria-label]="v.title" (click)="close()">
-    <div class="player" (click)="$event.stopPropagation()">
-      <button type="button" class="x" (click)="close()" aria-label="Fermer">✕</button>
-      <div class="frame">
-        @if (v.type === 'YOUTUBE') {
-          <iframe [src]="embed()" [title]="v.title" allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                  allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-        } @else {
-          <video [src]="v.source" controls autoplay playsinline></video>
-        }
-      </div>
-      <div class="meta"><span class="badge badge-info">{{ label(v.category) }}</span>
-        <h3>{{ v.title }}</h3>@if (v.description) { <p class="muted">{{ v.description }}</p> }</div>
+<dialog #dlg class="dlg" (close)="playing.set(null)" (click)="onBackdrop($event)">
+  @if (playing(); as v) {
+    <button type="button" class="x" (click)="close()" aria-label="Fermer">✕</button>
+    <div class="frame">
+      @if (v.type === 'YOUTUBE') {
+        <iframe [src]="embed()" [title]="v.title" allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      } @else {
+        <video [src]="src(v)" [attr.poster]="thumb(v)" controls autoplay playsinline></video>
+      }
     </div>
-  </div>
-}
+    <div class="meta">
+      <span class="badge badge-info">{{ label(v.category) }}</span>
+      <h3>{{ v.title }}</h3>
+      @if (v.description) { <p class="muted">{{ v.description }}</p> }
+    </div>
+    @if (related().length) {
+      <div class="rel">
+        <h4>À voir aussi</h4>
+        <div class="rel-row">
+          @for (r of related(); track r.id) {
+            <button type="button" class="rel-card" (click)="open(r)">
+              <span class="rel-th">@if (thumb(r); as t) { <img [src]="t" alt="" loading="lazy"> }<i>▶</i></span>
+              <small>{{ r.title }}</small>
+            </button>
+          }
+        </div>
+      </div>
+    }
+  }
+</dialog>

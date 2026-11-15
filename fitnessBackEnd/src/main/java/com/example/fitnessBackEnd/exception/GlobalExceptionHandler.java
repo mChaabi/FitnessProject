@@ -98,4 +98,9 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiError> conflict(ConflictException e) {
         return ResponseEntity.status(409).body(new ApiError(409, e.getMessage(), null));
     }
+
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    ResponseEntity<ApiError> tooBig(Exception e) {
+        return ResponseEntity.status(413).body(new ApiError(413, "Fichier trop volumineux (200 Mo maximum)", null));
+    }
 }

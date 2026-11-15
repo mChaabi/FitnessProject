@@ -24,4 +24,6 @@ public class Video {
     @Column(name = "duration_min") private Integer durationMin;
     @Column(nullable = false) private boolean active = true;
     @Column(name = "created_at", nullable = false) private LocalDateTime createdAt;
+    @Column(length = 500)
+    private String thumb;
 }

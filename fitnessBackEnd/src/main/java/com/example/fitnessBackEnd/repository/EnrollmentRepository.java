@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,4 +16,8 @@ public interface EnrollmentRepository extends JpaRepository<EnrollmentRequest, L
     @Query("select r from EnrollmentRequest r join fetch r.member left join fetch r.plan " +
             "left join fetch r.coach c left join fetch c.user where r.status = :st order by r.createdAt")
     List<EnrollmentRequest> findByStatusDetailed(@Param("st") String st);
+
+    @Query("select r from EnrollmentRequest r join fetch r.member left join fetch r.plan " +
+            "where r.status = :st and r.createdAt < :before")
+    List<EnrollmentRequest> findPendingBefore(@Param("st") String st, @Param("before") LocalDateTime before);
 }

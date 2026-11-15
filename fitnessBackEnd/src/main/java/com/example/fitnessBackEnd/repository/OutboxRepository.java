@@ -2,6 +2,7 @@ package com.example.fitnessBackEnd.repository;
 
 import com.example.fitnessBackEnd.entity.EmailMessage;
 import com.example.fitnessBackEnd.enums.EmailStatus;
+import com.example.fitnessBackEnd.enums.EmailType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface OutboxRepository extends JpaRepository<EmailMessage, Long> {
@@ -48,4 +50,6 @@ public interface OutboxRepository extends JpaRepository<EmailMessage, Long> {
     @Query("update EmailMessage m set m.status = :to, m.attempts = 0, m.nextAttemptAt = :now, m.lastError = null " +
             "where m.id = :id and m.status = :from")
     int requeue(@Param("id") Long id, @Param("from") EmailStatus from, @Param("to") EmailStatus to, @Param("now") LocalDateTime now);
+
+    boolean existsByMemberIdAndTypeInAndCreatedAtAfter(Long memberId, Collection<EmailType> types, LocalDateTime after);
 }

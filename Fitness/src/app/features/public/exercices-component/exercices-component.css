@@ -40,8 +40,16 @@ h1 span { color: var(--primary); }
 .ex:hover .more { transform: translateX(6px); }
 
 /* detail panel */
-.modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 1rem;
-         background: rgba(2,6,23,.82); backdrop-filter: blur(6px); animation: fade .25s both; }
+.dlg { width: min(760px, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); padding: 0; border: 0;
+       border-radius: var(--radius-lg); background: var(--surface); color: var(--text); overflow: hidden;
+       box-shadow: 0 30px 80px rgba(0,0,0,.55); }
+.dlg[open] { display: flex; flex-direction: column; animation: pop .3s var(--ease) both; }
+.dlg::backdrop { background: rgba(2,6,23,.78); backdrop-filter: blur(6px); animation: fade .25s both; }
+
+@media (max-width: 640px) {
+  .dlg { width: 100%; max-width: 100%; margin: auto 0 0; max-height: 92dvh; border-radius: 22px 22px 0 0; }
+  .dlg[open] { animation: slideUp .35s var(--ease) both; }
+}
 .sheet { position: relative; width: min(760px, 100%); max-height: 100%; overflow-y: auto; background: var(--surface);
          border-radius: var(--radius-lg); animation: pop .3s var(--ease) both; }
 .hero { height: 240px; display: grid; place-items: center; overflow: hidden;

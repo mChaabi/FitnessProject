@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/contacts").permitAll()
                         .requestMatchers("/exercices/**", "/contacts/**", "/public/**", "/plans/public/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/notifications/unsubscribe").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/media/videos/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint(

@@ -225,3 +225,6 @@ img, video, canvas, svg { max-width: 100%; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .25s; }
 @media (prefers-reduced-motion: reduce) { ::view-transition-group(*) { animation: none; } }
 html { scrollbar-gutter: stable; }
+
+/* freeze the page only while a dialog is open: nothing in JavaScript, so it cannot stay locked */
+html:has(dialog[open]) { overflow: hidden; }

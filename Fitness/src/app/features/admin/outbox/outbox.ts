@@ -15,6 +15,15 @@ export class OutboxPage {
   stats = signal<Record<string, number>>({});
   status = signal(''); page = signal(0);
   statuses = ['PENDING', 'SENDING', 'SENT', 'FAILED', 'SKIPPED'];
+  
+  private types: Record<string, string> = {
+    WELCOME: 'Bienvenue', PAYMENT_CONFIRMED: 'Paiement confirmé', PAYMENT_REMINDER: 'Rappel de paiement',
+    CLASS_REMINDER: 'Rappel de cours', CLASS_CANCELLED: 'Cours annulé', WAITLIST_PROMOTED: 'Place obtenue',
+    SUBSCRIPTION_EXPIRING: 'Abonnement bientôt expiré', CHURN_RISK: "Relance d'inactivité" };
+  private states: Record<string, string> = { PENDING: 'En attente', SENDING: 'Envoi', SENT: 'Envoyé', FAILED: 'Échec', SKIPPED: 'Ignoré' };
+  typeLabel(t: string) { return this.types[t] ?? t; }
+  statusLabel(s: string) { return this.states[s] ?? s; }
+
 
   constructor() { this.load(); }
   load() {
