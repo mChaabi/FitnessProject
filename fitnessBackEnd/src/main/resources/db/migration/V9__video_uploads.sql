@@ -1,1 +1,3 @@
-@Column(length = 255) private String thumb;                          // poster image file (uploaded videos)
+ALTER TABLE videos
+    ADD COLUMN thumb VARCHAR(255) DEFAULT NULL,
+ADD COLUMN video_url VARCHAR(255) DEFAULT NULL;

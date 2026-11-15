@@ -1,3 +1,33 @@
+.head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; }
+.head h1 { margin: 0; } .head p { margin: .25rem 0 0; }
+.search { max-width: 300px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.25rem; }
+.full-row { grid-column: 1 / -1; }
+.skeleton { height: 250px; }
+
+/* video card */
+.vcard { display: grid; align-content: start; text-align: left; padding: 0; overflow: hidden; cursor: pointer; font: inherit; color: var(--text);
+         background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm);
+         transition: transform .35s var(--ease), box-shadow .35s, border-color .35s; }
+.vcard:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+
+.thumb { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden;
+         background: linear-gradient(135deg, var(--navy), #1b2a4a 60%, var(--primary)); }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease); }
+.vcard:hover .thumb img { transform: scale(1.08); }
+.thumb::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(11,18,32,.55), transparent 55%); }
+
+.play { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; }
+.play svg { width: 58px; height: 58px; padding: 16px 14px 16px 18px; border-radius: 50%; fill: #fff; background: var(--primary);
+            box-shadow: 0 8px 24px rgba(249,115,22,.5); transform: scale(.9); transition: transform .35s var(--ease); }
+.vcard:hover .play svg { transform: scale(1.15); animation: pulse 1.4s ease-out infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(249,115,22,.55); } 100% { box-shadow: 0 0 0 22px rgba(249,115,22,0); } }
+
+.dur { position: absolute; right: .6rem; bottom: .6rem; z-index: 1; padding: .15rem .5rem; border-radius: 6px;
+       background: rgba(0,0,0,.7); color: #fff; font-size: .75rem; font-weight: 600; }
+.info { display: grid; gap: .35rem; justify-items: start; padding: 1rem; }
+
 /* featured video */
 .feat { position: relative; display: grid; align-items: end; width: 100%; min-height: 340px; padding: 0; border: 0; margin-bottom: 1.5rem;
         border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; text-align: left; color: #fff; font: inherit;
@@ -26,6 +56,7 @@
 .x { position: absolute; top: .6rem; right: .6rem; z-index: 2; width: 38px; height: 38px; border: 0; border-radius: 50%;
      background: rgba(0,0,0,.6); color: #fff; cursor: pointer; transition: background .2s, transform .3s var(--ease); }
 .x:hover { background: var(--primary); transform: rotate(90deg); }
+
 .rel { padding: 0 1.4rem 1.4rem; }
 .rel h4 { margin: 0 0 .6rem; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--primary); }
 .rel-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .75rem; }
@@ -35,6 +66,7 @@
 .rel-th img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s var(--ease); }
 .rel-card:hover .rel-th img { transform: scale(1.08); }
 .rel-th i { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-style: normal; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+
 @media (max-width: 640px) {
   .feat { min-height: 260px; } .feat-in { padding: 1.2rem; }
   .dlg { width: 100%; max-width: 100%; margin: auto 0 0; max-height: 94dvh; border-radius: 22px 22px 0 0; }

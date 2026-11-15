@@ -35,10 +35,17 @@ export class BillingService {
     return this.http.put<Plan>(`${this.api}/plans/${id}`, data);
   }
 
+    /** Downloads the receipt PDF (the token is added by the interceptor). */
   downloadReceipt(paymentId: number, receiptNumber: string) {
-    return this.http.get(`${this.api}/payments/${paymentId}/receipt`, {
-      // changed from /billing/receipts/
-      responseType: 'blob',
+    this.http.get(`${this.api}/payments/${paymentId}/receipt`, { responseType: 'blob' }).subscribe({
+      next: blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `${receiptNumber}.pdf`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      },
+      error: () => alert("Impossible de télécharger le reçu. Réessayez."),
     });
   }
 
