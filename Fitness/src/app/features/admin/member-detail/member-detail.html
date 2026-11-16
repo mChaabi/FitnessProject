@@ -20,7 +20,14 @@
     <div class="card">
       <h3>Informations</h3>
       <p><strong>Email :</strong> {{ m.email }}</p>
-      <p><strong>Téléphone :</strong> {{ m.phone || '-' }}</p>
+      <p>
+        <strong>Téléphone :</strong> {{ m.phone || '-' }}
+        @if (waHref(); as w) {
+          <a class="btn btn-wa wa-sm" [href]="w" target="_blank" rel="noopener noreferrer"
+            >💬 WhatsApp</a
+          >
+        }
+      </p>
       <p><strong>Âge :</strong> {{ m.age ?? '-' }}</p>
       <p><strong>Objectif :</strong> {{ m.goal || '-' }}</p>
       <p><strong>Inscrit le :</strong> {{ m.joinedAt | date: 'dd/MM/yyyy' }}</p>

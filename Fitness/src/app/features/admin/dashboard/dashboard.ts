@@ -8,6 +8,8 @@ import { DashboardService } from '../../../data/dashboard/service/dashboard';
 import { CountUp } from '../../../core/count-up';
 import { ThemeService } from '../../../core/theme';
 import { applyChartTheme } from '../../../core/chart-theme';
+import { AtRiskRow, ExpiringRow } from '../../../data/dashboard/dashboard';
+import { waLink, waMessages } from '../../../core/whatsapp';
 
 @Component({
   selector: 'app-dashboard', standalone: true,
@@ -28,7 +30,17 @@ export class Dashboard {
   planCv = viewChild<ElementRef<HTMLCanvasElement>>('plan');
   private charts: any[] = [];
     private theme = inject(ThemeService);
+    
   private drawnDark: boolean | null = null;
+    private first(name: string) { return name.split(' ')[0]; }
+  private fr(d: string) { return `${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(0, 4)}`; }   // 2026-11-20 -> 20/11/2026
+
+  renewLink(e: ExpiringRow) {
+    return waLink(e.phone, waMessages.renewal(this.first(e.memberName), e.plan, this.fr(e.endDate)));
+  }
+  backLink(r: AtRiskRow) {
+    return waLink(r.phone, waMessages.comeback(this.first(r.memberName), r.daysSince ?? null));
+  }
 
   constructor() {
     this.load();

@@ -228,3 +228,6 @@ html { scrollbar-gutter: stable; }
 
 /* freeze the page only while a dialog is open: nothing in JavaScript, so it cannot stay locked */
 html:has(dialog[open]) { overflow: hidden; }
+
+.btn-wa { background: #25d366; border-color: #25d366; color: #052e16; }
+.btn-wa:hover { background: #1fb858; border-color: #1fb858; }

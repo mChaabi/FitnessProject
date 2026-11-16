@@ -1,5 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, inject, OnDestroy, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MemberService } from '../../../data/members/service/member';
 import { Plan, SubscriptionRow, PaymentMethod } from '../../../data/billing/billing';
@@ -10,6 +10,7 @@ import { Member } from '../../../data/members/member';
 import { AuthService } from '../../../core/auth/auth-service';
 import { FaceCamera } from '../../../shared/face-camera/face-camera';
 import { FaceService, FaceStatus } from '../../../data/face/service/face';
+import { waLink, waMessages } from '../../../core/whatsapp';
 
 @Component({
   selector: 'app-member-detail',
@@ -64,6 +65,12 @@ export class MemberDetailComponent implements OnDestroy {
     if (!confirm('Supprimer les données faciales de ce membre ?')) return;
     this.faceSvc.remove(this.id).subscribe(() => { this.loadFace(); this.faceMsg.set({ ok: true, text: 'Données faciales supprimées.' }); });
   }
+  
+  waHref = computed(() => {
+    const m = this.member();
+    return m ? waLink(m.phone, waMessages.hello(m.firstName)) : null;
+  });
+
 
   constructor() {
     this.svc.get(this.id).subscribe((m) => this.member.set(m));
