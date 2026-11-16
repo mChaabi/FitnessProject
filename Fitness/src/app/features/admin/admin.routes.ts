@@ -15,6 +15,7 @@ export const ADMIN_ROUTES: Routes = [
   { path: 'videos', title: 'Vidéos', canActivate: onlyAdmin, loadComponent: () => import('./videos-admin/videos-admin').then((m) => m.VideosAdmin) },
   { path: 'classes/manage', title: 'Gérer les cours', canActivate: onlyAdmin, loadComponent: () => import('./classes-admin/classes-admin').then((m) => m.ClassesAdmin) },
   { path: 'members/:id/progress', title: 'Progression', canActivate: onlyAdmin, loadComponent: () => import('../progress/progress').then((m) => m.ProgressPage) },
+  { path: 'messages', title: 'Messages', canActivate: onlyAdmin, loadComponent: () => import('./messages/messages/messages').then((m) => m.MessagesPage) },
 
   // ---- ADMIN and RECEPTION ----
   { path: 'enrollments', title: 'Inscriptions', loadComponent: () => import('./enrollments/enrollments').then((m) => m.EnrollmentsPage) },

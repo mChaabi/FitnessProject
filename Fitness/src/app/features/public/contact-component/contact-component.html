@@ -3,35 +3,32 @@
     <h2>Contactez-<span>nous</span></h2>
     <p>Une question ? Notre équipe vous répond sous 24h.</p>
 
+       @if (state() === 'sent') {
+      <div class="alert-ok" role="status">Merci ! Votre message a bien été envoyé. Nous vous répondons sous 24 h.</div>
+    }
+    @if (state() === 'error') { <div class="alert-error" role="alert">{{ errorMsg() }}</div> }
+
     <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label>Nom complet</label>
-        <input type="text" formControlName="nom" placeholder="Votre nom">
-      </div>
+      <div class="hp" aria-hidden="true"><label>Site web<input type="text" formControlName="website" tabindex="-1" autocomplete="off"></label></div>
 
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" formControlName="email" placeholder="votre@email.com">
-      </div>
-
-      <div class="form-group">
-        <label>Sujet</label>
+      <div class="form-group"><label>Nom complet</label>
+        <input type="text" formControlName="nom" placeholder="Votre nom" autocomplete="name"></div>
+      <div class="form-group"><label>Email</label>
+        <input type="email" formControlName="email" placeholder="votre@email.com" autocomplete="email"></div>
+      <div class="form-group"><label>Sujet</label>
         <select formControlName="sujet">
           <option value="">Choisissez un sujet</option>
           <option value="info">Informations cours</option>
           <option value="coach">Suivi coaching</option>
           <option value="tech">Problème technique</option>
-        </select>
-      </div>
+        </select></div>
+      <div class="form-group"><label>Message</label>
+        <textarea formControlName="message" rows="5" maxlength="1000" placeholder="Comment pouvons-nous vous aider ? (10 caractères minimum)"></textarea>
+        @if (contactForm.controls.message.touched && contactForm.controls.message.invalid) {
+          <small class="err">10 caractères minimum.</small> }</div>
 
-      <div class="form-group">
-        <label>Message</label>
-        <textarea formControlName="message" rows="5" placeholder="Comment pouvons-nous vous aider ?"></textarea>
-      </div>
-
-      <button type="submit" [disabled]="contactForm.invalid" class="btn-submit">
-        Envoyer le message
-      </button>
+      <button type="submit" [disabled]="contactForm.invalid || state() === 'sending'" class="btn-submit">
+        {{ state() === 'sending' ? 'Envoi en cours...' : 'Envoyer le message' }}</button>
     </form>
   </div>
 </section>

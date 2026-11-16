@@ -1,0 +1,56 @@
+<div class="head">
+  <div><h1>Messages</h1><p class="muted">Messages reçus par le formulaire de contact du site</p></div>
+</div>
+
+<div class="chips">
+  @for (t of tabs; track t.k) {
+    <button type="button" class="chip" [class.active]="status() === t.k" (click)="filter(t.k)">
+      {{ t.l }}@if (t.k) { ({{ counts()[t.k] || 0 }}) }</button>
+  }
+</div>
+
+@if (error()) {
+  <div class="card state">Impossible de charger les messages. <button class="btn btn-primary" (click)="load()">Réessayer</button></div>
+} @else {
+<div class="inbox" [class.has-sel]="selected()">
+
+  <section class="list card" aria-label="Liste des messages">
+    @for (r of data()?.content; track r.id) {
+      <button type="button" class="row" [class.on]="selected()?.id === r.id" [class.unread]="r.status === 'NEW'" (click)="open(r)">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="who"><strong>{{ r.nom }}</strong><small class="muted">{{ label(r.sujet) }}</small></span>
+        <span class="when muted">{{ r.createdAt | date:'dd/MM HH:mm' }}</span>
+        <span class="prev muted">{{ r.message }}</span>
+      </button>
+    } @empty { <p class="state">{{ loading() ? 'Chargement...' : '✓ Aucun message ici.' }}</p> }
+
+    @if (data(); as d) { @if (d.totalPages > 1) {
+      <div class="pager">
+        <button class="btn btn-ghost" [disabled]="d.number === 0" (click)="go(d.number - 1)">←</button>
+        <span>Page {{ d.number + 1 }} / {{ d.totalPages }}</span>
+        <button class="btn btn-ghost" [disabled]="d.number + 1 >= d.totalPages" (click)="go(d.number + 1)">→</button>
+      </div> } }
+  </section>
+
+  <section class="detail card" aria-live="polite">
+    @if (selected(); as m) {
+      <button type="button" class="btn btn-ghost back" (click)="selected.set(null)">← Retour</button>
+      <header>
+        <div><h2>{{ m.nom }}</h2><a class="lnk" [href]="'mailto:' + m.email">{{ m.email }}</a></div>
+        <span class="badge" [class]="badge(m.status)">{{ statusLabel(m.status) }}</span>
+      </header>
+      <p class="meta muted">{{ label(m.sujet) }} · reçu le {{ m.createdAt | date:'dd/MM/yyyy à HH:mm' }}
+        @if (m.handledBy) { · traité par {{ m.handledBy }} }</p>
+      <p class="body">{{ m.message }}</p>
+      <div class="actions-row">
+        <a class="btn btn-primary" [href]="mailto(m)">✉️ Répondre par email</a>
+        @if (m.status !== 'DONE') { <button class="btn btn-ghost" (click)="set(m, 'DONE')">✓ Marquer comme traité</button> }
+        @if (m.status !== 'NEW') { <button class="btn btn-ghost" (click)="set(m, 'NEW')">Marquer non lu</button> }
+        <button class="btn btn-ghost" (click)="remove(m)">Supprimer</button>
+      </div>
+    } @else {
+      <div class="empty-detail"><span>✉️</span><p class="muted">Sélectionnez un message pour le lire.</p></div>
+    }
+  </section>
+</div>
+}

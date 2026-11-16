@@ -14,3 +14,5 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
   font: 700 1rem var(--font-body); cursor: pointer; transition: transform .25s, box-shadow .25s, background .25s; margin-top: .5rem; }
 .btn-submit:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(249,115,22,.4); }
 .btn-submit:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.err { color: var(--danger); font-size: .8rem; }

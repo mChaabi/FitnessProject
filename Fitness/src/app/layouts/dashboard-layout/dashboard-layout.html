@@ -21,6 +21,9 @@
               <path [attr.d]="icons[i.icon]" />
             </svg>
             <span class="lbl">{{ i.label }}</span>
+            @if (i.badge === 'messages' && unread() > 0) {
+              <span class="nb" [attr.aria-label]="unread() + ' non lus'">{{ unread() }}</span>
+            }
           </a>
         }
       }
@@ -121,5 +124,7 @@
 
     <main class="content"><router-outlet /></main>
   </div>
-    @if (auth.role() === 'ADMIN') { <app-assistant /> }
+  @if (auth.role() === 'ADMIN') {
+    <app-assistant />
+  }
 </div>

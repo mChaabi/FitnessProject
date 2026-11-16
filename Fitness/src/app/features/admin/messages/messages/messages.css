@@ -1,0 +1,33 @@
+.inbox { display: grid; grid-template-columns: minmax(300px, 420px) 1fr; gap: 1rem; align-items: start; }
+.list { padding: .4rem; display: grid; gap: .15rem; max-height: calc(100dvh - 15rem); overflow-y: auto; }
+.row { display: grid; grid-template-columns: 10px 1fr auto; gap: .1rem .7rem; align-items: center; width: 100%; padding: .75rem .8rem;
+       text-align: left; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent;
+       color: var(--text); font: inherit; cursor: pointer; transition: background .2s, border-color .2s; }
+.row:hover { background: var(--surface-2); }
+.row.on { background: var(--primary-soft); border-color: var(--primary); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: transparent; }
+.row.unread .dot { background: var(--primary); box-shadow: 0 0 8px rgba(249,115,22,.7); }
+.row.unread strong { font-weight: 800; }
+.who { display: grid; min-width: 0; }
+.who small, .when { font-size: .75rem; }
+.prev { grid-column: 2 / -1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .85rem; }
+
+.detail { min-height: 320px; display: grid; gap: .8rem; align-content: start; animation: fadeUp .4s var(--ease) both; }
+.detail header { display: flex; justify-content: space-between; align-items: start; gap: 1rem; }
+.detail h2 { margin: 0; text-transform: none; font-family: var(--font-body); font-size: 1.3rem; }
+.lnk { color: var(--primary); font-weight: 600; font-size: .9rem; }
+.meta { margin: 0; font-size: .85rem; }
+.body { margin: .4rem 0; padding: 1rem; border-radius: var(--radius-sm); background: var(--surface-2);
+        white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+.actions-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+.empty-detail { display: grid; place-items: center; gap: .4rem; min-height: 260px; text-align: center; }
+.empty-detail span { font-size: 2.4rem; }
+.back { display: none; justify-self: start; }
+
+@media (max-width: 900px) {
+  .inbox { grid-template-columns: 1fr; }
+  .inbox.has-sel .list { display: none; }               /* phone: list OR detail */
+  .inbox:not(.has-sel) .detail { display: none; }
+  .back { display: inline-flex; }
+  .list { max-height: none; }
+}

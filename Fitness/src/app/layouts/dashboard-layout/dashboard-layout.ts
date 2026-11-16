@@ -1,4 +1,13 @@
-import { Component, DestroyRef, HostListener, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  HostListener,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -7,19 +16,23 @@ import { AuthService } from '../../core/auth/auth-service';
 import { ICONS, NAV, NavItem, SECTION_ORDER } from './nav.config';
 import { ThemeService } from '../../core/theme';
 import { AssistantPanel } from '../../shared/assistant/assistant';
+import { ContactsService } from '../../data/contacts/service/contacts';
 
 const ROLE_LABEL: Record<string, string> = {
-  ADMIN: 'Administrateur', RECEPTION: 'Réception', COACH: 'Coach', MEMBER: 'Membre',
+  ADMIN: 'Administrateur',
+  RECEPTION: 'Réception',
+  COACH: 'Coach',
+  MEMBER: 'Membre',
 };
 
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
   imports: [
-    RouterOutlet, 
-    RouterLink, 
-    RouterLinkActive, 
-    AssistantPanel // <-- Added here
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    AssistantPanel, // <-- Added here
   ],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css',
@@ -27,17 +40,22 @@ const ROLE_LABEL: Record<string, string> = {
 export class DashboardLayoutComponent {
   auth = inject(AuthService);
   private router = inject(Router);
-  private browser = isPlatformBrowser(inject(PLATFORM_ID));   // keep above the signals that read storage
+  private browser = isPlatformBrowser(inject(PLATFORM_ID)); // keep above the signals that read storage
   theme = inject(ThemeService);
 
   icons = ICONS;
-  open = signal(false);                                     // mobile drawer
-  menu = signal(false);                                     // user dropdown
+  open = signal(false); // mobile drawer
+  menu = signal(false); // user dropdown
   collapsed = signal(this.read('fitforge_collapsed') === '1');
   dark = signal(this.read('fitforge_theme') === 'dark');
+  private contacts = inject(ContactsService);
+  unread = this.contacts.unread;
 
   private url = toSignal(
-    this.router.events.pipe(filter((e) => e instanceof NavigationEnd), map(() => this.router.url)),
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
     { initialValue: this.router.url },
   );
 
@@ -61,27 +79,48 @@ export class DashboardLayoutComponent {
   /** Current page = the longest menu link that matches the URL (used by the breadcrumb). */
   current = computed(() => {
     const path = this.url().split('?')[0];
-    return this.items()
-      .filter((i) => path === i.link || path.startsWith(i.link + '/'))
-      .sort((a, b) => b.link.length - a.link.length)[0] ?? null;
+    return (
+      this.items()
+        .filter((i) => path === i.link || path.startsWith(i.link + '/'))
+        .sort((a, b) => b.link.length - a.link.length)[0] ?? null
+    );
   });
 
   constructor() {
     this.theme.enter();
     inject(DestroyRef).onDestroy(() => this.theme.leave());
+    effect(() => {
+      this.url();
+      if (this.auth.role() === 'ADMIN') this.contacts.refresh();
+    });
     effect(() => this.write('fitforge_collapsed', this.collapsed() ? '1' : '0'));
-    effect(() => { this.url(); this.open.set(false); this.menu.set(false); });   // close menus on navigation
+    effect(() => {
+      this.url();
+      this.open.set(false);
+      this.menu.set(false);
+    }); // close menus on navigation
   }
 
   @HostListener('document:keydown.escape')
-  closeAll() { this.open.set(false); this.menu.set(false); }
+  closeAll() {
+    this.open.set(false);
+    this.menu.set(false);
+  }
 
   private read(key: string): string | null {
     if (!this.browser) return null;
-    try { return localStorage.getItem(key); } catch { return null; }
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
   }
   private write(key: string, value: string) {
     if (!this.browser) return;
-    try { localStorage.setItem(key, value); } catch { /* private mode */ }
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      /* private mode */
+    }
   }
 }
