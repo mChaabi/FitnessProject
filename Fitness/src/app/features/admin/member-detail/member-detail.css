@@ -4,3 +4,13 @@
 .consent { display: flex; gap: .6rem; align-items: start; font-size: .9rem; margin: .5rem 0 1rem; cursor: pointer; }
 .consent input { width: auto; margin-top: .25rem; }
 .wa-sm { padding: .25rem .6rem; font-size: .78rem; margin-left: .5rem; }
+
+.presets { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0 .75rem; }
+.freeze-now { display: grid; gap: .5rem; justify-items: start; padding: 1rem; border: 1px solid var(--info);
+              border-radius: var(--radius); background: var(--info-soft); }
+.freeze-now p { margin: 0; }
+.preview { margin: 0 0 .75rem; padding: .6rem .9rem; border-radius: var(--radius-sm); background: var(--surface-2); font-size: .9rem; }
+.err { color: var(--danger); font-size: .85rem; }
+.fh { margin: 1.2rem 0 .4rem; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); }
+.flist { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+.flist li { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .8rem; padding: .5rem 0; border-top: 1px solid var(--border); font-size: .88rem; }

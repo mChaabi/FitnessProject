@@ -11,6 +11,9 @@ import { AuthService } from '../../../core/auth/auth-service';
 import { FaceCamera } from '../../../shared/face-camera/face-camera';
 import { FaceService, FaceStatus } from '../../../data/face/service/face';
 import { waLink, waMessages } from '../../../core/whatsapp';
+import { addDays } from '../../../core/dates';
+import { FREEZE_MAX, FREEZE_MIN, FreezeRow } from '../../../data/freeze/freeze';
+import { FreezeApiService } from '../../../data/freeze/service/freeze';
 
 @Component({
   selector: 'app-member-detail',
@@ -36,6 +39,8 @@ export class MemberDetailComponent implements OnDestroy {
   planId = signal<number | null>(null);
   method = signal<PaymentMethod>('CASH');
 
+  
+
   member = signal<Member | null>(null);
   qrUrl = signal<string | null>(null);
   barcodeUrl = signal<string | null>(null);
@@ -47,6 +52,54 @@ export class MemberDetailComponent implements OnDestroy {
   faceCam = signal(false);
   faceBusy = signal(false);
   faceMsg = signal<{ ok: boolean; text: string } | null>(null);
+
+    private freezeApi = inject(FreezeApiService);
+  freezeMin = FREEZE_MIN; freezeMax = FREEZE_MAX;
+  presets = [7, 14, 30, 60];
+  freezeDays = signal(14);
+  freezeReason = signal('');
+  freezes = signal<FreezeRow[]>([]);
+  freezeBusy = signal(false);
+  freezeMsg = signal<{ ok: boolean; text: string } | null>(null);
+
+  activeFreeze = computed(() => this.freezes().find(f => f.status === 'ACTIVE') ?? null);
+  resumeOn = computed(() => addDays(new Date(), this.freezeDays()));
+  daysValid = computed(() => { const d = this.freezeDays(); return Number.isInteger(d) && d >= FREEZE_MIN && d <= FREEZE_MAX; });
+
+  loadFreezes() { this.freezeApi.history(this.id).subscribe({ next: f => this.freezes.set(f), error: () => {} }); }
+  setDays(v: string) { this.freezeDays.set(Math.floor(+v) || 0); }
+
+  freezeNow() {
+    if (!this.daysValid() || this.freezeBusy()) return;
+    const d = this.freezeDays();
+    if (!confirm(`Geler l'abonnement pendant ${d} jours ?\nLes réservations de cette période seront annulées et le membre sera prévenu par email.`)) return;
+    this.freezeBusy.set(true); this.freezeMsg.set(null);
+    this.freezeApi.freeze(this.id, d, this.freezeReason()).subscribe({
+      next: r => {
+        this.freezeBusy.set(false); this.freezeReason.set('');
+        const end = r.newEndDate ? new Date(r.newEndDate + 'T00:00:00').toLocaleDateString('fr-FR') : '';
+        this.freezeMsg.set({ ok: true, text: `Abonnement gelé. Nouvelle fin : ${end}.` +
+          (r.cancelledBookings ? ` ${r.cancelledBookings} réservation(s) annulée(s).` : '') });
+        this.afterFreezeChange();
+      },
+      error: e => { this.freezeBusy.set(false); this.freezeMsg.set({ ok: false, text: e.error?.message ?? 'Gel impossible.' }); }
+    });
+  }
+
+  unfreezeNow() {
+    if (this.freezeBusy() || !confirm('Reprendre maintenant ? Les jours de gel non utilisés seront retirés de la fin de l\'abonnement.')) return;
+    this.freezeBusy.set(true); this.freezeMsg.set(null);
+    this.freezeApi.unfreeze(this.id).subscribe({
+      next: () => { this.freezeBusy.set(false); this.freezeMsg.set({ ok: true, text: 'Abonnement repris.' }); this.afterFreezeChange(); },
+      error: e => { this.freezeBusy.set(false); this.freezeMsg.set({ ok: false, text: e.error?.message ?? 'Reprise impossible.' }); }
+    });
+  }
+
+  private afterFreezeChange() {
+    this.svc.get(this.id).subscribe(m => this.member.set(m));
+    this.loadHistory();                                   // the subscription table shows the new end dates
+    this.loadFreezes();
+  }
 
   loadFace() { this.faceSvc.status(this.id).subscribe({ next: s => this.face.set(s), error: () => this.face.set(null) }); }
 
@@ -83,6 +136,7 @@ export class MemberDetailComponent implements OnDestroy {
     if (wanted) this.planId.set(wanted);
 
     this.loadHistory();
+        this.loadFreezes();
   }
 
   assignCoach(v: string) {

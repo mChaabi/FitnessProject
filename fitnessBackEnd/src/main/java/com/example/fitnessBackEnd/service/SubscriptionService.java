@@ -40,6 +40,9 @@ public class SubscriptionService {
                 .orElseThrow(() -> new NotFoundException("Plan introuvable"));
         if (!plan.isActive()) throw new ConflictException("Ce plan n'est plus disponible");
 
+        if (member.getStatus() == MemberStatus.FROZEN)
+            throw new ConflictException("Ce membre est gelé : reprenez son abonnement avant d'en vendre un nouveau");
+
         LocalDate today = LocalDate.now();
         LocalDate start = subRepo
                 .findFirstByMemberIdAndStatusOrderByEndDateDesc(memberId, SubscriptionStatus.ACTIVE)

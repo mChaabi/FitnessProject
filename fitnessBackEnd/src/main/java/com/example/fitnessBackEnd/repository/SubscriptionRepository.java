@@ -36,4 +36,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     @Query("select s.plan.name, count(s) from Subscription s where s.status = :st " +
             "and s.startDate <= :day and s.endDate >= :day group by s.plan.name order by count(s) desc")
     List<Object[]> planDistribution(@Param("st") SubscriptionStatus st, @Param("day") LocalDate day);
+
+    List<Subscription> findByMemberIdAndStatusAndEndDateGreaterThanEqual(Long memberId, SubscriptionStatus s, LocalDate date);
 }

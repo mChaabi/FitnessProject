@@ -160,6 +160,55 @@
       </div>
     </div>
 
+    <div class="card" style="margin-top:1rem">
+  <h3>Gel de l'abonnement</h3>
+  @if (freezeMsg(); as fm) { <div [class]="fm.ok ? 'alert-ok' : 'alert-error'" role="status">{{ fm.text }}</div> }
+
+  @if (m.status === 'FROZEN' && activeFreeze(); as f) {
+    <div class="freeze-now">
+      <span class="badge badge-info">Gelé</span>
+      <p>Depuis le {{ f.startDate | date:'dd/MM/yyyy' }} · reprise prévue le <strong>{{ f.resumeDate | date:'dd/MM/yyyy' }}</strong></p>
+      @if (f.reason) { <small class="muted">Motif : {{ f.reason }}</small> }
+      <div><button class="btn btn-primary" [disabled]="freezeBusy()" (click)="unfreezeNow()">
+        {{ freezeBusy() ? 'Traitement...' : 'Reprendre maintenant' }}</button></div>
+    </div>
+  } @else if (m.status === 'ACTIVE') {
+    <p class="muted">La durée du gel est ajoutée à la fin de l'abonnement. Les réservations de la période sont annulées.</p>
+    <div class="presets">
+      @for (p of presets; track p) {
+        <button type="button" class="chip" [class.active]="freezeDays() === p" (click)="freezeDays.set(p)">{{ p }} jours</button>
+      }
+    </div>
+    <div class="grid2">
+      <div class="form-group"><label>Durée (jours, {{ freezeMin }} à {{ freezeMax }})</label>
+        <input type="number" [min]="freezeMin" [max]="freezeMax" [value]="freezeDays()" (input)="setDays($any($event.target).value)"></div>
+      <div class="form-group"><label>Motif (facultatif)</label>
+        <input maxlength="255" [value]="freezeReason()" (input)="freezeReason.set($any($event.target).value)" placeholder="Voyage, blessure..."></div>
+    </div>
+    @if (daysValid()) {
+      <p class="preview">Reprise le <strong>{{ resumeOn() | date:'dd/MM/yyyy' }}</strong> · l'abonnement sera prolongé de {{ freezeDays() }} jours.</p>
+    } @else { <p class="err">Choisissez entre {{ freezeMin }} et {{ freezeMax }} jours.</p> }
+    <div class="actions" style="justify-content:flex-start">
+      <button class="btn btn-primary" [disabled]="!daysValid() || freezeBusy()" (click)="freezeNow()">
+        {{ freezeBusy() ? 'Traitement...' : 'Geler l\'abonnement' }}</button>
+    </div>
+  } @else {
+    <p class="muted">Seul un membre actif peut être gelé.</p>
+  }
+
+  @if (freezes().length) {
+    <h4 class="fh">Historique des gels</h4>
+    <ul class="flist">
+      @for (f of freezes(); track f.id) {
+        <li><span>{{ f.startDate | date:'dd/MM/yy' }} → {{ (f.endedOn ?? f.resumeDate) | date:'dd/MM/yy' }}</span>
+          <span>{{ f.daysAdded }} j</span>
+          <span class="badge" [class]="f.status === 'ACTIVE' ? 'badge-info' : 'badge-success'">{{ f.status === 'ACTIVE' ? 'En cours' : 'Terminé' }}</span>
+          <small class="muted">{{ f.reason || '' }} · {{ f.createdBy }}</small></li>
+      }
+    </ul>
+  }
+</div>
+
     @if (auth.role() === 'ADMIN') {
       <div class="card" style="margin-top: 1rem">
         <h3>Coaching et compte</h3>
