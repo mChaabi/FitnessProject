@@ -1,10 +1,13 @@
 package com.example.fitnessBackEnd.entity;
 
+import com.example.fitnessBackEnd.enums.ContactStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "contacts")
@@ -31,4 +34,13 @@ public class Contact {
     @Size(min = 10, message = "Le message doit contenir au moins 10 caractères")
     @Column(length = 1000)
     private String message;
+
+    @Column(length = 30) private String sujet;
+
+    @Enumerated(EnumType.STRING) @Column(nullable = false, length = 10)
+    private ContactStatus status;
+
+    @Column(name = "created_at", nullable = false) private LocalDateTime createdAt;
+    @Column(name = "handled_by", length = 100) private String handledBy;
+    @Column(name = "handled_at") private LocalDateTime handledAt;
 }

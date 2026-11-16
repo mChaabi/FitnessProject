@@ -7,21 +7,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContactMapper {
 
-    public ContactDTO toDTO(Contact entity) {
-        return new ContactDTO(
-                entity.getId(),
-                entity.getNom(),
-                entity.getEmail(),
-                entity.getMessage()
-        );
+    public ContactDTO toDTO(Contact e) {
+        return new ContactDTO(e.getId(), e.getNom(), e.getEmail(), e.getSujet(), e.getMessage(), null);
     }
 
-    public Contact toEntity(ContactDTO dto) {
+    /** Never copies the id: a client must not be able to overwrite an existing message. */
+    public Contact toEntity(ContactDTO d) {
         return Contact.builder()
-                .id(dto.id())
-                .nom(dto.nom())
-                .email(dto.email())
-                .message(dto.message())
+                .nom(d.nom().trim()).email(d.email().trim().toLowerCase())
+                .sujet(d.sujet()).message(d.message().trim())
                 .build();
     }
 }

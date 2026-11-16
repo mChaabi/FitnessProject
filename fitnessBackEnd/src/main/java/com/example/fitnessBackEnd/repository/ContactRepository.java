@@ -1,6 +1,9 @@
 package com.example.fitnessBackEnd.repository;
 
 import com.example.fitnessBackEnd.entity.Contact;
+import com.example.fitnessBackEnd.enums.ContactStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +18,7 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     // Opcional: Buscar contactos por nombre que contenga una palabra
     List<Contact> findByNomContainingIgnoreCase(String nom);
+
+    Page<Contact> findByStatus(ContactStatus status, Pageable pageable);
+    long countByStatus(ContactStatus status);
 }
