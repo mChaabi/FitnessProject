@@ -72,4 +72,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying
     @Query("update Member m set m.emailOptOut = true where m.id = :id")
     int optOut(@Param("id") Long id);
+
+    long countByJoinedAtBetween(LocalDate from, LocalDate to);     // both ends included
 }

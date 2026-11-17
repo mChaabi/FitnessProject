@@ -37,6 +37,7 @@ export const ICONS: Record<string, string> = {
     'M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M20 8v6 M23 11h-6',
   inbox:
     'M22 12h-6l-2 3h-4l-2-3H2 M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z',
+  shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
 };
 
 export const SECTION_ORDER = [
@@ -174,5 +175,12 @@ export const NAV: NavItem[] = [
     link: '/admin/messages',
     roles: ['ADMIN'],
     badge: 'messages',
+  },
+  {
+    section: 'Pilotage',
+    label: "Journal d'activité",
+    icon: 'shield',
+    link: '/admin/audit',
+    roles: ['ADMIN'],
   },
 ];

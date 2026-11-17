@@ -33,6 +33,7 @@ public class BookingService {
     private final MemberRepository members;
     private final SubscriptionRepository subs;
     private final EmailQueue emailQueue;
+    private final AuditService audit;
 
     @Value("${app.classes.cancel-hours:2}") private int cancelHours;
 
@@ -86,16 +87,19 @@ public class BookingService {
         if (wasConfirmed) promote(s);
     }
 
-    /** Anula la sesión entera y todas sus reservas. */
     @Transactional
     public void cancelSession(Long sessionId) {
         ClassSession s = sessions.lockById(sessionId).orElseThrow(() -> new NotFoundException("Séance introuvable"));
         if (s.getStatus() == SessionStatus.CANCELLED) return;
         s.setStatus(SessionStatus.CANCELLED);
-        for (Booking b : bookings.attendees(sessionId, BookingStatus.CANCELLED)) {      // confirmados y en espera
+        int notified = 0;
+        for (Booking b : bookings.attendees(sessionId, BookingStatus.CANCELLED)) {      // confirmed and waiting
             emailQueue.enqueue(EmailType.CLASS_CANCELLED, b.getMember(), Facts.session(s), null);
+            notified++;
         }
         bookings.cancelAll(sessionId, BookingStatus.CANCELLED);
+        audit.record("SESSION_CANCELLED", "SESSION", sessionId, "Séance « " + s.getName() + " » du "
+                + s.getSessionDate() + " annulée (" + notified + " inscrit(s) prévenu(s))");
     }
 
     @Transactional(readOnly = true)

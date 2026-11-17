@@ -27,4 +27,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("select coalesce(sum(p.amount), 0) from Payment p where p.paidAt >= :from and p.paidAt < :to")
     BigDecimal sumBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query("select s.plan.name, coalesce(sum(p.amount), 0) from Payment p join p.subscription s " +
+            "where p.paidAt >= :from and p.paidAt < :to group by s.plan.name")
+    List<Object[]> revenueByPlan(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

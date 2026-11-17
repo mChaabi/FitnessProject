@@ -31,6 +31,7 @@ public class SubscriptionService {
     private final PaymentRepository payRepo;
     private final EnrollmentRepository enrollRepo;
     private final EmailQueue emailQueue;
+    private final AuditService audit;
 
     @Transactional
     public SubscriptionRow sell(Long memberId, SellRequest r, String staffEmail) {
@@ -73,6 +74,10 @@ public class SubscriptionService {
                 Facts.of("Abonnement", plan.getName(), "Valable jusqu'au", Facts.date(sub.getEndDate()),
                         "Montant", plan.getPrice().toPlainString() + " MAD"),
                 "PAY:" + pay.getId());
+
+        audit.record("SUBSCRIPTION_SOLD", "MEMBER", memberId,
+                "Abonnement « " + plan.getName() + " » vendu à " + member.getFirstName() + " " + member.getLastName()
+                        + " (" + plan.getPrice().toPlainString() + " MAD, " + r.method() + ", reçu " + pay.getReceiptNumber() + ")");
         return row(pay);
     }
 

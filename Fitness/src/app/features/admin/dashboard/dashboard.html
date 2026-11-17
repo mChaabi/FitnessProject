@@ -1,235 +1,208 @@
 <div class="head">
-  <div>
-    <h1>Tableau de bord</h1>
-    @if (data(); as d) {
-      <p class="muted">Mis à jour à {{ d.generatedAt | date: 'HH:mm' }}</p>
-    }
+  <div><h1>Tableau de bord</h1>
+    @if (data(); as d) { <p class="muted">Mis à jour à {{ d.generatedAt | date:'HH:mm' }} · période du {{ d.period.from | date:'dd/MM' }} à aujourd'hui</p> }</div>
+  <div class="tools">
+    <div class="seg" role="group" aria-label="Période">
+      @for (p of periods; track p.d) {
+        <button type="button" [class.on]="days() === p.d" [attr.aria-pressed]="days() === p.d" (click)="setDays(p.d)">{{ p.l }}</button>
+      }
+    </div>
+    <button class="btn btn-ghost" (click)="load(true)" [disabled]="refreshing()"><span [class.spin]="refreshing()">↻</span> Actualiser</button>
   </div>
-  <button class="btn btn-ghost" (click)="load(true)" [disabled]="refreshing()">
-    <span [class.spin]="refreshing()">↻</span> Actualiser
-  </button>
 </div>
 
 @if (loading()) {
-  <div class="kpis">
-    @for (i of [1, 2, 3, 4]; track i) {
-      <div class="card skeleton"></div>
-    }
-  </div>
+  <div class="kpis">@for (i of [1,2,3,4,5,6]; track i) { <div class="card skeleton"></div> }</div>
 } @else if (error()) {
-  <div class="card state">
-    <p>Impossible de charger le tableau de bord.</p>
-    <button class="btn btn-primary" (click)="load()">Réessayer</button>
-  </div>
+  <div class="card state"><p>Impossible de charger le tableau de bord.</p>
+    <button class="btn btn-primary" (click)="load()">Réessayer</button></div>
 } @else if (data(); as d) {
+  @let p = d.period;
+  @let dm = delta(p.newMembers, p.newMembersPrev);
+  @let dr = delta(p.revenue, p.revenuePrev);
+  @let dv = delta(p.visits, p.visitsPrev);
+  @let du = delta(p.uniqueVisitors, p.uniqueVisitorsPrev);
+
   <!-- KPIs -->
-  <div class="kpis">
-    <div class="card kpi">
-      <small>Membres actifs</small>
+  <div class="kpis stagger">
+    <article class="card kpi" [style.--i]="0">
+      <header><small>Membres actifs</small><span class="kico"><svg viewBox="0 0 24 24"><path [attr.d]="icons['users']" /></svg></span></header>
       <strong [countUp]="d.kpis.activeMembers"></strong>
-      <span class="badge badge-info">+{{ d.kpis.newThisMonth }} ce mois</span>
-    </div>
+      <footer><span class="trend" [attr.data-dir]="dm.dir">{{ dm.text }}</span><small class="muted">+{{ p.newMembers }} nouveaux</small></footer>
+    </article>
 
-    <div class="card kpi">
-      <small>Revenus du mois</small>
-      <strong [countUp]="d.kpis.revenueThisMonth" prefix="MAD "></strong>
-      @if (d.kpis.revenueGrowth !== null) {
-        <span class="badge" [class]="d.kpis.revenueGrowth >= 0 ? 'badge-success' : 'badge-danger'">
-          {{ d.kpis.revenueGrowth > 0 ? '+' : '' }}{{ d.kpis.revenueGrowth }}% vs même période
-        </span>
-      } @else {
-        <span class="badge badge-info">Pas de référence</span>
-      }
-    </div>
+    <article class="card kpi" [style.--i]="1">
+      <header><small>Revenus</small><span class="kico"><svg viewBox="0 0 24 24"><path [attr.d]="icons['card']" /></svg></span></header>
+      <strong [countUp]="p.revenue" prefix="MAD "></strong>
+      <footer><span class="trend" [attr.data-dir]="dr.dir">{{ dr.text }}</span><small class="muted">vs {{ p.days }} j précédents</small></footer>
+    </article>
 
-    <div class="card kpi">
-      <small>Entrées aujourd'hui</small>
-      <strong [countUp]="d.kpis.entriesToday"></strong>
-      <span class="badge" [class]="d.kpis.deniedToday ? 'badge-danger' : 'badge-success'"
-        >{{ d.kpis.deniedToday }} refusée(s)</span
-      >
-    </div>
+    <article class="card kpi" [style.--i]="2">
+      <header><small>Entrées</small><span class="kico"><svg viewBox="0 0 24 24"><path [attr.d]="icons['scan']" /></svg></span></header>
+      <strong [countUp]="p.visits"></strong>
+      <footer><span class="trend" [attr.data-dir]="dv.dir">{{ dv.text }}</span><small class="muted">{{ p.visits / p.days | number:'1.0-1' }} par jour</small></footer>
+    </article>
 
-    <div class="card kpi">
-      <small>Occupation des cours (7 j)</small>
+    <article class="card kpi" [style.--i]="3">
+      <header><small>Visiteurs uniques</small><span class="kico"><svg viewBox="0 0 24 24"><path [attr.d]="icons['userPlus']" /></svg></span></header>
+      <strong [countUp]="p.uniqueVisitors"></strong>
+      <footer><span class="trend" [attr.data-dir]="du.dir">{{ du.text }}</span>
+        <small class="muted">{{ d.kpis.activeMembers ? ((p.uniqueVisitors * 100 / d.kpis.activeMembers) | number:'1.0-0') : 0 }} % des actifs</small></footer>
+    </article>
+
+    <article class="card kpi" [style.--i]="4">
+      <header><small>Remplissage à venir (7 j)</small><span class="kico"><svg viewBox="0 0 24 24"><path [attr.d]="icons['calendar']" /></svg></span></header>
       <strong [countUp]="d.classes.avgOccupancy" suffix="%"></strong>
-      <span class="badge badge-info">{{ d.classes.sessions }} séances</span>
-    </div>
+      <footer><span class="trend" data-dir="flat">{{ d.classes.sessions }} séances</span>
+        @if (d.classes.waitingTotal) { <small class="muted">{{ d.classes.waitingTotal }} en attente</small> }</footer>
+    </article>
+
+    <article class="card kpi" [style.--i]="5">
+      <header><small>Coachs actifs</small><span class="kico"><svg viewBox="0 0 24 24"><path [attr.d]="icons['award']" /></svg></span></header>
+      <strong [countUp]="p.coachesActive"></strong>
+      <footer><span class="trend" data-dir="flat">{{ p.coachesActive ? (d.kpis.activeMembers / p.coachesActive | number:'1.0-0') : 0 }} membres / coach</span></footer>
+    </article>
   </div>
 
-  <!-- Alertas accionables -->
+  <!-- Actionable alerts -->
   <div class="alerts">
-    <a class="alert-card warn" routerLink="." fragment="expiring">
-      <strong [countUp]="d.kpis.expiringCount"></strong>
-      <span>abonnement(s) expirent dans {{ d.kpis.expiringDays }} jours</span>
-    </a>
-    <a class="alert-card danger" routerLink="." fragment="risk">
-      <strong [countUp]="d.kpis.atRiskCount"></strong>
-      <span>membre(s) absent(s) depuis {{ d.kpis.inactivityDays }} jours</span>
-    </a>
+    <a class="alert-card warn" routerLink="." fragment="expiring"><strong [countUp]="d.kpis.expiringCount"></strong>
+      <span>abonnement(s) expirent dans {{ d.kpis.expiringDays }} jours</span></a>
+    <a class="alert-card danger" routerLink="." fragment="risk"><strong [countUp]="d.kpis.atRiskCount"></strong>
+      <span>membre(s) absent(s) depuis {{ d.kpis.inactivityDays }} jours</span></a>
   </div>
 
-  <!-- Gráficos -->
+  <!-- Charts row 1 -->
   <div class="charts">
-    <div class="card">
-      <h3>Revenus (6 mois)</h3>
-      <div class="box"><canvas #rev></canvas></div>
-    </div>
-    <div class="card">
-      <h3>Fréquentation (14 jours)</h3>
-      <div class="box"><canvas #vis></canvas></div>
-    </div>
-    <div class="card">
-      <h3>Abonnements actifs</h3>
-      @if (d.plans.length) {
-        <div class="box"><canvas #plan></canvas></div>
-      } @else {
-        <p class="muted">Aucun abonnement actif.</p>
-      }
-    </div>
+    <div class="card"><h3>Revenus (6 mois)</h3><div class="box"><canvas #rev></canvas></div></div>
+    <div class="card"><h3>Fréquentation ({{ p.days }} jours)</h3><div class="box"><canvas #vis></canvas></div></div>
+    <div class="card"><h3>Abonnements actifs</h3>
+      <div class="box"><canvas #plan></canvas>@if (!d.plans.length) { <p class="muted ovl">Aucun abonnement actif.</p> }</div></div>
   </div>
 
-  <div class="cols">
-    <!-- Por vencer -->
-    <div class="card" id="expiring">
-      <h3>À renouveler</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Membre</th>
-              <th>Plan</th>
-              <th>Fin</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (e of d.expiring; track e.memberId) {
-              <tr>
-                <td>
-                  <a [routerLink]="['/admin/members', e.memberId]"
-                    ><strong>{{ e.memberName }}</strong></a
-                  >
-                  <br /><small class="muted">{{ e.phone || '-' }}</small>
-                </td>
-                <td>{{ e.plan }}</td>
-                <td>
-                  <span class="badge" [class]="e.daysLeft <= 2 ? 'badge-danger' : 'badge-warning'">
-                    {{ e.daysLeft === 0 ? "Aujourd'hui" : 'J-' + e.daysLeft }}
-                  </span>
-                </td>
-                <td class="actions">
-                  @if (renewLink(e); as l) {
-                    <a
-                      class="btn btn-wa"
-                      [href]="l"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      [attr.aria-label]="'Relancer ' + e.memberName + ' sur WhatsApp'"
-                      >💬 WhatsApp</a
-                    >
-                  }
-                  <a class="btn btn-ghost" [routerLink]="['/admin/members', e.memberId]"
-                    >Renouveler</a
-                  >
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="4" class="empty">✓ Aucun abonnement à renouveler.</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      @if (d.kpis.expiringCount > d.expiring.length) {
-        <p class="muted">+ {{ d.kpis.expiringCount - d.expiring.length }} autre(s)</p>
-      }
-    </div>
-
-    <!-- Abandono -->
-    <div class="card" id="risk">
-      <h3>Risque d'abandon</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Membre</th>
-              <th>Dernière visite</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (r of d.atRisk; track r.memberId) {
-              <tr>
-                <td>
-                  <a [routerLink]="['/admin/members', r.memberId]"
-                    ><strong>{{ r.memberName }}</strong></a
-                  >
-                  <br /><small class="muted">{{ r.phone || '-' }}</small>
-                </td>
-                <td>
-                  @if (r.daysSince == null) {
-                    <span class="badge badge-danger">Jamais venu</span>
-                  } @else {
-                    <span class="badge badge-warning">il y a {{ r.daysSince }} j</span>
-                  }
-                </td>
-                <td class="actions">
-                  @if (backLink(r); as l) {
-                    <a
-                      class="btn btn-wa"
-                      [href]="l"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      [attr.aria-label]="'Écrire à ' + r.memberName + ' sur WhatsApp'"
-                      >💬 WhatsApp</a
-                    >
-                  }
-                  @if (r.phone) {
-                    <a class="btn btn-ghost" [href]="'tel:' + r.phone" aria-label="Appeler">📞</a>
-                  }
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="3" class="empty">✓ Tous les membres actifs viennent régulièrement.</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      @if (d.kpis.atRiskCount > d.atRisk.length) {
-        <p class="muted">+ {{ d.kpis.atRiskCount - d.atRisk.length }} autre(s)</p>
-      }
-    </div>
-  </div>
-
-  <!-- Clases -->
-  <div class="card">
-    <h3>Prochains cours</h3>
-    <div class="sessions">
-      @for (s of d.classes.upcoming; track s.id) {
-        <div class="srow">
-          <div>
-            <strong>{{ s.name }}</strong
-            ><br />
-            <small class="muted">{{ s.date | date: 'EEE dd/MM' }} · {{ time(s.start) }}</small>
-          </div>
-          <div class="bar" [attr.aria-label]="s.confirmed + ' sur ' + s.capacity">
-            <span [style.width.%]="fill(s)" [class.full]="s.confirmed >= s.capacity"></span>
-          </div>
-          <small
-            >{{ s.confirmed }}/{{ s.capacity }}
-            @if (s.waiting) {
-              · {{ s.waiting }} en attente
-            }
-          </small>
+  <!-- Charts row 2 -->
+  <div class="charts2">
+    <div class="card">
+      <h3>Affluence par jour et par heure</h3>
+      @if (heat(); as h) {
+        <div class="heat" role="img" [attr.aria-label]="h.empty ? 'Pas de données' : 'Pic : ' + h.peak">
+          <span></span>
+          @for (hr of h.hours; track hr) { <b class="hh">{{ hr % 3 === 0 ? hr + 'h' : '' }}</b> }
+          @for (row of h.rows; track row.label) {
+            <b class="dl">{{ row.label }}</b>
+            @for (c of row.cells; track c.h) { <i [style.--v]="c.v" [title]="row.label + ' ' + c.h + ' h : ' + c.n + ' entrée(s)'"></i> }
+          }
         </div>
-      } @empty {
-        <p class="muted">Aucun cours prévu cette semaine.</p>
+        <p class="muted cap">{{ h.empty ? "Pas encore d'entrées sur cette période." : 'Pic d\\'affluence : ' + h.peak }}</p>
       }
     </div>
-    <a routerLink="/admin/classes" class="btn btn-ghost">Voir le planning →</a>
+    <div class="card"><h3>Membres par statut</h3><div class="box"><canvas #stat></canvas></div></div>
+    <div class="card"><h3>Nouveaux membres (6 mois)</h3><div class="box"><canvas #grow></canvas></div></div>
+  </div>
+
+  <!-- Plans and coaches -->
+  <div class="cols">
+    <div class="card"><h3>Offres d'abonnement</h3>
+      <div class="table-wrap"><table class="stack">
+        <thead><tr><th>Offre</th><th>Actifs</th><th>Revenus ({{ p.days }} j)</th><th>Part</th></tr></thead>
+        <tbody>
+          @for (s of d.planStats; track s.plan) {
+            <tr><td data-label="Offre"><strong>{{ s.plan }}</strong></td>
+              <td data-label="Actifs">{{ s.active }}</td>
+              <td data-label="Revenus">{{ s.revenue | number:'1.0-0' }} MAD</td>
+              <td data-label="Part"><span class="mini"><i [style.width.%]="share(s.revenue)"></i></span> <small>{{ share(s.revenue) }} %</small></td></tr>
+          } @empty { <tr><td colspan="4" class="empty">Aucune offre.</td></tr> }
+        </tbody></table></div>
+    </div>
+
+    <div class="card"><h3>Coachs</h3>
+      <div class="table-wrap"><table class="stack">
+        <thead><tr><th>Coach</th><th>Clients</th><th>Séances</th><th>Remplissage</th></tr></thead>
+        <tbody>
+          @for (c of d.coachStats; track c.id) {
+            <tr><td data-label="Coach"><strong>{{ c.name }}</strong>@if (c.specialties) { <br><small class="muted">{{ c.specialties }}</small> }</td>
+              <td data-label="Clients">{{ c.clients }}</td>
+              <td data-label="Séances">{{ c.sessions }}</td>
+              <td data-label="Remplissage"><span class="mini"><i [style.width.%]="c.occupancy"></i></span> <small>{{ c.occupancy }} %</small></td></tr>
+          } @empty { <tr><td colspan="4" class="empty">Aucun coach actif.</td></tr> }
+        </tbody></table></div>
+    </div>
+  </div>
+
+  <!-- Renewals and at-risk (with WhatsApp) -->
+  <div class="cols">
+    <div class="card" id="expiring"><h3>À renouveler</h3>
+      <div class="table-wrap"><table class="stack">
+        <thead><tr><th>Membre</th><th>Plan</th><th>Fin</th><th></th></tr></thead>
+        <tbody>
+          @for (e of d.expiring; track e.memberId) {
+            <tr><td data-label="Membre"><a [routerLink]="['/admin/members', e.memberId]"><strong>{{ e.memberName }}</strong></a>
+                  <br><small class="muted">{{ e.phone || '-' }}</small></td>
+              <td data-label="Plan">{{ e.plan }}</td>
+              <td data-label="Fin"><span class="badge" [class]="e.daysLeft <= 2 ? 'badge-danger' : 'badge-warning'">
+                {{ e.daysLeft === 0 ? "Aujourd'hui" : 'J-' + e.daysLeft }}</span></td>
+              <td class="actions">
+                @if (renewLink(e); as l) { <a class="btn btn-wa" [href]="l" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a> }
+                <a class="btn btn-ghost" [routerLink]="['/admin/members', e.memberId]">Renouveler</a></td></tr>
+          } @empty { <tr><td colspan="4" class="empty">✓ Aucun abonnement à renouveler.</td></tr> }
+        </tbody></table></div>
+      @if (d.kpis.expiringCount > d.expiring.length) { <p class="muted">+ {{ d.kpis.expiringCount - d.expiring.length }} autre(s)</p> }
+    </div>
+
+    <div class="card" id="risk"><h3>Risque d'abandon</h3>
+      <div class="table-wrap"><table class="stack">
+        <thead><tr><th>Membre</th><th>Dernière visite</th><th></th></tr></thead>
+        <tbody>
+          @for (r of d.atRisk; track r.memberId) {
+            <tr><td data-label="Membre"><a [routerLink]="['/admin/members', r.memberId]"><strong>{{ r.memberName }}</strong></a>
+                  <br><small class="muted">{{ r.phone || '-' }}</small></td>
+              <td data-label="Dernière visite">@if (r.daysSince == null) { <span class="badge badge-danger">Jamais venu</span> }
+                  @else { <span class="badge badge-warning">il y a {{ r.daysSince }} j</span> }</td>
+              <td class="actions">
+                @if (backLink(r); as l) { <a class="btn btn-wa" [href]="l" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a> }
+                @if (r.phone) { <a class="btn btn-ghost" [href]="'tel:' + r.phone" aria-label="Appeler">📞</a> }</td></tr>
+          } @empty { <tr><td colspan="3" class="empty">✓ Tous les membres actifs viennent régulièrement.</td></tr> }
+        </tbody></table></div>
+      @if (d.kpis.atRiskCount > d.atRisk.length) { <p class="muted">+ {{ d.kpis.atRiskCount - d.atRisk.length }} autre(s)</p> }
+    </div>
+  </div>
+
+  <!-- Classes and activity -->
+  <div class="cols3">
+    <div class="card"><h3>Cours les plus remplis ({{ p.days }} j)</h3>
+      <ul class="rank">
+        @for (c of d.topClasses; track c.name) {
+          <li><span class="rn"><strong>{{ c.name }}</strong><small class="muted">{{ c.sessions }} séance(s)</small></span>
+            <span class="mini"><i [style.width.%]="c.occupancy"></i></span>
+            <small>{{ c.confirmed }}/{{ c.capacity }}</small></li>
+        } @empty { <li class="muted">Pas encore de séances terminées sur cette période.</li> }
+      </ul>
+    </div>
+
+    <div class="card"><h3>Prochains cours</h3>
+      <div class="sessions">
+        @for (s of d.classes.upcoming; track s.id) {
+          <div class="srow">
+            <div><strong>{{ s.name }}</strong><br><small class="muted">{{ s.date | date:'EEE dd/MM' }} · {{ time(s.start) }}</small></div>
+            <div class="bar" [attr.aria-label]="s.confirmed + ' sur ' + s.capacity"><span [style.width.%]="fill(s)" [class.full]="s.confirmed >= s.capacity"></span></div>
+            <small>{{ s.confirmed }}/{{ s.capacity }}@if (s.waiting) { · {{ s.waiting }} en attente }</small>
+          </div>
+        } @empty { <p class="muted">Aucun cours prévu cette semaine.</p> }
+      </div>
+      <a routerLink="/admin/classes" class="btn btn-ghost">Voir le planning →</a>
+    </div>
+
+    <div class="card"><h3>Activité récente</h3>
+      <ul class="feed">
+        @for (a of recent(); track a.id) {
+          <li [attr.data-tone]="actionTone(a.action)">
+            <span class="dot"></span>
+            <div><strong>{{ actionLabel(a.action) }}</strong><br><small class="muted">{{ a.summary }}</small>
+              <br><small class="muted">{{ a.createdAt | date:'dd/MM HH:mm' }} · {{ a.actor }}</small></div>
+          </li>
+        } @empty { <li class="muted">Aucune activité enregistrée.</li> }
+      </ul>
+      <a routerLink="/admin/audit" class="btn btn-ghost">Tout le journal →</a>
+    </div>
   </div>
 }

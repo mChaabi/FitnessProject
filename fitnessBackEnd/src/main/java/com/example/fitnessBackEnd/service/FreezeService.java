@@ -44,6 +44,7 @@ public class FreezeService {
     private final BookingRepository bookings;
     private final BookingService bookingService;
     private final EmailQueue emailQueue;
+    private final AuditService audit;
 
     @Value("${app.freeze.min-days:7}") private int minDays;
     @Value("${app.freeze.max-days:90}") private int maxDays;
@@ -73,6 +74,9 @@ public class FreezeService {
         f.setReason(r.reason() == null || r.reason().isBlank() ? null : r.reason().trim());
         f.setCreatedBy(a.getName()); f.setCreatedAt(LocalDateTime.now()); f.setStatus(ACTIVE);
         freezes.save(f);
+        audit.record("MEMBERSHIP_FROZEN", "MEMBER", memberId,
+                "Abonnement de " + m.getFirstName() + " " + m.getLastName() + " gelé " + r.days() + " jours (reprise le "
+                        + Facts.date(resume) + ")" + (f.getReason() == null ? "" : ", motif : " + f.getReason()));
 
         int cancelled = cancelBookings(memberId, today, resume, a);
         LocalDate newEnd = latestEnd(live);
@@ -118,6 +122,9 @@ public class FreezeService {
         List<Subscription> live = subs.findByMemberIdAndStatusAndEndDateGreaterThanEqual(m.getId(), SubscriptionStatus.ACTIVE, today);
         if (unused > 0) shift(live, today, -unused);
         f.setEndedOn(today); f.setDaysAdded(f.getDaysAdded() - unused); f.setStatus(ENDED);
+        audit.record("MEMBERSHIP_RESUMED", "MEMBER", m.getId(),
+                "Abonnement de " + m.getFirstName() + " " + m.getLastName() + " repris"
+                        + (unused > 0 ? " en avance (" + unused + " jours rendus)" : ""));
         if (m.getStatus() == MemberStatus.FROZEN) m.setStatus(MemberStatus.ACTIVE);   // a member deactivated meanwhile stays deactivated
 
         LocalDate newEnd = latestEnd(live);

@@ -23,15 +23,18 @@ import java.time.Period;
 public class MemberService {
 
     private final MemberRepository repo;
+    private final AuditService audit;
 
     @Transactional
     public MemberResponse create(MemberRequest r) {
         String email = r.email().trim().toLowerCase();
         if (repo.existsByEmailIgnoreCase(email)) throw new ConflictException("Email déjà utilisé");
-        return toResponse(repo.save(Member.builder()
+        Member saved = repo.save(Member.builder()
                 .firstName(r.firstName().trim()).lastName(r.lastName().trim())
                 .email(email).phone(r.phone()).birthDate(r.birthDate())
-                .sex(r.sex()).goal(r.goal()).build()));
+                .sex(r.sex()).goal(r.goal()).build());
+        audit.record("MEMBER_CREATED", "MEMBER", saved.getId(), "Fiche créée : " + saved.getFirstName() + " " + saved.getLastName());
+        return toResponse(saved);
     }
 
     @Transactional
@@ -42,7 +45,8 @@ public class MemberService {
         m.setFirstName(r.firstName().trim()); m.setLastName(r.lastName().trim());
         m.setEmail(email); m.setPhone(r.phone()); m.setBirthDate(r.birthDate());
         m.setSex(r.sex()); m.setGoal(r.goal());
-        return toResponse(m);                       // @Transactional guarda los cambios solo
+        audit.record("MEMBER_UPDATED", "MEMBER", id, "Fiche modifiée : " + m.getFirstName() + " " + m.getLastName());
+        return toResponse(m);
     }
 
     @Transactional(readOnly = true)
@@ -56,9 +60,12 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MemberResponse get(Long id) { return toResponse(find(id)); }
 
-    /** No se borra: se conserva el historial de pagos y accesos. */
     @Transactional
-    public void deactivate(Long id) { find(id).setStatus(MemberStatus.INACTIVE); }
+    public void deactivate(Long id) {
+        Member m = find(id);
+        m.setStatus(MemberStatus.INACTIVE);
+        audit.record("MEMBER_DEACTIVATED", "MEMBER", id, "Membre désactivé : " + m.getFirstName() + " " + m.getLastName());
+    }
 
     @Transactional(readOnly = true)
     public String qrCodeOf(Long id) { return find(id).getQrCode(); }

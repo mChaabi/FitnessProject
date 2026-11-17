@@ -11,3 +11,4 @@ Réservations des membres : un abonnement valide est obligatoire. Si le cours es
 Vidéos : menu Cours > Vidéos. Ajouter un lien YouTube (de préférence non répertorié) ou un fichier /videos/nom.mp4. Une vidéo peut être masquée sans être supprimée.
 Emails : menu Pilotage > Emails. File d'envoi, statuts, bouton Relancer pour les échecs. Envois automatiques : rappel de cours la veille, abonnement qui expire sous 7 jours, membre absent depuis 14 jours, liste d'attente, annulation de cours, bienvenue, paiement confirmé.
 Tableau de bord : menu Pilotage. Membres actifs, revenus, entrées du jour, occupation des cours, abonnements à renouveler, membres à risque d'abandon.
+Journal d'activité : menu Pilotage > Journal d'activité. Historique daté des actions (ventes, changements de prix, gels, suppressions...) avec l'auteur, filtrable par type, personne et période.

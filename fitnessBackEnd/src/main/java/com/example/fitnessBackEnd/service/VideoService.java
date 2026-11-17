@@ -29,6 +29,7 @@ public class VideoService {
 
     private final VideoRepository repo;
     private final VideoStorage storage;
+    private final AuditService audit;
 
     @Transactional(readOnly = true)
     public List<VideoResponse> published() {
@@ -44,7 +45,9 @@ public class VideoService {
     public VideoResponse create(VideoRequest r) {
         Video v = new Video();
         v.setCreatedAt(LocalDateTime.now());
-        return map(repo.save(fill(v, r)));
+        Video saved = repo.save(fill(v, r));
+        audit.record("VIDEO_ADDED", "VIDEO", saved.getId(), "Vidéo ajoutée (lien) : « " + saved.getTitle() + " »");
+        return map(saved);
     }
 
     @Transactional
@@ -69,7 +72,9 @@ public class VideoService {
             v.setTitle(t); v.setDescription(description == null || description.isBlank() ? null : description.trim());
             v.setCategory(category); v.setType("UPLOAD"); v.setSource(name); v.setThumb(poster);
             v.setDurationMin(durationMin); v.setActive(active); v.setCreatedAt(LocalDateTime.now());
-            return map(repo.save(v));
+            Video saved = repo.save(v);
+            audit.record("VIDEO_ADDED", "VIDEO", saved.getId(), "Vidéo importée : « " + saved.getTitle() + " »");
+            return map(saved);
         } catch (RuntimeException e) {                      // no orphan files if the database refuses
             storage.delete(name); storage.delete(poster);
             throw e;
@@ -80,6 +85,7 @@ public class VideoService {
     public void delete(Long id) {
         Video v = repo.findById(id).orElseThrow(() -> new NotFoundException("Vidéo introuvable"));
         repo.delete(v);
+        audit.record("VIDEO_DELETED", "VIDEO", id, "Vidéo supprimée : « " + v.getTitle() + " »");
         if ("UPLOAD".equals(v.getType())) { storage.delete(v.getSource()); storage.delete(v.getThumb()); }
     }
 

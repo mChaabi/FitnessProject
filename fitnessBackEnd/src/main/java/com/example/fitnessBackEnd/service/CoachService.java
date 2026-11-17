@@ -32,6 +32,7 @@ public class CoachService {
     private final UserRepository userRepo;
     private final PasswordEncoder encoder;
     private final MemberService memberService;
+    private final AuditService audit;
 
     @Transactional
     public CoachResponse create(CoachRequest r) {
@@ -42,6 +43,8 @@ public class CoachService {
                 .role(Role.COACH).enabled(true).build());
         Coach c = coachRepo.save(Coach.builder().user(u).specialties(r.specialties())
                 .bio(r.bio()).active(true).build());
+        // create(...): right after "Coach c = coachRepo.save(...);"
+        audit.record("COACH_CREATED", "COACH", c.getId(), "Coach créé : " + u.getPrenom() + " " + u.getNom());
         return map(c, 0);
     }
 
@@ -57,15 +60,25 @@ public class CoachService {
         c.setActive(active);
         c.getUser().setEnabled(active);
         if (!active) memberRepo.clearCoach(id);
+        audit.record(active ? "COACH_ACTIVATED" : "COACH_DEACTIVATED", "COACH", id,
+                "Coach " + c.getUser().getPrenom() + " " + c.getUser().getNom()
+                        + (active ? " réactivé" : " désactivé (ses clients sont libérés)"));
     }
 
     @Transactional
     public void assign(Long memberId, Long coachId) {
         Member m = memberRepo.findById(memberId).orElseThrow(() -> new NotFoundException("Membre introuvable"));
-        if (coachId == null) { m.setCoach(null); return; }
+        String who = m.getFirstName() + " " + m.getLastName();
+        if (coachId == null) {
+            m.setCoach(null);
+            audit.record("COACH_ASSIGNED", "MEMBER", memberId, "Coach retiré pour " + who);
+            return;
+        }
         Coach c = find(coachId);
         if (!c.isActive()) throw new ConflictException("Ce coach est désactivé");
         m.setCoach(c);
+        audit.record("COACH_ASSIGNED", "MEMBER", memberId,
+                "Coach " + c.getUser().getPrenom() + " " + c.getUser().getNom() + " assigné à " + who);
     }
 
     @Transactional

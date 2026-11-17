@@ -1,0 +1,50 @@
+<div class="head">
+  <div><h1>Journal d'activité</h1><p class="muted">Qui a fait quoi, et quand. Les entrées sont conservées 2 ans.</p></div>
+</div>
+
+<div class="card filters">
+  <input type="search" [formControl]="search" placeholder="Rechercher une personne, un membre, une offre..." aria-label="Rechercher">
+  <div class="range">
+    @for (p of presets; track p.d) { <button type="button" class="chip" (click)="setRange(p.d)">{{ p.l }}</button> }
+    <label>Du <input type="date" [value]="from()" [max]="to()" (change)="setFrom($any($event.target).value)"></label>
+    <label>au <input type="date" [value]="to()" [min]="from()" (change)="setTo($any($event.target).value)"></label>
+  </div>
+  <div class="chips">
+    @for (t of types; track t.k) {
+      <button type="button" class="chip" [class.active]="type() === t.k" (click)="setType(t.k)">{{ t.l }} ({{ count(t.k) }})</button>
+    }
+  </div>
+</div>
+
+@if (error()) {
+  <div class="card state">Impossible de charger le journal. <button class="btn btn-primary" (click)="load()">Réessayer</button></div>
+} @else if (loading() && !data()) {
+  <div class="card skeleton"></div>
+} @else {
+  @for (g of groups(); track g.key) {
+    <h3 class="day">{{ g.label }}</h3>
+    <ol class="tl card stagger">
+      @for (r of g.items; track r.id; let i = $index) {
+        <li [style.--i]="i" [attr.data-tone]="tone(r.action)">
+          <span class="when">{{ r.createdAt | date:'HH:mm' }}</span>
+          <span class="dot" aria-hidden="true"></span>
+          <div class="what">
+            <p><strong>{{ label(r.action) }}</strong>
+              @if (r.entityType === 'MEMBER' && r.entityId) { · <a class="lnk" [routerLink]="['/admin/members', r.entityId]">voir la fiche</a> }</p>
+            <p class="sum">{{ r.summary }}</p>
+            <small class="muted">par {{ r.actor }}@if (r.actorRole) { <span class="role">{{ r.actorRole }}</span> }</small>
+          </div>
+        </li>
+      }
+    </ol>
+  } @empty {
+    <div class="card state">✓ Aucune activité pour ces filtres.</div>
+  }
+
+  @if (data(); as d) { @if (d.totalPages > 1) {
+    <div class="pager">
+      <button class="btn btn-ghost" [disabled]="d.number === 0" (click)="go(d.number - 1)">←</button>
+      <span>Page {{ d.number + 1 }} / {{ d.totalPages }}</span>
+      <button class="btn btn-ghost" [disabled]="d.number + 1 >= d.totalPages" (click)="go(d.number + 1)">→</button>
+    </div> } }
+}

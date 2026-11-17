@@ -27,6 +27,7 @@ public class FaceService {
     private final FaceClient client;
     private final FaceRepository faces;
     private final MemberRepository members;
+    private final AuditService audit;
 
     @Value("${app.face.threshold:0.55}") private double threshold;
     @Value("${app.face.margin:0.10}") private double margin;
@@ -48,7 +49,9 @@ public class FaceService {
         t.setConsentAt(LocalDateTime.now()); t.setRecordedBy(staff);
         if (t.getCreatedAt() == null) t.setCreatedAt(LocalDateTime.now());
         faces.save(t);
-        log.info("Visage enregistré pour le membre {} par {}", m.getId(), staff);   // never log the numbers
+        log.info("Visage enregistré pour le membre {} par {}", m.getId(), staff);
+        audit.record("FACE_ENROLLED", "MEMBER", m.getId(),
+                "Visage enregistré pour " + m.getFirstName() + " " + m.getLastName() + " (consentement recueilli)");
         return new FaceStatus(true, t.getConsentAt());
     }
 
@@ -61,6 +64,7 @@ public class FaceService {
     @Transactional
     public void delete(Long memberId, String staff) {
         faces.deleteByMemberId(memberId);
+        audit.record("FACE_DELETED", "MEMBER", memberId, "Données faciales supprimées");
         log.info("Visage supprimé pour le membre {} par {}", memberId, staff);
     }
 
