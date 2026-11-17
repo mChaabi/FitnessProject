@@ -50,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login", "/auth/register", "/auth/refresh", "/auth/logout").permitAll()
                         .requestMatchers("/actuator/health/**", "/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/contacts/send").permitAll()
+                        // Exemple dans Spring Security (SecurityFilterChain)
+                        .requestMatchers("/contact", "/auth/**").permitAll()
                         .requestMatchers("/exercices/**", "/public/**", "/plans/public/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/notifications/unsubscribe").permitAll()
                         .requestMatchers(HttpMethod.GET, "/media/videos/**").permitAll()

@@ -16,7 +16,7 @@ public class FaceTemplate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @OneToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "member_id") private Member member;
-    @Lob @Column(nullable = false) private byte[] embedding;                 // 128 floats, 512 bytes
+    @Column(nullable = false, columnDefinition = "BLOB") private byte[] embedding;
     @Column(name = "consent_at", nullable = false) private LocalDateTime consentAt;
     @Column(name = "recorded_by", nullable = false, length = 100) private String recordedBy;
     @Column(name = "created_at", nullable = false) private LocalDateTime createdAt;

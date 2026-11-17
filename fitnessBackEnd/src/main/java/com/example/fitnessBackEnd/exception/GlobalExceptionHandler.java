@@ -50,6 +50,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ApiError> integrity(DataIntegrityViolationException e) {
+        log.warn("Contrainte de base de données : {}", e.getMostSpecificCause().getMessage());
         return ResponseEntity.status(409).body(new ApiError(409, "Opération impossible : élément utilisé ailleurs", null));
     }
 
@@ -103,4 +104,5 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiError> tooBig(Exception e) {
         return ResponseEntity.status(413).body(new ApiError(413, "Fichier trop volumineux (200 Mo maximum)", null));
     }
+
 }
